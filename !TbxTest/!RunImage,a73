@@ -1,0 +1,47 @@
+import toolbox
+
+class BarMenu(toolbox.Menu):
+    name = 'BarMenu'
+    def __init__(self, id):
+        toolbox.Menu.__init__(self, id)
+
+    def item_1_selected(self):
+        toolbox.quit()
+
+class Window(toolbox.Window):
+    name = 'Window'
+    def __init__(self, id):
+        toolbox.Window.__init__(self, id)
+        self.msg_no  = -1
+        self.msgs      = 'Eggs Beans Chips Spam'.split()
+        self.button    = toolbox.ActionButton(self, 0x01)
+        self.display   = toolbox.DisplayField(self, 0x02)
+        self.adj_left  = toolbox.Adjuster    (self, 0x04)
+        self.adj_right = toolbox.Adjuster    (self, 0x05)
+
+
+        self.inquisition_french   = toolbox.RadioButton (self, 0x06)
+        self.inquisition_spanish  = toolbox.RadioButton (self, 0x07)
+        self.inquisition_expected = toolbox.OptionButton(self, 0x09)
+
+        self.swallow_type = toolbox.StringSet  (self, 0x0a)
+        self.swallow_load = toolbox.NumberRange(self, 0x0b)
+
+    def button_selected(self):
+        self.button.faded = True
+
+    def adj_left_clicked(self, dir):
+        self.msg_no = (self.msg_no-1) % len(self.msgs)
+        self.display.set_text(self.msgs[self.msg_no])
+
+    def adj_right_clicked(self, dir):
+        self.msg_no = (self.msg_no+1) % len(self.msgs)
+        self.display.set_text(self.msgs[self.msg_no])
+
+    def inquisition_spanish_state_changed(self, state, old_on):
+        if state:
+            self.inquisition_expected.selected = False
+        self.inquisition_expected.faded = state
+
+toolbox.initialise('<TbxTest$Dir>')
+toolbox.run()

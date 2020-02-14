@@ -1,0 +1,4 @@
+If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
+Set TbxTest$Dir <Obey$Dir>
+WimpSlot -min 3M
+Run <Python3$Dir>.python3 <TbxTest$Dir>.!RunImage > RAM::0.$.Log 2>&1
