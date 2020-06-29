@@ -26,18 +26,18 @@ class Object:
 class Window(Object):
     class_id = 0x82880
     def __init__(self, id):
-        Object.__init__(self, id)
+        super().__init__(id)
         self.gadgets = {}
 
 class ProgInfo(Object):
     class_id = 0x82b40
     def __init__(self, id):
-        Object.__init__(self, id)
+        super().__init__(id)
 
 class Menu(Object):
     class_id = 0x828c0
     def __init__(self, id):
-        Object.__init__(self, id)
+        super().__init__(id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x828c3: # Menu_Selection

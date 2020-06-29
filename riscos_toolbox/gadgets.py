@@ -41,7 +41,7 @@ class Gadget:
 
 class ActionButton(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82881: # ActionButton_Selected
@@ -49,7 +49,7 @@ class ActionButton(Gadget):
 
 class Adjuster(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x8288c: # Adjuster_Clicked
@@ -58,18 +58,18 @@ class Adjuster(Gadget):
 
 class Button(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
 class DisplayField(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def set_text(self, text):
         swi('Toolbox_ObjectMiscOp','0IIIs',self.window.id,448,self.id,text)
 
 class Draggable(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
         if event_code == 0x82887: # Draggable_DragStarted
             self.window.draggable_dragstarted(self)
@@ -81,15 +81,15 @@ class Draggable(Gadget):
 
 class Label(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
 class LabelledBox(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
 class NumberRange(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x8288d: # NumberRange_ValueChanged
@@ -98,7 +98,7 @@ class NumberRange(Gadget):
 
 class OptionButton(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     @property
     def selected(self):
@@ -111,7 +111,7 @@ class OptionButton(Gadget):
 
 class PopupMenu(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x8288b: # Popup_AboutToBeShown
@@ -121,7 +121,7 @@ class PopupMenu(Gadget):
 
 class RadioButton(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82883: # RadioButton_StateChanged
@@ -130,7 +130,7 @@ class RadioButton(Gadget):
 
 class ScrollList(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x140181: # ScrollList_Selection
@@ -139,7 +139,7 @@ class ScrollList(Gadget):
 
 class Slider(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82886: # Slider_ValueChanged
@@ -148,7 +148,7 @@ class Slider(Gadget):
 
 class StringSet(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x8288f: # StringSet_AboutToBeShown
@@ -160,15 +160,15 @@ class StringSet(Gadget):
 
 class TextArea(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
 class ToolAction(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
 class WritableField(Gadget):
     def __init__(self, window, id):
-        Gadget.__init__(self, window, id)
+        super().__init__(window, id)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82885: # WritableField_ValueChanged:

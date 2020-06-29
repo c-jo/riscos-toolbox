@@ -5,7 +5,7 @@ from riscos_toolbox.gadgets import ActionButton,DisplayField,Adjuster,RadioButto
 class BarMenu(Menu):
     name = 'BarMenu'
     def __init__(self, id):
-        Menu.__init__(self, id)
+        super().__init__(id)
 
     def menu_selection(self, item):
         if item == 1:
@@ -14,7 +14,7 @@ class BarMenu(Menu):
 class MainWindow(Window):
     name = 'MainWindow'
     def __init__(self, id):
-        Window.__init__(self, id)
+        super().__init__(id)
         self.msg_no    = -1
         self.msgs      = 'Eggs Beans Chips Spam'.split()
         self.button    = ActionButton(self, 0x01)
