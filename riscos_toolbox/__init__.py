@@ -2,8 +2,9 @@
 
 from swi import swi, block, integer
 
-from .objects import Object, Window
-
+from .objects import Object
+from .objects.window import Window
+from collections import namedtuple
 
 class IDBlock:
     def __init__(self):
@@ -11,6 +12,16 @@ class IDBlock:
 
     def __str__(self):
         return "IDBlock: Ancestor ID:{:08x} Component:{:08x}, Parent ID:{:08x} Component {:08x}, Self ID:{:08x} Component {:08x}".format(self.block[0], self.block[1], self.block[2], self.block[3], self.block[4], self.block[5])
+
+    @property
+    def Ancestor(self):
+        return namedtuple('Ancestor', ('ID', 'Component'))(*self.block[0:2])
+    @property
+    def Parent(self):
+        return namedtuple('Parent', ('ID', 'Component'))(*self.block[2:4])
+    @property
+    def Self(self):
+        return namedtuple('Self', ('ID', 'Component'))(*self.block[4:6])
 
     @property
     def ancestor_id(self):
@@ -46,6 +57,7 @@ def find_object(name):
 _quit     = False
 _objects  = {}
 _id_block = IDBlock()
+_message_handlers = {}
 
 def initialise(appdir):
     msgtrans_block = block(4)
@@ -68,6 +80,7 @@ def quit():
 
 def run():
     poll_block = block(64)
+    global _quit
 
     while not _quit:
         reason,sender = swi('Wimp_Poll','Ib;I.I', 0b1, poll_block)
@@ -101,6 +114,11 @@ def run():
                 object = _objects[_id_block.self_id]
                 object.wimp_handler(reason, _id_block, poll_block)
 
-        if reason == 17: # Wimp Message
-            if poll_block[4] == 0:
-                quit()
+        if reason ==17 or reason == 18: # Wimp Message
+            message = poll_block[4]
+            if message == 0:
+                _quit = True
+            else:
+                if message in _message_handlers:
+                    _message_handlers[message](poll_block)
+

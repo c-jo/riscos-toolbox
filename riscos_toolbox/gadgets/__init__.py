@@ -29,11 +29,13 @@ class Gadget:
 
         window.gadgets[id] = self
 
-    def get_flags(self):
+    @property
+    def flags(self):
         """Gets the gadgets flags."""
         return swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,64,self.id)
 
-    def set_flags(self, flags):
+    @flags.setter
+    def flags(self, flags):
         """Sets the gadgets flags."""
         swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,65,self.id,flags)
 
@@ -43,9 +45,8 @@ class Gadget:
 
     def set_flag(self, flag, value):
         """Sets one gadget flag."""
-        mask = 0xffffff - 1<<flag
-        self.set_flags(
-            self.get_flags() & mask | (1<<flag if value else 0))
+        mask = ~(1<<flag)
+        self.flags = self.flags & mask | (1<<flag if value else 0)
 
     def event_handler(self, event_code, id_block, poll_block):
         pass
@@ -59,6 +60,21 @@ class Gadget:
     def faded(self, value):
         self.set_flag(31, value)
 
+    def _miscop_set_text(self, miscop, text):
+        """Use Toolbox_ObjectMiscOp to set a string."""
+        swi.swi('Toolbox_ObjectMiscOp', '0IIs',
+                           self.window.id,op,self.id,text)
+
+    def _miscop_get_text(self, miscop):
+        """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
+           a suitably-sized buffer, read the string and return it."""
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0IIII00;....I',
+                           self.window.id,op,self.id)
+        buffer = swi.block((buf_size+3)/4)
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIIbI',
+                           self.window.id,op,self.id,buffer,buf_size)
+        return block.nullstring()
+
 def create(window, block, type, box, help_message=None, max_help=None):
     block.type = type
     block.min_x, block.min_y, block.max_x, block.max_y = box
@@ -66,5 +82,5 @@ def create(window, block, type, box, help_message=None, max_help=None):
     block.help_message, block.max_help =\
         encode_and_len(help_message, max_help)
 
-    return swi('Toolbox_ObjectMiscOp', 'iIiI;I',
-               0, window.id, 1, ctypes.addressof(block))
+    return swi('Toolbox_ObjectMiscOp', '0III;I',
+               window.id, 1, ctypes.addressof(block))

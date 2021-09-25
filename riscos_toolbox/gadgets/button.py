@@ -1,12 +1,20 @@
 """RISC OS Toolbox - Gadgets - Button"""
 
 from . import Gadget, create, encode_and_len
-from swi import swi
+import swi
 import ctypes
 
 class ActionButton(Gadget):
     def __init__(self, window, id):
         super().__init__(window, id)
+
+    @property
+    def text(self):
+        return self._miscop_get_text(129)
+
+    @text.setter
+    def text(self, text):
+        return self._miscop_set_text(128, text)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82881: # ActionButton_Selected
@@ -22,52 +30,56 @@ class Button(Gadget):
                     ("validation",     ctypes.c_char_p),
                     ("max_validation", ctypes.c_uint  )]
 
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-    def set_font(self, font, width, height=None):
-        if height==None:
-            height=width
-        swi('Toolbox_ObjectMiscOp','0IiIsII',
-            self.window.id,966,self.id,font,int(width*16), int(height*16))
-
-    def create(window, box, button_flags,
+        def __init__(self, box, button_flags,
                value=None, max_value=None,
                validation=None, max_validation=None):
-         block = Button.Block()
-         block.button_flags = button_flags
-         block.value, block.max_value = encode_and_len(value, max_value)
-         block.validation, block.max_validation = encode_and_len(validation, max_validation)
-         return Button(window, create(window, block, 960, box))
+            self.flags = 0
+            self.type = 960
+            self.min_x, self.min_y, self.max_x, self.max_y = box
+            self.component_id = -1
+            self.help_message, self.max_help = encode_and_len(None,None)
+            self.button_flags = button_flags
+            self.value, self.max_value = encode_and_len(value, max_value)
+            self.validation, self.max_validation = encode_and_len(validation, max_validation)
 
-class Draggable(Gadget):
+        @property
+        def address(self):
+            return ctypes.addressof(self)
+
     def __init__(self, window, id):
         super().__init__(window, id)
 
-        if event_code == 0x82887: # Draggable_DragStarted
-            self.window.draggable_dragstarted(self)
+    @property
+    def flags(self):
+        return swi.swi('Toolbox_ObjectMiscOp','0III;I',
+                        self.window.id, 960, self.id)
 
-        if event_code == 0x82888: # Draggable_DragEnded
-            self.window.draggable_dragended(self,
-                            poll_block[4],poll_block[5],   # window, icon
-                            (poll_block[6],poll_block[7])) # mouse pos (x,y)
+    @flags.setter
+    def flags(self, flags):
+        swi.swi('Toolbox_ObjectMiscOp','0III0I',
+                 self.window.id, 961, self.id, flags)
 
-class Label(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
+    @property
+    def value(self):
+        return self._miscop_get_text(963)
 
-class LabelledBox(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
+    @value.setter
+    def value(self, value):
+        return self._miscop_set_text(962, value)
 
-class NumberRange(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
+    @property
+    def validation(self):
+        return self._miscop_get_text(965)
 
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == 0x8288d: # NumberRange_ValueChanged
-            self.window.numberrange_valuechanged(self,
-                poll_block[4]) # new value
+    @validation.setter
+    def validation(self, validation):
+        return self._miscop_set_text(964, validation)
+
+    def font(self, font, width, height=None):
+        if height is None:
+            height=width
+        swi.swi('Toolbox_ObjectMiscOp','0IIIsII',
+            self.window.id, 966, self.id, font, int(width*16), int(height*16))
 
 class OptionButton(Gadget):
     def __init__(self, window, id):
@@ -76,11 +88,11 @@ class OptionButton(Gadget):
     @property
     def selected(self):
         return bool(
-            swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,197,self.id))
+            swi.swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,197,self.id))
 
     @selected.setter
     def selected(self, value):
-        swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,196,self.id,value)
+        swi.swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,196,self.id,value)
 
 class PopupMenu(Gadget):
     def __init__(self, window, id):
@@ -100,75 +112,3 @@ class RadioButton(Gadget):
         if event_code == 0x82883: # RadioButton_StateChanged
             self.window.radiobutton_statechanged(self,
                             poll_block[4], poll_block[5]) # state, old_on
-
-class ScrollList(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-    def get_state(self):
-        return swi('Toolbox_ObjectMiscOp','0II;I',
-                   self.window.id, 16410, self.id)
-
-    def set_state(self, state):
-        return swi('Toolbox_ObjectMiscOp','0III',
-                   self.window.id, 16411, self.id, state)
-
-    def add_item(self, text, index):
-        swi('Toolbox_ObjectMiscOp','0IIIs00I',
-            self.window.id, 16412, self.id, text, index)
-
-    def delete_items(self, start, end):
-        swi('Toolbox_ObjectMiscOp','0IIIII',
-            self.window.id, 16413, self.id, start, end)
-
-    def get_selected(self, offset=-1):
-        return swi('Toolbox_ObjectMiscOp','0IIIi;i',
-                    self.window.id, 16416, self.id, offset)
-
-    def make_visible(self, index):
-        swi('Toolbox_ObjectMiscOp','0III',
-            self.window.id, 16417, self.id, index)
-
-
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == 0x140181: # ScrollList_Selection
-            self.window.scrolllist_selection(self,
-                            poll_block[4],poll_block[5]) # flags, item
-
-class Slider(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == 0x82886: # Slider_ValueChanged
-            self.window.slider_valuechanged(self,
-                            poll_block[4]) # new value
-
-class StringSet(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == 0x8288f: # StringSet_AboutToBeShown
-            self.window.stringset_abouttobeshown(self)
-
-        if event_code == 0x8288e: # StringSet_ValueChanged
-            self.window.stringset_valuechanged(self,
-                        poll_block.nullstring(16, poll_block[0])) # new string
-
-class TextArea(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-class ToolAction(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-      
-class WritableField(Gadget):
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == 0x82885: # WritableField_ValueChanged:
-            self.window.writablefield_valuechanged(self,
-                        poll_block.nullstring(16, poll_block[0])) # new string

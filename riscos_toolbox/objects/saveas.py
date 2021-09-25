@@ -37,52 +37,61 @@ class SaveAs(Object):
     def save_completed(self, id_block, wimp_message, filename):
         pass
 
-    def get_window_id(self):
+    @property
+    def window_id(self):
         return swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 0)
 
-    def set_title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
-
-    def get_title(self):
+    @property
+    def title(self):
         buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
         buf = swi.block((buf_size+3)/4)
         swi.swi('Toolbox_ObjectMiscOp', '0IIbI',
                 self.id, 2, buf, buf_size)
         return buf.nullstring()
 
-    def set_file_name(self, file_name):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, file_name)
+    @title.setter
+    def title(self, title):
+        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
 
-    def get_file_name(self):
+    @property
+    def file_name(self):
         buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 4)
         buf = swi.block((buf_size+3)/4)
         swi.swi('Toolbox_ObjectMiscOp', '0IIbI',
                 self.id, 4, buf, buf_size)
         return buf.nullstring()
 
-    def set_file_type(self, file_type):
-        swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 5, file_type)
+    @file_name.setter
+    def file_name(self, file_name):
+        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, file_name)
 
-    def get_file_type(self):
+    @property
+    def file_type(self):
         return swi.swi('Toolbox_ObjectMiscOp', '0II;I', self.id, 6)
 
-    def set_file_size(self, file_size):
-        swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 7, file_size)
+    @file_type.setter
+    def file_type(self, file_type):
+        swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 5, file_type)
 
-    def get_file_size(self):
+    @property
+    def file_size(self):
         return swi.swi('Toolbox_ObjectMiscOp', '0II;I', self.id, 8)
+
+    @file_size.setter
+    def file_size(self, file_size):
+        swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 7, file_size)
 
     def selection_available(self, available):
         swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 9, available)
 
     def set_data_addresss(self, address, size, sel_addr, sel_size):
-        return swi.swi('Toolbox_ObjectMiscOp', '0IIIIII', self.id, 10,
-                       address, size, sel_addr, sel_size)
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIIII', self.id, 10,
+                address, size, sel_addr, sel_size)
 
     def buffer_filled(self, buffer, bytes_written):
-        return swi.swi('Toolbox_ObjectMiscOp', '0IIII', self.id, 11,
-                       buffer, bytes_written)
+        swi.swi('Toolbox_ObjectMiscOp', '0IIII', self.id, 11,
+                buffer, bytes_written)
 
     def file_save_completed(self, filename, saved=True):
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
-                       1 if saved else 0, self.id, 12, filename)
+        swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
+                1 if saved else 0, self.id, 12, filename)

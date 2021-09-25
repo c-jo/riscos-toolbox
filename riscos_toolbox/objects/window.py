@@ -17,20 +17,18 @@ class Window(Object):
                                         self.id)
         return self._wimp_handle
 
-    def create_gadget(self, block, type, box, help_message=None, max_help=None):
-        block.type = type
-        block.min_x, block.min_y, block.max_x, block.max_y = box
-        block.component_id = -1
-        block.help_message, block.max_help =\
-            encode_and_len(help_message, max_help)
-
-        return swi('Toolbox_ObjectMiscOp', 'iIiI;I',
-                   0, self.id, 1, ctypes.addressof(block))
+    def add_gadget(self, klass, block):
+        id = swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 1, block)
+        obj = klass(self, id)
+        self.gadgets[id] = obj
+        return obj
 
     def remove_gadget(self, gadget):
         swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 2, gadget.id)
+        del self.gadgets[id]
 
-    def get_extent(self):
+    @property
+    def extent(self):
         extent_block = swi.block(4)
         swi.swi('Toolbox_ObjectMiscOp', '0Iib', self.id, 16, extent_block)
         return (extent_block.tosigned(0),
@@ -38,7 +36,8 @@ class Window(Object):
                 extent_block.tosigned(2),
                 extent_block.tosigned(3))
 
-    def set_extent(self, extent):
+    @extent.setter
+    def extent(self, extent):
         extent_block = swi.block(4)
         extent_block.signed(0, extent[0])
         extent_block.signed(1, extent[1])
