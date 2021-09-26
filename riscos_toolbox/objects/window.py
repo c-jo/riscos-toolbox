@@ -17,7 +17,7 @@ class Window(Object):
                                         self.id)
         return self._wimp_handle
 
-    def add_gadget(self, klass, block):
+    def add_gadget(self, block, klass):
         id = swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 1, block)
         obj = klass(self, id)
         self.gadgets[id] = obj
@@ -25,7 +25,7 @@ class Window(Object):
 
     def remove_gadget(self, gadget):
         swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 2, gadget.id)
-        del self.gadgets[id]
+        del self.gadgets[gadget.id]
 
     @property
     def extent(self):

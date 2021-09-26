@@ -9,9 +9,11 @@ def encode_and_len(s, m):
     s = s.encode('latin-1')
     return s, len(s)+1 if m is None else m
 
+class Point(ctypes.Structure):
+    _fields_ = [ ("x", ctypes.c_int), ("y", ctypes.c_int) ]
+
 class BBox(ctypes.Structure):
-    _fields_ = [("min_x", ctypes.c_int), ("min_y", ctypes.c_int),
-                ("max_x", ctypes.c_int), ("max_y", ctypes.c_int)]
+    _fields_ = [ ("min", Point ), ("max", Point) ]
 
 class Gadget:
     class Header(ctypes.Structure):
@@ -22,6 +24,14 @@ class Gadget:
                     ("component_id", ctypes.c_int   ),
                     ("help_message", ctypes.c_char_p),
                     ("max_help",     ctypes.c_uint  )]
+
+        def build(self, flags, type, box, component_id=-1,
+                        help_message=None, max_help=None):
+            self.flags = flags
+            self.type  = type
+            self.min.x, self.min.y, self.max.x, self.max.y = box
+            self.component_id = component_id
+            self.help_message,self.max_help = encode_and_len(help_message,max_help)
 
     def __init__(self, window, id):
         self.window = window
@@ -60,6 +70,16 @@ class Gadget:
     def faded(self, value):
         self.set_flag(31, value)
 
+    def _miscop_set_int(self, miscop, value):
+        """Use Toolbox_ObjectMiscOp to set an integer."""
+        swi.swi('Toolbox_ObjectMiscOp', '0IIII',
+                self.window.id,op,self.id,value)
+
+    def _miscop_get_int(self, miscop):
+        """Use Toolbox_ObjectMiscOp to get an integer."""
+        return swi.swi('Toolbox_ObjectMiscOp', '0III:I',
+                       self.window.id,op,self.id,value)
+
     def _miscop_set_text(self, miscop, text):
         """Use Toolbox_ObjectMiscOp to set a string."""
         swi.swi('Toolbox_ObjectMiscOp', '0IIs',
@@ -75,12 +95,3 @@ class Gadget:
                            self.window.id,op,self.id,buffer,buf_size)
         return block.nullstring()
 
-def create(window, block, type, box, help_message=None, max_help=None):
-    block.type = type
-    block.min_x, block.min_y, block.max_x, block.max_y = box
-    block.component_id = -1
-    block.help_message, block.max_help =\
-        encode_and_len(help_message, max_help)
-
-    return swi('Toolbox_ObjectMiscOp', '0III;I',
-               window.id, 1, ctypes.addressof(block))

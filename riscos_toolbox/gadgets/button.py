@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Gadgets - Button"""
 
-from . import Gadget, create, encode_and_len
+from . import Gadget, encode_and_len
 import swi
 import ctypes
 
@@ -14,7 +14,23 @@ class ActionButton(Gadget):
 
     @text.setter
     def text(self, text):
-        return self._miscop_set_text(128, text)
+        self._miscop_set_text(128, text)
+
+    @property
+    def event(self):
+        return self._miscop_get_int(131)
+
+    @event.setter
+    def event(self, ev):
+        return self._miscop_get_int(130, ev)
+
+    @property
+    def click_show(self):
+        return self._miscop_get_int(133)
+
+    @click_show.setter
+    def click_show(self, cs):
+        return self._miscop_get_int(132, cs)
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82881: # ActionButton_Selected
@@ -30,21 +46,17 @@ class Button(Gadget):
                     ("validation",     ctypes.c_char_p),
                     ("max_validation", ctypes.c_uint  )]
 
-        def __init__(self, box, button_flags,
-               value=None, max_value=None,
-               validation=None, max_validation=None):
-            self.flags = 0
-            self.type = 960
-            self.min_x, self.min_y, self.max_x, self.max_y = box
-            self.component_id = -1
-            self.help_message, self.max_help = encode_and_len(None,None)
+        def build(self, box, button_flags,
+                        help_message=None, max_help=None,
+                        value=None, max_value=None,
+                        validation=None, max_validation=None):
+            Gadget.Header.build(self, flags=0, type=960, box=box, help_message=help_message, max_help=max_help)
             self.button_flags = button_flags
             self.value, self.max_value = encode_and_len(value, max_value)
             self.validation, self.max_validation = encode_and_len(validation, max_validation)
 
-        @property
-        def address(self):
-            return ctypes.addressof(self)
+        def __call__(self):
+            return (ctypes.addressof(self), Button)
 
     def __init__(self, window, id):
         super().__init__(window, id)
