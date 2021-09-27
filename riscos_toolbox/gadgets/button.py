@@ -37,7 +37,7 @@ class ActionButton(Gadget):
             self.window.actionbutton_selected(self)
 
 class Button(Gadget):
-    class Block(ctypes.Structure):
+    class Definition(ctypes.Structure):
         _anonymous_ = ("header",)
         _fields_ = [("header",         Gadget.Header  ),
                     ("button_flags",   ctypes.c_uint  ),
@@ -46,17 +46,17 @@ class Button(Gadget):
                     ("validation",     ctypes.c_char_p),
                     ("max_validation", ctypes.c_uint  )]
 
-        def build(self, box, button_flags,
-                        help_message=None, max_help=None,
-                        value=None, max_value=None,
-                        validation=None, max_validation=None):
-            Gadget.Header.build(self, flags=0, type=960, box=box, help_message=help_message, max_help=max_help)
+        def __init__(self, box, button_flags,
+                           help_message=None, max_help=None,
+                           value=None, max_value=None,
+                           validation=None, max_validation=None):
+            Gadget.Header.__init__(self, flags=0, type=960, box=box, help_message=help_message, max_help=max_help)
             self.button_flags = button_flags
             self.value, self.max_value = encode_and_len(value, max_value)
             self.validation, self.max_validation = encode_and_len(validation, max_validation)
 
-        def __call__(self):
-            return (ctypes.addressof(self), Button)
+        def create(self, window):
+            return window.add_gadget(ctypes.addressof(self), Button)
 
     def __init__(self, window, id):
         super().__init__(window, id)

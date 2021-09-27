@@ -25,8 +25,8 @@ class Gadget:
                     ("help_message", ctypes.c_char_p),
                     ("max_help",     ctypes.c_uint  )]
 
-        def build(self, flags, type, box, component_id=-1,
-                        help_message=None, max_help=None):
+        def __init__(self, flags, type, box, component_id=-1,
+                           help_message=None, max_help=None):
             self.flags = flags
             self.type  = type
             self.min.x, self.min.y, self.max.x, self.max.y = box
