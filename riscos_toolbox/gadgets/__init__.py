@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Gadgets"""
 
-from swi import swi
+import swi
 import ctypes
 
 def encode_and_len(s, m):
@@ -42,12 +42,12 @@ class Gadget:
     @property
     def flags(self):
         """Gets the gadgets flags."""
-        return swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,64,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,64,self.id)
 
     @flags.setter
     def flags(self, flags):
         """Sets the gadgets flags."""
-        swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,65,self.id,flags)
+        swi.swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,65,self.id,flags)
 
     def get_flag(self, flag):
         """Gets one gadget flag."""
@@ -70,22 +70,22 @@ class Gadget:
     def faded(self, value):
         self.set_flag(31, value)
 
-    def _miscop_set_int(self, miscop, value):
+    def _miscop_set_int(self, op, value):
         """Use Toolbox_ObjectMiscOp to set an integer."""
         swi.swi('Toolbox_ObjectMiscOp', '0IIII',
                 self.window.id,op,self.id,value)
 
-    def _miscop_get_int(self, miscop):
+    def _miscop_get_int(self, op):
         """Use Toolbox_ObjectMiscOp to get an integer."""
         return swi.swi('Toolbox_ObjectMiscOp', '0III:I',
                        self.window.id,op,self.id,value)
 
-    def _miscop_set_text(self, miscop, text):
+    def _miscop_set_text(self, op, text):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs',
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIs',
                            self.window.id,op,self.id,text)
 
-    def _miscop_get_text(self, miscop):
+    def _miscop_get_text(self, op):
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
            a suitably-sized buffer, read the string and return it."""
         buf_size = swi.swi('Toolbox_ObjectMiscOp', '0IIII00;....I',

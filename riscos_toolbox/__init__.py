@@ -11,7 +11,7 @@ class IDBlock:
         self.block = block(6)
 
     def __str__(self):
-        return "IDBlock: Ancestor ID:{:08x} Component:{:08x}, Parent ID:{:08x} Component {:08x}, Self ID:{:08x} Component {:08x}".format(self.block[0], self.block[1], self.block[2], self.block[3], self.block[4], self.block[5])
+        return "IDBlock: Ancestor ID:{} Component:{}, Parent ID:{} Component {}, Self ID:{} Component {}".format(self.block[0], self.block[1], self.block[2], self.block[3], self.block[4], self.block[5])
 
     @property
     def Ancestor(self):

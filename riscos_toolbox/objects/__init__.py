@@ -22,6 +22,9 @@ class Object:
         else:
             return Object(id)
 
+    def show(self, menu_semantics=False, submenu_semantics=False, type=0):
+        swi.swi('Toolbox_ShowObject','III0II',0,self.id,type,0,0)
+
     def event_handler(self, event_code, id_block, poll_block):
         pass
 
