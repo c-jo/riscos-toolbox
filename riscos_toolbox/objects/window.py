@@ -13,9 +13,21 @@ class Window(Object):
     @property
     def wimp_handle(self):
         if self._wimp_handle is None:
-            self._wimp_handle = swi.swi('Toolbox_ObjectMiscOp', '0I0;I',
-                                        self.id)
+            self._wimp_handle = swi.swi('Toolbox_ObjectMiscOp', '0II;I',
+                                        self.id, 0)
         return self._wimp_handle
+
+    @property
+    def title(self):
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II0;....I', self.id, 12)
+        buffer = swi.block(int((buf_size+3)/4))
+        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 12,
+                                                 buffer, buf_size)
+        return buffer.nullstring()
+
+    @title.setter
+    def title(self, title):
+        swi.swi('Toolbox_ObjectMiscOp', '0IIs', self.id, 11, title)
 
     def add_gadget(self, block, klass):
         id = swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 1, block)
