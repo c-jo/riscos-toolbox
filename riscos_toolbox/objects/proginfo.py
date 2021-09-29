@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Window"""
 
-from . import Object
+from .. import Object
 
 class ProgInfo(Object):
     class_id = 0x82b40

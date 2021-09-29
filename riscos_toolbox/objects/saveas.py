@@ -1,4 +1,4 @@
-from . import Object
+from .. import Object
 import swi
 
 class SaveAs(Object):

@@ -1,13 +1,13 @@
 """RISC OS Toolbox - Window"""
 
-from . import Object
+from .. import Object
 import swi
 
 class Window(Object):
     class_id = 0x82880
     def __init__(self, id):
         super().__init__(id)
-        self.gadgets = {}
+        self.gadgets = self.components
         self._wimp_handle = None
 
     @property

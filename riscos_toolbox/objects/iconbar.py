@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Iconbar"""
 
-from . import Object
+from .. import Object
 
 class Iconbar(Object):
     class_id = 0x82900

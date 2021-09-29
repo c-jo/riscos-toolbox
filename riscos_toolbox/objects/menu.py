@@ -1,4 +1,4 @@
-from . import Object
+from .. import Object
 import swi
 
 class Menu(Object):
@@ -34,7 +34,7 @@ class Menu(Object):
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x828c3: # Menu_Selection
-            self.menu_selection(id_block.self_component)
+            self.menu_selection(id_block.self.component)
 
     def menu_selection(self, item):
         pass

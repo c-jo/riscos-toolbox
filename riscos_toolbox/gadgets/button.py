@@ -34,7 +34,7 @@ class ActionButton(Gadget):
 
     def event_handler(self, event_code, id_block, poll_block):
         if event_code == 0x82881: # ActionButton_Selected
-            self.window.actionbutton_selected(self)
+            self.window.actionbutton_selected(id_block, self)
 
 class Button(Gadget):
     class Definition(ctypes.Structure):
