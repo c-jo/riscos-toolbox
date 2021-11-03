@@ -7,8 +7,6 @@ class SaveAs(Object):
         super().__init__(id)
 
     def event_handler(self, event_code, id_block, poll_block):
-        print("SaveAs event handler {}".format(event_code))
-
         if event_code == SaveAs.class_id + 0: # SaveAs_AboutToBeShown
             self.about_to_be_shown(id_block)
         if event_code == SaveAs.class_id + 1: # SaveAs_DialogueCompleted
