@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="riscos_toolbox",
-    version="0.1.0",
+    version="0.2.0",
     author="Chris Johns",
     author_email="chris@lessthan3.org.uk",
     description="RISC OS Toolbox library",
