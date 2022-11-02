@@ -1,39 +1,33 @@
 from .. import Object
+from .. import EventDecoder
+from .. import get_object
+from .. import ToolboxEvent
+
 import swi
 
 class SaveAs(Object):
     class_id = 0x82bc0
+
+    AboutToBeShown    = class_id + 0
+    DialogueCompleted = class_id + 1
+    SaveToFile        = class_id + 2
+    FillBuffer        = class_id + 3
+    SaveCompleted     = class_id + 4
+
+    @EventDecoder(SaveToFile)
+    def decode_save_to_file(poll_block):
+        return (poll_block.nullstring(16),)
+
+    @EventDecoder(FillBuffer)
+    def decode_fill_buffer(poll_block):
+        return (poll_block[4], poll_block[5], poll_block[6])
+
+    @EventDecoder(SaveCompleted)
+    def decode_save_completed(poll_block):
+        return (poll_block[4], poll_block.nullstring(20))
+
     def __init__(self, id):
         super().__init__(id)
-
-    def event_handler(self, event_code, id_block, poll_block):
-        if event_code == SaveAs.class_id + 0: # SaveAs_AboutToBeShown
-            self.about_to_be_shown(id_block)
-        if event_code == SaveAs.class_id + 1: # SaveAs_DialogueCompleted
-            self.dialogue_completed(id_block)
-        if event_code == SaveAs.class_id + 2: # SaveAs_SaveToFile
-            self.save_to_file(id_block, poll_block.nullstring(16))
-        if event_code == SaveAs.class_id + 3: # SaveAs_FillBuffer
-            self.fill_buffer(id_block,
-                             poll_block[4], poll_block[5], poll_block[6])
-        if event_code == SaveAs.class_id + 4: # SaveAs_SaveCompleted
-            self.save_completed(id_block,
-                                poll_block[4], poll_block.nullstring(20))
-
-    def about_to_be_shown(self, id_nlock):
-        pass
-
-    def dialogue_completed(self, id_block):
-        pass
-
-    def save_to_file(self, id_block, filename):
-        pass
-
-    def fill_buffer(self, id_nlock, size, address, no_bytes):
-        pass
-
-    def save_completed(self, id_block, wimp_message, filename):
-        pass
 
     @property
     def window_id(self):
@@ -93,3 +87,25 @@ class SaveAs(Object):
     def file_save_completed(self, filename, saved=True):
         swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
                 1 if saved else 0, self.id, 12, filename)
+
+class SaveAsMixin(object):
+    def __init__(self, id):
+       super().__init__(id)
+
+    @ToolboxEvent(SaveAs.SaveToFile)
+    def _saveas_save_to_file(self, event_code, id_block, filename):
+        saved = self.save_to_file(filename)
+        if saved:
+            saveas = get_object(id_block.self.id)
+            saveas.file_save_completed(*saved)
+
+    def save_to_file(self, filename):
+        return None
+
+    @ToolboxEvent(SaveAs.SaveCompleted)
+    def _saveas_save_completed(self, event_code, id_block,
+                               wimp_message, filename):
+        self.save_completed(filename)
+
+    def save_completed(self, filename):
+        pass

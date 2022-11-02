@@ -1,7 +1,9 @@
 """RISC OS Toolbox - Window"""
 
 from .. import Object
+from ..types import BBox
 import swi
+import ctypes
 
 class Window(Object):
     class_id = 0x82880
@@ -41,8 +43,10 @@ class Window(Object):
 
     @property
     def extent(self):
-        extent_block = swi.block(4)
-        swi.swi('Toolbox_ObjectMiscOp', '0Iib', self.id, 16, extent_block)
+        extent = BBox.zero()
+        swi.swi('Toolbox_ObjectMiscOp', '0IiI',
+                self.id, 16, ctypes.addressof(extent))
+        return extent
         return (extent_block.tosigned(0),
                 extent_block.tosigned(1),
                 extent_block.tosigned(2),
@@ -56,3 +60,10 @@ class Window(Object):
         extent_block.signed(2, extent[2])
         extent_block.signed(3, extent[3])
         swi.swi('Toolbox_ObjectMiscOp', '0Iib', self.id, 15, extent_block)
+
+    def force_redraw(self, bbox):
+        swi.swi('Toolbox_ObjectMiscOp','0IiI',
+                   self.id, 17, ctypes.addressof(bbox))
+
+    def on_redraw(self, visible, scroll, redraw, offset):
+        pass
