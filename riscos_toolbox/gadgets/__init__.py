@@ -3,8 +3,8 @@
 import swi
 import ctypes
 
-from .button import ActionButton, Button
-from .field import WritableField
+#from .button import ActionButton, Button
+#from .field import WritableField
 
 def encode_and_len(s, m):
     if s is None:
