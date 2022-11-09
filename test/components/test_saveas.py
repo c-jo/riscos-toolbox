@@ -1,8 +1,15 @@
 import unittest
 
+import fakeswi
+import sys
+
+sys.modules['swi'] = fakeswi
+
 import riscos_toolbox as toolbox
 import riscos_toolbox.objects.saveas
+
 import swi
+
 
 TEST_OBJECT_ID = 0x1001
 TEST_WINDOW_ID = 0x2001

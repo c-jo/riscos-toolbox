@@ -1,4 +1,4 @@
-# nothing
+# Fake SWI
 
 def swi(*args):
     pass
