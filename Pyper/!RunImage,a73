@@ -1,0 +1,156 @@
+import riscos_toolbox as toolbox
+
+from riscos_toolbox.objects.menu import Menu
+from riscos_toolbox.objects.window import Window
+from riscos_toolbox.objects.scale import Scale
+from riscos_toolbox.objects.saveas import SaveAs, SaveAsMixin
+from riscos_toolbox.objects.proginfo import ProgInfo
+from riscos_toolbox.objects.fileinfo import FileInfo
+from riscos_toolbox.objects.quit import Quit
+from riscos_toolbox.gadgets.button import ActionButton
+
+from riscos_toolbox.types import Point
+
+from HCLFile import HCLFile
+
+ToolboxEvent = toolbox.ToolboxEvent
+
+import swi
+import sys
+import os
+import ctypes
+
+HomeButtonEvent      = 0x101
+BackButtonEvent      = 0x103
+NextFindEvent        = 0x150
+StatusAboutToBeShown = 0x150
+IbarAboutToBeShown   = 0x151
+QuitEvent            = 0x400
+ViewEvent            = 0x601
+ViewMenuShow         = 0x900
+StatusEvent          = 0x901
+
+class Viewer(Window):
+    name = "HyperViewer"
+
+    def __init__(self, id, filename):
+        super().__init__(id)
+        self.name        = "New stack"
+        self.layers      = []
+        self.buttons     = {} # comp.id -> target
+        self.hcl         = HCLFile(filename)
+        self.status_line = True
+        self.colour      = 0
+        self.history     = []
+
+        self._display(None)
+
+    def _display(self, card):
+        self.card = card
+        self.hcl.process(self.card, self)
+        self.refresh()
+
+    def clear(self):
+        for id in self.buttons.keys():
+            swi.swi("Toolbox_ObjectMiscOp", "0IiI;i", self.id, 2, id)
+        self.buttons.clear()
+        self.layers.clear()
+
+    def add_button(self, defn, target):
+        comp_id = swi.swi("Toolbox_ObjectMiscOp", "0IiI;i", self.id, 1, ctypes.addressof(defn))
+        self.buttons[comp_id] = target
+
+    def refresh(self):
+        self.force_redraw()
+
+    def on_redraw(self, visible, scroll, redraw, offset):
+        tm = (ctypes.c_int32*2*3)()
+        height = self.extent.max.y - self.extent.min.y
+        tm[0][0] = 1<<16
+        tm[0][1] = 0
+        tm[1][0] = 0
+        tm[1][1] = 1<<16
+        tm[2][0] = (visible.min.x          - scroll.x) * 256
+        tm[2][1] = (visible.max.y - height - scroll.y) * 256
+
+        swi.swi("Wimp_SetColour","I",0x80+self.colour)
+        swi.swi(0x110, "") # CLG
+
+        for layer,size in self.layers:
+            swi.swi("DrawFile_Render","IIIII", 0,
+                ctypes.addressof(layer), size,
+                ctypes.addressof(tm),
+                ctypes.addressof(visible))
+
+    @toolbox.ToolboxEvent(FileInfo.AboutToBeShown)
+    def fileinfo_show(self, event, id_block, data):
+        fi = toolbox.get_object(id_block.self.id)
+        fi.file_name = self.filename
+        return True
+
+    @toolbox.ToolboxEvent(StatusEvent)
+    def status_handler(self, event, id_block, data):
+        print("status_handler", id_block.self, data)
+        return True
+
+    @toolbox.ToolboxEvent(toolbox.AnyEvent)
+    def misc_handler(self, event, id_block, data):
+        print("misc_handler",self,event, id_block, data)
+        if event == HomeButtonEvent:
+            self.history.clear()
+            self._display(None)
+            return True
+        elif event == BackButtonEvent:
+            card = self.history.pop() if len(self.history) else None
+            self._display(card)
+            return True
+
+        return False
+
+    @toolbox.WimpEvent(6)
+    def button_clicked(self, reason, id_block, poll_block):
+        pass
+
+    def wimp_handler(self, reason, id_block, poll_block):
+        print("wimp_handler", reason, id_block)
+        if id_block.self.component in self.buttons:
+            target = self.buttons[id_block.self.component]
+            self.history.append(self.card)
+            self._display(target)
+            return True
+        return False
+
+@toolbox.WimpMessage(3) # DataLoad
+@toolbox.WimpMessage(5) # DataOpen
+def data_loader(message, b):
+    filetype = b[10]
+    if filetype != 0xfac:
+        return
+    filename = b.nullstring(44)
+
+    #print("data_loaderWimpMessage",message,b,hex(filetype),filename)
+    if message == 5:
+        message = 4
+
+    viewer = toolbox.create_object(Viewer.name, Viewer, (filename,))
+    viewer.show()
+
+    b[3] = b[2]
+    swi.swi("Wimp_SendMessage", "ibi", 17, b, b[1])
+
+@toolbox.ToolboxEvent(Quit.Quit)
+def quit(a,b,c):
+    toolbox.quit()
+
+@toolbox.ToolboxEvent(ProgInfo.AboutToBeShown)
+def proginfo_show(a,b,c):
+    toolbox.get_object(b.self.id).version = toolbox.msgtrans_lookup("Version")
+
+if __name__ == "__main__":
+    toolbox.initialise('<Pyper$Dir>')
+
+    for filename in sys.argv[1:]:
+        viewer = toolbox.create_object(Viewer.name, Viewer, (filename,))
+        viewer.show()
+
+    toolbox.run()

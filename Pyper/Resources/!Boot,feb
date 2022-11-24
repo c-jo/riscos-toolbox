@@ -1,0 +1,8 @@
+| 
+| !Hyper Boot file
+|
+
+if "<hyper$dir>" = "" then set hyper$dir <obey$dir>
+iconsprites <hyper$dir>.!sprites
+set alias$@runtype_fac run <hyper$dir>.!run %*0
+set file$type_fac HCL

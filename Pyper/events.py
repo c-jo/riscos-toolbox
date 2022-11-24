@@ -1,0 +1,9 @@
+HomeButtonEvent      = 0x101
+BackButtonEvent      = 0x103
+NextFindEvent        = 0x150
+StatusAboutToBeShown = 0x150
+IbarAboutToBeShown   = 0x151
+QuitEvent            = 0x400
+ViewEvent            = 0x601
+ViewMenuShow         = 0x900
+StatusEvent          = 0x901

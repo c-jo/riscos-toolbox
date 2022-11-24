@@ -1,0 +1,35 @@
+|
+| !Pyper Run file
+|
+
+set Pyper$dir <obey$dir>
+iconsprites <Pyper$dir>.!sprites
+
+RMEnsure UtilityModule 3.70 RMEnsure CallASWI 0.02 RMLoad System:Modules.CallASWI
+RMEnsure UtilityModule 3.70 RMEnsure CallASWI 0.02 Error You need CallASWI 0.02 or later to run !Hyper
+RMEnsure FPEmulator 4.03 RMLoad System:Modules.FPEmulator
+RMEnsure FPEmulator 4.03 Error You need FPEmulator 4.03 or later to run !Hyper
+RMEnsure SharedCLibrary 5.17 RMLoad System:Modules.CLib
+RMEnsure SharedCLibrary 5.34 Error You need SharedCLibrary 5.34 or later to run !Hyper
+
+RMENSURE Window  0.00  RMLOAD System:modules.toolbox.window
+RMENSURE Window  1.17  ERROR You need window 1.17 or later to run !Hyper
+RMENSURE Menu  0.00  RMLOAD System:modules.toolbox.menu
+RMENSURE Menu  0.13  ERROR You need menu 0.13 or later to run !Hyper
+RMENSURE ProgInfo  0.00  RMLOAD System:modules.toolbox.proginfo
+RMENSURE Proginfo  0.00  ERROR You need proginfo to run !Hyper
+RMENSURE PrintDBox  0.00  RMLOAD System:modules.toolbox.PrintDBox
+RMENSURE PrintDBox  0.00  ERROR You need PrintDBox to run !Hyper
+RMENSURE DrawFile  0.00  RMLOAD System:modules.DrawFile
+RMENSURE DrawFile  0.00  ERROR You need DrawFile to run !Hyper
+RMENSURE FileInfo  0.00  RMLOAD System:modules.toolbox.FileInfo
+RMENSURE FileInfo  0.00  ERROR You need FileInfo to run !Hyper
+RMENSURE IconBar  0.00  RMLOAD System:modules.toolbox.IconBar
+RMENSURE IconBar  0.00  ERROR You need IconBar to run !Hyper
+RMENSURE Scale  0.00  RMLOAD System:modules.toolbox.Scale
+RMENSURE Scale  0.00  ERROR You need Scale to run !Hyper
+
+If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
+
+wimpslot -min 4M
+Run <Python3$Dir>.bin.python38 <Pyper$dir>.!RunImage %*0 > RAM::0.$.Log 2>&1

@@ -1,0 +1,118 @@
+import os
+import swi
+import ctypes
+
+from riscos_toolbox.gadgets import Gadget
+
+from utils import file_load
+
+class HCLFile:
+    def __init__(self, filename):
+        with open(filename, "r") as f:
+            self.lines = list(map(lambda l:l.strip().split(' ',1), f.readlines()))
+            self.labels = {None:0}
+
+            for line in self.lines:
+                if line[0] == '!!start':
+                    self.labels[line[1]] = self.lines.index(line)
+
+    def process(self, label, viewer):
+        pc = self.labels[label]
+        subs = []
+        while pc < len(self.lines):
+            line = self.lines[pc]
+            # print(("  "*len(subs))+str(line))
+
+            if line[0] == '!!start':
+                pass
+
+            elif line[0] == '!!end':
+                if len(subs) == 0:
+                    break
+                pc = subs.pop()
+
+            elif line[0] == 'goto':
+                pc = self.labels[line[1]]
+
+            elif line[0] == 'gosub':
+                subs.append(pc)
+                pc = self.labels[line[1]]
+
+            elif line[0] == "HCL!":
+                pass
+
+            else:
+                self._execute(viewer, line)
+
+            pc += 1
+
+    def _execute(self, viewer, line):
+        if len(line) == 2:
+            cmd,args = line
+        else:
+            cmd,args = line[0],None
+
+        cmd = {
+         "search":  None,
+         "load":    self._load,
+         "*":       self._star,
+         "title":   self._title,
+         "button":  self._button,
+         "status":  None, #self._status,
+         "colour":  self._colour,
+         "new":     None, #self._new,
+         "res":     None, #self._res,
+         "overlay": self._overlay,
+         "clear":   self._clear,
+         "refresh": self._refresh,
+         "stack":   None, #self._stack,
+         "sprite":  None,
+         "name":    None,
+         "keyword": None,
+        }[line[0]]
+
+        if cmd is not None:
+            if len(line) > 1:
+                cmd(viewer, line[1])
+            else:
+                cmd(viewer)
+
+    def _load(self, viewer, filename):
+        data = file_load(filename)
+        if len(viewer.layers) == 0:
+            viewer.layers.append(data)
+        else:
+            viewer.layers[0] = data
+        viewer.refresh()
+
+    def _overlay(self, viewer, filename):
+        data = file_load(filename)
+        viewer.layers.append(data)
+        viewer.refresh()
+
+    def _star(self, viewer, command):
+        pass
+
+    def _title(self, viewer, title):
+        viewer. title = title
+
+    def _button(self, viewer, args):
+        args = args.split()
+        blk = swi.swi("Toolbox_TemplateLookUp", "0s;I", "Prototypes")
+        gadget,size = swi.swi("Window_ExtractGadgetInfo", "0II;II",  blk, 0)
+        buffer = (ctypes.c_byte*size)()
+        ctypes.memmove(ctypes.addressof(buffer), gadget, size)
+        header = ctypes.cast(buffer, ctypes.POINTER(Gadget.Header)).contents
+        header.component_id = -1
+        header.min.x, header.min.y = map(lambda x:int(x), args[0:2])
+        header.max.x, header.max.y = map(lambda x:int(x), args[2:4])
+        viewer.add_button(buffer, args[4])
+
+    def _colour(self, viewer, colour):
+        viewer.colour = int(colour)
+
+    def _clear(self, viewer):
+        viewer.clear()
+
+    def _refresh(self, viewer):
+        viewer.refresh()

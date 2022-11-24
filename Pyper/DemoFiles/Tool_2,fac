@@ -1,0 +1,424 @@
+HCL!
+stack NewStack
+goto card00000007
+!!start style_home
+status loading...
+sprite home
+clear
+status loaded
+!!end
+!!start style_card
+status loading...
+sprite card
+clear
+status loaded
+!!end
+!!start style_mast
+status loading...
+sprite master
+clear
+status loaded
+!!end
+!!start card00000007
+gosub style_card
+name 0016 -0417 0316 -0267 Top Page
+overlay <Top$Hyper>.Top.top
+title Top Page
+button 0946 -0788 1116 -0592 card00000000
+button 0220 -0794 0406 -0608 card00000015
+button 0418 -0780 0578 -0606 card00000016
+button 0594 -0792 0760 -0612 card00000017
+button 0778 -0784 0934 -0610 card00000018
+button 0198 -0464 0418 -0254 card00000019
+colour 00
+status loaded
+!!end
+!!start card00000000
+gosub style_card
+name 0746 -0261 1046 -0111 Tools
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.tools
+title The Desktop tools
+button 0206 -0350 0286 -0240 card00000001
+button 0338 -0356 0432 -0226 card00000002
+button 0482 -0358 0572 -0222 card00000003
+button 0616 -0358 0732 -0228 card00000004
+button 0762 -0354 0862 -0234 card00000005
+button 0904 -0360 1040 -0240 card00000006
+button 1060 -0354 1146 -0240 card00000008
+button 0198 -0564 0298 -0434 card00000009
+button 0342 -0564 0442 -0440 card0000000a
+button 0482 -0562 0572 -0442 card0000000b
+button 0618 -0562 0722 -0442 card0000000c
+button 0772 -0570 0886 -0444 card0000000d
+button 0914 -0570 1030 -0444 card0000000e
+button 1062 -0574 1162 -0434 card0000000f
+button 0482 -0784 0616 -0658 card00000010
+button 0632 -0772 0748 -0658 card00000011
+button 0768 -0778 0882 -0658 card00000012
+button 0908 -0778 1028 -0662 card00000013
+button 1052 -0778 1162 -0658 card00000014
+keyword tools dde
+status loaded
+status loaded
+!!end
+!!start card00000001
+gosub style_card
+name 1416 -0499 1716 -0349 AMU
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.amu
+keyword amu
+title AMU
+colour 00
+status loaded
+!!end
+!!start card00000002
+gosub style_card
+name 1384 -0685 1684 -0535 CC
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.cc
+keyword cc
+title CC
+colour 00
+status loaded
+!!end
+!!start card00000003
+gosub style_card
+name 0978 -0469 1278 -0319 CC++
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.c++
+title CC++
+colour 00
+status loaded
+!!end
+!!start card00000004
+gosub style_card
+name 1204 -0159 1504 -0009 CMHG
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.cmhg
+title CMHG
+colour 00
+status loaded
+!!end
+!!start card00000005
+gosub style_card
+name 1304 -0709 1604 -0559 DDT
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.ddt
+title DDT
+button 0958 -0542 0988 -0512 card00000002
+button 1008 -0542 1072 -0512 card00000003
+button 0608 -0594 0682 -0554 card0000000d
+colour 00
+status loaded
+!!end
+!!start card00000006
+gosub style_card
+name 1108 -0679 1408 -0529 DecAOF
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.decaof
+title DecAOF
+colour 00
+status loaded
+!!end
+!!start card00000008
+gosub style_card
+name 1396 -0349 1696 -0199 Diff
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.diff
+title Diff
+colour 00
+status loaded
+!!end
+!!start card00000009
+gosub style_card
+name 1378 -0169 1678 -0019 Find
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.find
+title Find
+colour 00
+status loaded
+!!end
+!!start card0000000a
+gosub style_card
+name 1204 -0689 1504 -0539 LibFile
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.libfile
+title LibFile
+keyword library libraries
+colour 00
+status loaded
+!!end
+!!start card0000000b
+gosub style_card
+name 1304 -0179 1604 -0029 Link
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.link
+title Link
+colour 00
+status loaded
+!!end
+!!start card0000000c
+gosub style_card
+name 1306 -0495 1606 -0345 Make
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.make
+title Make
+colour 00
+status loaded
+!!end
+!!start card0000000d
+gosub style_card
+name 1298 -0339 1598 -0189 ObjAsm
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.objasm
+title ObjAsm
+colour 00
+status loaded
+!!end
+!!start card0000000e
+gosub style_card
+name 0948 -0333 1248 -0183 ObjSize
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.objsize
+title ObjSize
+colour 00
+status loaded
+!!end
+!!start card0000000f
+gosub style_card
+name 1098 -0169 1398 -0019 ResEd
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.resed
+title ResED
+button 0992 -0642 1106 -0596 card00000019
+button 0586 -0686 0772 -0636 card00000019
+colour 00
+status loaded
+!!end
+!!start card00000010
+gosub style_card
+name 1098 -0479 1398 -0329 ResTest
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.restest
+title ResTest
+button 0652 -0542 0912 -0506 card00000019
+button 0694 -0592 0920 -0556 card0000000f
+colour 00
+status loaded
+!!end
+!!start card00000011
+gosub style_card
+name 1204 -0495 1504 -0345 Squeeze
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.squeeze
+title Squeeze
+colour 00
+status loaded
+!!end
+!!start card00000012
+gosub style_card
+name 1112 -0311 1412 -0161 SrcEdit
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.srcedit
+title SrcEdit
+colour 00
+status loaded
+!!end
+!!start card00000013
+gosub style_card
+name 1066 -0821 1366 -0671 ToAnsi
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.toansi
+title ToANSI
+colour 00
+status loaded
+!!end
+!!start card00000014
+gosub style_card
+name 1000 -0661 1300 -0511 ToPCC
+load <Top$hyper>.underlay
+overlay <Top$hyper>.tools.topcc
+title ToPCC
+colour 00
+status loaded
+!!end
+!!start card00000015
+gosub style_card
+name 0500 -0613 0800 -0463 Set Paths
+load <Top$Hyper>.underlay
+overlay <Top$Hyper>.Top.setpaths
+title Set Paths
+colour 00
+status loaded
+!!end
+!!start card00000016
+gosub style_card
+name 0516 -0427 0816 -0277 docs
+load <Top$Hyper>.others.docs
+title docs
+colour 00
+status loaded
+!!end
+!!start card00000017
+gosub style_card
+name 0510 -0237 0810 -0087 Examples
+load <Top$Hyper>.others.examples
+title Examples
+colour 00
+status loaded
+!!end
+!!start card00000018
+gosub style_card
+name 0342 -0203 0642 -0053 libraries
+load <Top$Hyper>.others.libraries
+keyword library libraries
+title libraries
+colour 00
+status loaded
+!!end
+!!start card00000019
+button 0696 -0586 0916 -0552 card0000000f
+gosub style_card
+name 0036 -0627 0336 -0477 Toolbox
+load <Top$Hyper>.others.toolbox
+title Toolbox
+button 0172 -0276 0382 -0196 card0000001a
+button 0176 -0386 0346 -0302 card0000001b
+button 0166 -0486 0422 -0412 card0000001c
+button 0166 -0606 0486 -0516 card0000001d
+button 0172 -0710 0476 -0626 card0000001e
+button 0172 -0816 0482 -0730 card0000001f
+button 0526 -0280 0840 -0200 card00000020
+button 0530 -0386 0756 -0310 card00000021
+button 0528 -0500 0812 -0410 card00000022
+button 0536 -0602 0800 -0522 card00000023
+button 0526 -0706 0840 -0626 card00000024
+button 0526 -0806 0862 -0732 card00000025
+button 0880 -0286 1210 -0196 card00000026
+button 0884 -0392 1150 -0306 card00000027
+colour 00
+status loaded
+!!end
+!!start card0000001a
+gosub style_card
+name -074 -0827 0226 -0677 window
+load <top$Hyper>.tbox.window
+title Window Template Object
+colour 00
+status loaded
+!!end
+!!start card0000001b
+gosub style_card
+name 0032 -0817 0332 -0667 menu
+load <Top$hyper>.tbox.menu
+title Menu Object Template
+colour 00
+status loaded
+!!end
+!!start card0000001c
+gosub style_card
+name 0146 -0807 0446 -0657 iconbar
+load <Top$hyper>.tbox.iconbar
+title Iconbar object template
+colour 00
+status loaded
+!!end
+!!start card0000001d
+gosub style_card
+name 0286 -0691 0586 -0541 proginfo
+load <Top$Hyper>.tbox.proginfo
+title Proginfo object template
+colour 00
+status loaded
+!!end
+!!start card0000001e
+gosub style_card
+name 0312 -0847 0612 -0697 fileinfo
+load <Top$hyper>.tbox.fileinfo
+title Fileinfo object template
+colour 00
+status loaded
+!!end
+!!start card0000001f
+gosub style_card
+name -064 -0997 0236 -0847 saveas
+load <Top$hyper>.tbox.saveas
+title Saveas object template
+colour 00
+status loaded
+!!end
+!!start card00000020
+gosub style_card
+name 0044 -0987 0344 -0837 fontdbox
+load <Top$Hyper>.tbox.fontdbox
+title Fontdbox object template
+colour 00
+status loaded
+!!end
+!!start card00000021
+gosub style_card
+name 0186 -0977 0486 -0827 fontmenu
+load <Top$Hyper>.tbox.fontmenu
+title Fontmenu object template
+colour 00
+status loaded
+!!end
+!!start card00000022
+gosub style_card
+name 0346 -0981 0646 -0831 colourdbox
+load <Top$Hyper>.tbox.coldbox
+title Colourdbox object template
+colour 00
+status loaded
+!!end
+!!start card00000023
+gosub style_card
+name -052 -1167 0248 -1017 colourmenu
+load <Top$Hyper>.tbox.coldmenu
+title ColourMenu object template
+colour 00
+!!end
+!!start card00000024
+gosub style_card
+name 0120 -1147 0420 -0997 printdbox
+load <top$hyper>.tbox.printdbox
+title Printdbox object template
+colour 00
+!!end
+!!start card00000025
+gosub style_card
+name 0270 -1147 0570 -0997 scale
+load <Top$Hyper>.tbox.scale
+title Scale object template
+colour 00
+!!end
+!!start card00000026
+gosub style_card
+name 0358 -1209 0658 -1059 dcs
+load <Top$Hyper>.tbox.dcs
+title DCS object template
+colour 00
+!!end
+!!start card00000027
+gosub style_card
+name -008 -1325 0292 -1175 quit
+load <Top$Hyper>.tbox.quit
+title Quit object template
+colour 00
+!!end
+!!start card00000800
+gosub style_card    
+keyword whodunnit
+load <Top$Hyper>.top.cover
+button 0000 -1052 1488 -0000 card00000801
+title This product
+colour 00
+!!end
+!!start card00000801
+gosub style_card
+load <Top$Hyper>.top.credits
+;button 0000 -1052 1488 -0000 card00000801
+title The ones who brought it to you
+colour 00
+!!end
