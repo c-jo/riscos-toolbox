@@ -6,7 +6,7 @@ import swi
 
 _ro_epoch = datetime.datetime(1900,1,1,0,0,0,0,datetime.timezone.utc)
 
-class FileInfor(Object):
+class FileInfo(Object):
     class_id = 0x82ac0
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
@@ -15,24 +15,24 @@ class FileInfor(Object):
         super().__init__(id)
 
     @property
-    window_iw(self):
+    def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
 
     @property
-    modified(self):
+    def modified(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 2) != 0
 
     @modified.setter
-    modified(self, modified)
+    def modified(self, modified):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 1,
                 1 if modified else 0)
 
     @property
-    file_type(self):
+    def file_type(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 4)
 
     @file_type.setter
-    file_type(self, file_type)
+    def file_type(self, file_type):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 3, file_type)
 
     @property
@@ -42,16 +42,16 @@ class FileInfor(Object):
         swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 6, buf, buf_size)
         return buf.nullstring()
 
-    @file_nane.setter
-    def file_type(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 5, title)
+    @file_name.setter
+    def file_name(self, file_name):
+        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 5, file_name)
 
     @property
-    file_size(self):
+    def file_size(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8)
 
     @file_type.setter
-    file_type(self, file_type)
+    def file_size(self, file_size):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 7, file_size)
 
     @property

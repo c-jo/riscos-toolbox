@@ -2,6 +2,27 @@
 
 import ctypes
 
+class IDBlock(ctypes.Structure):
+    class Level(ctypes.Structure):
+        _fields_ = [ ("id", ctypes.c_uint32), ("component", ctypes.c_int32) ]
+
+        def __init__(self):
+            self.id = -1
+            self.component = 0
+
+        def __repr__(self):
+            return "{:x}/{}".format(self.id, self.component)
+
+    _fields_ = [ ("ancestor", Level),
+                 ("parent",   Level),
+                 ("self",     Level) ]
+
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "Acestor: {} Parent: {} Self: {}".format(self.ancestor, self.parent, self.self)
+
 class Point(ctypes.Structure):
     _fields_ = [ ("x", ctypes.c_int), ("y", ctypes.c_int) ]
 

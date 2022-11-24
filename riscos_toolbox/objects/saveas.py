@@ -31,7 +31,7 @@ class SaveAs(Object):
 
     @property
     def window_id(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0II;I', self.id, 0)
+        return swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 0)
 
     @property
     def title(self):

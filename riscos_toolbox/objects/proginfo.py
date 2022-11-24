@@ -13,8 +13,8 @@ class ProgInfo(Object):
 
     LicenceType = IntEnum(
         "LicenceType",
-        "PublicDomain SingleUser SingleMachine Site Network Authority" \
-        .split(), index=0)
+        "PublicDomain SingleUser SingleMachine Site Network Authority".split(),
+        start=0)
 
     def __init__(self, id):
         super().__init__(id)
@@ -35,12 +35,12 @@ class ProgInfo(Object):
         swi.swi('Toolbox_ObjectMiscOp', '0IIs', self.id, 1, version)
 
     @property
-    def license_typed(self):
+    def licence_type(self):
         return LicenceType(
                    swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 4))
 
     @licence_type.setter
-    def license_typed(self, licence_type):
+    def license_type(self, licence_type):
         return swi.swi("Toolbox_ObjectMiscOp","0III", self.id, 3, licence_type)
 
     @property

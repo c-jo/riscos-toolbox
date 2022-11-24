@@ -7,6 +7,12 @@ import ctypes
 
 class Window(Object):
     class_id = 0x82880
+    AboutToBeShown = class_id + 0
+    HasBeenHidden  = class_id + 1
+
+    NoFocus = -1
+    InvisibleCaret = -2
+
     def __init__(self, id):
         super().__init__(id)
         self.gadgets = self.components
@@ -15,55 +21,54 @@ class Window(Object):
     @property
     def wimp_handle(self):
         if self._wimp_handle is None:
-            self._wimp_handle = swi.swi('Toolbox_ObjectMiscOp', '0II;I',
-                                        self.id, 0)
+            self._wimp_handle = self._miscop_get_unsigned(0)
         return self._wimp_handle
 
     @property
+    def help_message(self):
+        return self._miscop_get_string(8)
+
+    @help_message.setter
+    def help_message(self, message):
+        self._miscop_set_string(7, message)
+
+    @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II0;....I', self.id, 12)
-        buffer = swi.block(int((buf_size+3)/4))
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 12,
-                                                 buffer, buf_size)
-        return buffer.nullstring()
+        return self._miscop_get_string(12)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs', self.id, 11, title)
+        self._miscop_set_string(11, title)
 
-    def add_gadget(self, block, klass):
-        id = swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 1, block)
-        obj = klass(self, id)
-        self.gadgets[id] = obj
-        return obj
+    @property
+    def default_focus(self):
+        return self._miscop_get_signed(13)
 
-    def remove_gadget(self, gadget):
-        swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 2, gadget.id)
-        del self.gadgets[gadget.id]
+    @default_focus.setter
+    def default_focus(self, focus):
+        self._miscop_set_signed(12, focus)
 
     @property
     def extent(self):
         extent = BBox.zero()
-        swi.swi('Toolbox_ObjectMiscOp', '0IiI',
-                self.id, 16, ctypes.addressof(extent))
+        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+                0, self.id, 16, ctypes.addressof(extent))
         return extent
-        return (extent_block.tosigned(0),
-                extent_block.tosigned(1),
-                extent_block.tosigned(2),
-                extent_block.tosigned(3))
 
     @extent.setter
     def extent(self, extent):
-        extent_block = swi.block(4)
-        extent_block.signed(0, extent[0])
-        extent_block.signed(1, extent[1])
-        extent_block.signed(2, extent[2])
-        extent_block.signed(3, extent[3])
-        swi.swi('Toolbox_ObjectMiscOp', '0Iib', self.id, 15, extent_block)
+        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+                0, self.id, 15, ctypes.addressof(extent))
 
-    def force_redraw(self, bbox):
-        swi.swi('Toolbox_ObjectMiscOp','0IiI',
-                   self.id, 17, ctypes.addressof(bbox))
+    def force_redraw(self, bbox=None):
+        if bbox is None:
+            bbox = self.extent
+        swi.swi('Toolbox_ObjectMiscOp','IIII',
+                0, self.id, 17, ctypes.addressof(bbox))
 
     def on_redraw(self, visible, scroll, redraw, offset):
         pass
+
+
+class UserRedrawMixin:
+    pass

@@ -14,11 +14,8 @@ class FontMenu(object):
 
     @property
     def font(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 1)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 1, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(1)
 
     @font.setter
-    def font(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 0, title)
+    def font(self, font):
+        self._miscop_set_string(0, font)

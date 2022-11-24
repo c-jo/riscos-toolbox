@@ -22,7 +22,7 @@ class ActionButton(Gadget):
 
     @event.setter
     def event(self, ev):
-        return self._miscop_get_int(130, ev)
+        return self._miscop_set_int(130, ev)
 
     @property
     def click_show(self):

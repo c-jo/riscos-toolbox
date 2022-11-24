@@ -14,27 +14,21 @@ class Quit(Object):
         super().__init__(id)
 
     @property
-    window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
+    def window_id(self):
+        return self._miscop_get_unsigned(0)
 
     @property
     def message(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 2, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(2)
 
     @message.setter
-    def message(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
+    def message(self, message):
+        self._miscop_set_string(1, message)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 4)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 4, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(4)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, title)
+        self._miscop_set_string(3, title)
