@@ -1,6 +1,6 @@
 """RISC OS Toolbox - FontDBox"""
 
-from .. import Object
+from ..base import Object
 import swi
 
 class FontDBox(object):

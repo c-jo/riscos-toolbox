@@ -1,6 +1,6 @@
 """RISC OS Toolbox - FileInfo"""
 
-from .. import Object
+from ..base import Object
 import datetime
 import swi
 

@@ -1,6 +1,6 @@
 """RISC OS Toolbox - ColourDBox"""
 
-from .. import Object
+from ..base import Object
 from enum import Enum
 
 class ColourDboxr(Object):

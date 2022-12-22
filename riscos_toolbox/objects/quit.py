@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Quit"""
 
-from .. import Object
+from ..base import Object
 import swi
 
 class Quit(Object):

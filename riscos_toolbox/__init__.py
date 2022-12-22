@@ -1,301 +1,83 @@
-"""RISC OS Toolbox module"""
+"""RISC OS Toolbox library"""
 
 import swi
 import ctypes
 
-from .types import IDBlock, BBox, Point
 from collections import namedtuple
-from enum import Enum
 
-# Toolbox-wide variables
-_objects = {} # ID -> Object
+from .types import IDBlock, BBox, Point
+from .base import Object, _objects, get_object, create_object, find_object
 
-Wimp = Enum("Wimp",
-    "Null "
-    "RedrawWindow OpenWindow CloseWindow "
-    "PointerLeavingWindow PointerEnteringWindow "
-    "MouseClick UserDragBox KeyPressed MenySelection ScrollRequest "
-    "LoseCaret GainCartet "
-    "PollwordNonZero "
-    "Reserved14 Reserved15 Reserved16 "
-    "UserMessage UserMessageRecorded UserMessageAcknowledge"
-        .split(), start=0)
+class Wimp:
+    Null = 0
+    RedrawWindow = 1
+    OpenWindow = 2
+    CloseWindow = 3
+    PointerLeavingWindow = 4
+    PointerEnteringWindow = 5
+    MouseClick = 6
+    UserDragBox = 7
+    KeyPressed = 8
+    MenySelection = 9
+    ScrollRequest = 10
+    LoseCaret = 11
+    GainCartet = 12
+    PollwordNonZero = 13
+    UserMessage = 17
+    UserMessageRecorded = 18
+    UserMessageAcknowledge = 19
+    ToolboxEvent = 0x200
 
-def get_object(id):
-    if id in _objects:
-        return _objects[id]
-    else:
-        return None
-
-def find_object(name):
-    for id,obj in _objects.items():
-        if obj.name == name:
-           return obj
-    return None
-
-def create_object(template, klass=None, args=None):
-    id = swi.swi('Toolbox_CreateObject', 'Is;I', 0, template)
-    if klass:
-        if args is None:
-            args = []
-        _objects[id] = klass(id,*args)
-    else:
-        obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
-        _objects[id] = Object.create(obj_class, template, id)
-    return _objects[id]
-
-class Component:
-   def __init__(self, id):
-       self.id = id
-
-class Object:
-    class_id  = None
-    name      = None
-    messages  = {} # Message -> Handler fn
-    _classes  = {} # (Class ID,Name) -> Class
-    _messages = {} # (Message ID) -> [Class..]
-    _handlers = {} # (Type,ID) -> [Class...]
-
-    def __init__(self, id):
-        self.id = id
-        self.components = {}
-        self._events = {} # (Event ID, Component/None) -> [Handlers]
-        #print("Object.__init__", self, id)
-        #print("_event_handlers", _event_handlers)
-        for klass in self.__class__.mro():
-            if klass == Object:
-                break
-            for event,handlers in _event_handlers.items():
-                if klass.__qualname__ in handlers:
-                    handler = handlers[klass.__qualname__]
-                    if (event,None) in self._events:
-                        self._events[(event,None)].append(handler)
-                    else:
-                        self._events[(event,None)] = [handler]
-
-    def __init_subclass__(subclass):
-        Object._classes[(subclass.class_id, subclass.name)] = subclass
-        for message in subclass.messages:
-            if message not in Object._messages:
-                Object._messages[message] = [subclass]
-            else:
-                Object._messages[message].append(subclass)
-
-    @staticmethod
-    def create(class_id, name, id):
-        if (class_id,name) in Object._classes:
-            return Object._classes[(class_id,name)](id)
-        if (class_id,None) in Object._classes:
-            return Object._classes[(class_id,None)](id)
-        else:
-            return Object(id)
-
-    def show(self, menu_semantics=False, submenu_semantics=False,
-                   type=0, parent=None):
-        flags = 0
-        if menu_semantics:
-            flags |= 1
-        if submenu_semantics:
-            flags |= 2
-
-        if parent:
-            parent_obj, parent_comp = parent.id, parent.component
-        else:
-            parent_obj = parent_comp = 0
-
-        swi.swi('Toolbox_ShowObject','III0II',
-                flags,self.id,type,parent_obj, parent_comp)
-
-    def hide(self):
-        swi.swi('Toolbox_HideObject','0I',self.id)
-
-    @property
-    def parent(self):
-        id, comp_id = swi.swi('Toolbox_GetParent', '0I;Ii', self.id)
-        if id in _objects:
-            obj = _objects[id]
-        else:
-            obj = Object(id)
-        if comp_id == -1:
-            comp = None
-        else:
-            if comp_id in obj.components:
-                comp = obj.components[comp_id]
-            else:
-                comp = Component(comp_id)
-
-        return namedtuple('parent', ('object', 'component'))(obj,comp)
-
-    def event_handler(self, event_code, id_block, poll_block):
-        args = (poll_block,)
-        if event_code in _event_decoders:
-            args = _event_decoders[event_code](poll_block)
-
-        comp_id = id_block.self.component
-        for event in [
-                (event_code, comp_id), (event_code, None),
-                (AnyEvent,   comp_id), (AnyEvent,   None)]:
-           if event in self._events:
-               handlers = self._events[event]
-               for handler in handlers:
-                   if handler(self, event_code, id_block, *args) != False:
-                       return True
-        return False
-
-    def wimp_handler(self, reason, id_block, poll_block):
-        return False
-
-    def message_handler(self, message, polL_block):
-        return None
-
-    def _miscop_get_value(self, op, regs):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;"+regs, 0, self.id, op)
-
-    def _miscop_set_value(self, op, regs, *value):
-        swi.swi("Toolbox_ObjectMiscOp", "III"+regs, 0, self.id, op, *value)
-
-    def _miscop_get_signed(self, op):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;i", 0, self.id, op)
-
-    def _miscop_set_signed(self, op, value):
-        swi.swi("Toolbox_ObjectMiscOp", "IIIi", 0, self.id, op, value)
-
-    def _miscop_get_unsigned(self, op):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, op)
-
-    def _miscop_set_unsigned(self, op, value):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, op, value)
-
-    def _miscop_get_string(self, op):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'III00;....I',
-                           0, self.id, op)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIbI', 0, self.id, op, buf, buf_size)
-        return buf.nullstring()
-
-    def _miscop_set_string(self, op, string):
-        swi.swi("Toolbox_ObjectMiscOp", "IIIs", 0, self.id, op, string)
-
+class Toolbox:
+    Error             = 0x44ec0
+    ObjectAutoCreated = 0x44ec1
+    ObjectDeleted     = 0x44ec2
 
 _quit           = False
 _id_block       = IDBlock()
-
-print(dir(_id_block))
 _msgtrans_block = swi.block(4)
 
-_event_decoders = {} # Event -> decoder
-_event_handlers = {} # Event -> { (class qualname -> func) }
+def report_exception(e):
+    error_block = swi.block(64)
+    error_block[0] = 0
+    error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
+    try:
+        name_len = swi.swi("Toolbox_GetSysInfo", "I0;..I", 0)
+        name_block = swi.block((name_len+3)//4)
+        swi.swi("Toolbox_GetSysInfo", "Ib", 0, name_block)
+        task_name = name_block.nullstring()
+    except:
+        task_name = "Python Application"
 
-_wimp_decoders = {} # Event -> decoder
-_wimp_handlers = {} # Event -> { (class qualname -> func) }
-
-_message_decoders = {} # Message -> decoder
-_message_handlers = {} # Messagge -> [ (cls,func) ... ]
-
-def _message_dispatch(message, poll_block):
-    if message not in _message_handlers.keys():
-        return
-    for (cls,handler) in _message_handlers[message]:
-        if cls:
-            for obj in _objects.values():
-                if obj.__class__.__qualname__ == cls:
-                    handler(obj, message, poll_block)
-
-        else:
-            handler(message, poll_block)
-
-def WimpMessage(message):
-    def decorator(handler):
-        if '.' in handler.__qualname__:
-            cls = handler.__qualname__.rsplit('.',1)[0]
-        else:
-            cls = None
-
-        if message in _message_handlers.keys():
-            _message_handlers[message].append((cls,handler))
-        else:
-            _message_handlers[message] = [(cls,handler)]
-        return handler
-    return decorator
-
-def WimpEvent(event):
-    def decorator(handler):
-        if '.' in handler.__qualname__:
-            cls = handler.__qualname__.rsplit('.',1)[0]
-        else:
-            cls = None
-
-        if event in _wimp_handlers.keys():
-            _wimp_handlers[event].append((cls,handler))
-        else:
-            _wimp_handlers[event] = [(cls,handler)]
-        return handler
-    return decorator
-
-def _event_dispatch(event, id_block, poll_block):
-    if event in _event_decoders.keys():
-        data = _event_decoders[event](poll_block)
-    else:
-        data = (poll_block,)
-
-    import os
-    os.system("Report _event_dispatch {:x} {}".format(event,id_block))
-    for obj in filter(lambda o:o is not None,
-                      map(get_object,
-                          [ id_block.self.id,
-                            id_block.parent.id,
-                            id_block.ancestor.id ]
-                          )):
-        if obj.event_handler(event, id_block, poll_block) != False:
-            return
-
-    if event in _event_handlers.keys():
-        handlers = _event_handlers[event]
-        if None in handlers.keys():
-            handlers[None](event, id_block, data)
-
-AnyEvent = -1
-
-def ToolboxEvent(event, component=None):
-    def decorator(handler):
-        if '.' in handler.__qualname__:
-            cls = handler.__qualname__.rsplit('.',1)[0]
-        else:
-            cls = None
-
-        if event in _event_handlers.keys():
-            _event_handlers[event][cls] = handler
-        else:
-            _event_handlers[event] = {cls:handler}
-        return handler
-    return decorator
-
-def EventDecoder(event):
-    def decorator(handler):
-        _event_decoders[event] = handler
-        return handler
-    return decorator
+    if swi.swi("Wimp_ReportError", "bIs000;.I",
+                   error_block, 0b000100000011, task_name) == 2:
+        global _quit
+        _quit = True
 
 def initialise(appdir):
-    messages = list(_message_handlers.keys()) + [0]
-    wimp_messages = swi.block(len(messages))
-    for index,message in zip(range(0,len(messages)),messages):
-        wimp_messages[index] = message
+    def _handler_block(handlers, add=[]):
+        ids = sorted(filter(lambda k:k >= 0,
+                            handlers.keys())) + add + [0]
+        block = swi.block(len(ids))
+        for index,id in zip(range(0,len(ids)),ids):
+            block[index] = id
+        return block
 
-    toolbox_events = swi.block(1)
-    toolbox_events[0] = 0
-
-    #swi.swi('MessageTrans_OpenFile', 'bsi', 3msgtrans_block,
-    #                                 appdir+'.Messages', 0)
+    wimp_messages  = _handler_block(events._message_handlers)
+    toolbox_events = _handler_block(events._event_handlers,
+                         [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver,task_handle,sprite_area = \
         swi.swi('Toolbox_Initialise','0IbbsbI;III',
                 560, wimp_messages, toolbox_events,
                appdir, _msgtrans_block, ctypes.addressof(_id_block))
 
-def quit():
-     global _quit
-     _quit = True
+def msgtrans_lookup(token, *args, bufsize=256):
+    args = args[:4]
+    buffer = swi.block(int((bufsize+3)/4))
+    swi.swi("MessageTrans_Lookup","bsbi"+("s"*len(args)),
+            _msgtrans_block, token, buffer,bufsize, *args)
+    return buffer.ctrlstring()
 
 def run():
     poll_block = swi.block(64)
@@ -303,83 +85,44 @@ def run():
 
     while not _quit:
         reason,sender = swi.swi('Wimp_Poll','Ib;I.I', 0b1, poll_block)
+        try:
+            if reason == Wimp.ToolboxEvent:
+                size       = poll_block[0]
+                reference  = poll_block[1]
+                event_code = poll_block[2]
+                flags      = poll_block[3]
 
-        if reason == 0x200: # Toolbox Event
-            size       = poll_block[0]
-            reference  = poll_block[1]
-            event_code = poll_block[2]
-            flags      = poll_block[3]
+                if event_code == Toolbox.ObjectAutoCreated:
+                    name      = poll_block.nullstring(0x10,size)
+                    obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
+                                        _id_block.self.id)
+                    _objects[_id_block.self.id] = \
+                         Object.create(obj_class, name, _id_block.self.id)
+                    print("Object {} ({}) auto-created".format(
+                          _id_block.self.id, name))
+                    continue
 
-            #print("Toolbox event {:x}".format(event_code))
-            if event_code == 0x44ec1: # Object_AutoCreated
-                name      = poll_block.nullstring(0x10,size)
-                obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
-                                    _id_block.self.id)
-                _objects[_id_block.self.id] = \
-                     Object.create(obj_class, name, _id_block.self.id)
+                if event_code == Toolbox.ObjectDeleted:
+                    print("Object {} delted". _id_block.self.id)
+                    continue
+
+                events._event_dispatch(event_code, _id_block, poll_block)
+
+            elif reason == Wimp.UserMessage or \
+                 reason == Wimp.UserMessageRecorded:
+                message = poll_block[4]
+                if message == 0:
+                    _quit = True
+                else:
+                    events._message_dispatch(message, _id_block, poll_block)
                 continue
 
-            if event_code == 0x44ec2: # Object_Deleted
-                print("Object {} delted". _id_block.self.id)
+            else: # Other reasons
+                events._wimp_dispatch(reason, _id_block, poll_block)
 
-            _event_dispatch(event_code, _id_block, poll_block)
+        except Exception as e:
+            report_exception(e)
 
-            #object  = get_object(_id_block.self.id)
-            #comp_id = _id_block.self.component
-
-            #if object:
-            #    if comp_id in object.components:
-            #        component = object.components[comp_id]
-            #        component.event_handler(event_code, _id_block, poll_block)
-            #    else:
-            #        object.event_handler(event_code, _id_block, poll_block)
-
-        if reason == 1: # Redraw Window
-            block = poll_block
-            object = get_object(swi.swi("Window_WimpToToolbox", "0Ii;I",
-                                poll_block[0], -1))
-
-            more = swi.swi("Wimp_RedrawWindow", ".b;I", poll_block)
-            while more:
-                visible = BBox ( block.tosigned(1), block.tosigned(2),
-                                 block.tosigned(3), block.tosigned(4) )
-                scroll =  Point( block.tosigned(5), block.tosigned(6) )
-                redraw =  BBox ( block.tosigned(7), block.tosigned(8),
-                                 block.tosigned(9), block.tosigned(10) )
-
-                offset = Point( visible.min.x - scroll.x,
-                                visible.max.y - scroll.y )
-                if object:
-                    object.on_redraw( visible, scroll, redraw, offset )
-
-                more = swi.swi("Wimp_GetRectangle", ".b;I", poll_block)
-
-        if reason in _wimp_handlers.keys():
-            handlers = _wimp_handlers[reason]
-            print("wimp poll reason {} handlers {}".format(reason,handlers))
-            print("id block", _id_block)
-
-        if reason == 2: # Open Window
-            if _id_block.self.id in _objects:
-                object = _objects[_id_block.self.id]
-                object.wimp_handler(reason, _id_block, poll_block)
-
-        if reason == 6: # Mouse Click
-            if _id_block.self.id in _objects:
-                object = _objects[_id_block.self.id]
-                object.wimp_handler(reason, _id_block, poll_block)
-
-        if reason == 17 or reason == 18: # Wimp Message
-            message = poll_block[4]
-            if message == 0:
-                _quit = True
-            else:
-                _message_dispatch(message, poll_block)
-
-def msgtrans_lookup(token, *args,bufsize=256):
-    args = args[:4]
-    buffer = swi.block(int((bufsize+3)/4))
-    swi.swi("MessageTrans_Lookup","bsbi"+("s"*len(args)),
-            _msgtrans_block, token, buffer,bufsize, *args)
-    return buffer.ctrlstring()
-
+def quit():
+     global _quit
+     _quit = True

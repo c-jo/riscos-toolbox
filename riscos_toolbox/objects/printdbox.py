@@ -1,6 +1,6 @@
 """RISC OS Toolbox - PrintDBox"""
 
-from .. import Object
+from ..base import Object
 from enum import Enum
 from collections import namedtuple
 

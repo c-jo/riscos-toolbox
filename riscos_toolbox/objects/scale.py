@@ -1,7 +1,7 @@
 """RISC OS Toolbox - Scale"""
 
-from .. import Object
-from .. import EventDecoder
+from ..base import Object
+from ..events import EventDecoder
 
 class Scale(Object):
     class_id = 0x82c00

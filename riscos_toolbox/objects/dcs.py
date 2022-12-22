@@ -1,6 +1,6 @@
 """RISC OS Toolbox - DCS"""
 
-from .. import Object
+from ..base import Object
 import swi
 
 class DCS(Object):

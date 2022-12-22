@@ -32,4 +32,4 @@ RMENSURE Scale  0.00  ERROR You need Scale to run !Hyper
 If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
 
 wimpslot -min 4M
-Run <Python3$Dir>.bin.python38 <Pyper$dir>.!RunImage %*0 > RAM::0.$.Log 2>&1
+Run <Python3$Dir>.bin.python38 <Pyper$dir>.!RunImage %*0 >> RAM::0.$.Log 2>&1

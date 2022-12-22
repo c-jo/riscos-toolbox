@@ -1,7 +1,5 @@
-from .. import Object
-from .. import EventDecoder
-from .. import get_object
-from .. import ToolboxEvent
+from ..base import Object, get_object
+from ..events import EventDecoder, ToolboxEvent
 
 import swi
 
@@ -88,9 +86,9 @@ class SaveAs(Object):
         swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
                 1 if saved else 0, self.id, 12, filename)
 
-class SaveAsMixin(object):
-    def __init__(self, id):
-       super().__init__(id)
+class SaveAsMixin:
+#    def __init__(self, id):
+#       super().__init__(id)
 
     @ToolboxEvent(SaveAs.SaveToFile)
     def _saveas_save_to_file(self, event_code, id_block, filename):

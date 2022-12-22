@@ -1,4 +1,4 @@
-from .. import Object
+from ..base import Object
 import swi
 
 class Menu(Object):

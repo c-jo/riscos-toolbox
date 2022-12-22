@@ -1,6 +1,6 @@
 """RISC OS Toolbox - ProgInfo"""
 
-from .. import Object
+from ..base import Object
 from enum import IntEnum
 import swi
 

@@ -71,12 +71,12 @@ class Gadget:
         self.set_flag(31, value)
 
     def _miscop_set_int(self, op, value):
-        """Use Toolbox_ObjectMiscOp to set an integer."""
+        """Use Toolbox_ObjectMiscOp to set an unsigned integer."""
         swi.swi('Toolbox_ObjectMiscOp', '0IIII',
                 self.window.id,op,self.id,value)
 
     def _miscop_get_int(self, op):
-        """Use Toolbox_ObjectMiscOp to get an integer."""
+        """Use Toolbox_ObjectMiscOp to get an unsigned integer."""
         return swi.swi('Toolbox_ObjectMiscOp', '0III:I',
                        self.window.id,op,self.id,value)
 

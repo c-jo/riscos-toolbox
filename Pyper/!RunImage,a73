@@ -1,7 +1,7 @@
 import riscos_toolbox as toolbox
 
 from riscos_toolbox.objects.menu import Menu
-from riscos_toolbox.objects.window import Window
+from riscos_toolbox.objects.window import Window, UserRedrawMixin
 from riscos_toolbox.objects.scale import Scale
 from riscos_toolbox.objects.saveas import SaveAs, SaveAsMixin
 from riscos_toolbox.objects.proginfo import ProgInfo
@@ -13,7 +13,9 @@ from riscos_toolbox.types import Point
 
 from HCLFile import HCLFile
 
-ToolboxEvent = toolbox.ToolboxEvent
+ToolboxEvent = toolbox.events.ToolboxEvent
+WimpEvent    = toolbox.events.WimpEvent
+WimpMessage  = toolbox.events.WimpMessage
 
 import swi
 import sys
@@ -30,7 +32,7 @@ ViewEvent            = 0x601
 ViewMenuShow         = 0x900
 StatusEvent          = 0x901
 
-class Viewer(Window):
+class Viewer(UserRedrawMixin, Window):
     name = "HyperViewer"
 
     def __init__(self, id, filename):
@@ -82,37 +84,31 @@ class Viewer(Window):
                 ctypes.addressof(tm),
                 ctypes.addressof(visible))
 
-    @toolbox.ToolboxEvent(FileInfo.AboutToBeShown)
+    @ToolboxEvent(FileInfo.AboutToBeShown)
     def fileinfo_show(self, event, id_block, data):
         fi = toolbox.get_object(id_block.self.id)
         fi.file_name = self.filename
         return True
 
-    @toolbox.ToolboxEvent(StatusEvent)
+    @ToolboxEvent(StatusEvent)
     def status_handler(self, event, id_block, data):
         print("status_handler", id_block.self, data)
         return True
 
-    @toolbox.ToolboxEvent(toolbox.AnyEvent)
-    def misc_handler(self, event, id_block, data):
-        print("misc_handler",self,event, id_block, data)
-        if event == HomeButtonEvent:
-            self.history.clear()
-            self._display(None)
-            return True
-        elif event == BackButtonEvent:
-            card = self.history.pop() if len(self.history) else None
-            self._display(card)
-            return True
+    @ToolboxEvent(HomeButtonEvent)
+    def home_handler(self, event, id_block, data):
+        self.history.clear()
+        self._display(None)
+        return True
 
-        return False
+    @ToolboxEvent(BackButtonEvent)
+    def back_handler(self, event, id_block, data):
+        card = self.history.pop() if len(self.history) else None
+        self._display(card)
+        return True
 
-    @toolbox.WimpEvent(6)
-    def button_clicked(self, reason, id_block, poll_block):
-        pass
-
-    def wimp_handler(self, reason, id_block, poll_block):
-        print("wimp_handler", reason, id_block)
+    @WimpEvent(toolbox.Wimp.MouseClick)
+    def mouse_clicked(self, reason, id_block, poll_block):
         if id_block.self.component in self.buttons:
             target = self.buttons[id_block.self.component]
             self.history.append(self.card)
@@ -120,31 +116,30 @@ class Viewer(Window):
             return True
         return False
 
-@toolbox.WimpMessage(3) # DataLoad
-@toolbox.WimpMessage(5) # DataOpen
-def data_loader(message, b):
-    filetype = b[10]
+@WimpMessage([3,5]) # DataLoad, DataOpen
+def data_loader(message, id_block, poll_block):
+    filetype = poll_block[10]
     if filetype != 0xfac:
         return
-    filename = b.nullstring(44)
+    filename = poll_block.nullstring(44)
 
-    #print("data_loaderWimpMessage",message,b,hex(filetype),filename)
     if message == 5:
         message = 4
 
     viewer = toolbox.create_object(Viewer.name, Viewer, (filename,))
     viewer.show()
 
-    b[3] = b[2]
-    swi.swi("Wimp_SendMessage", "ibi", 17, b, b[1])
+    poll_block[3] = poll_block[2]
+    swi.swi("Wimp_SendMessage", "ibi", 17, poll_block, poll_block[1])
 
-@toolbox.ToolboxEvent(Quit.Quit)
-def quit(a,b,c):
+@ToolboxEvent(Quit.Quit)
+def quit(event, id_block, poll_block):
     toolbox.quit()
 
-@toolbox.ToolboxEvent(ProgInfo.AboutToBeShown)
-def proginfo_show(a,b,c):
-    toolbox.get_object(b.self.id).version = toolbox.msgtrans_lookup("Version")
+@ToolboxEvent(ProgInfo.AboutToBeShown)
+def proginfo_show(event, id_block, poll_block):
+    toolbox.get_object(id_block.self.id).version = \
+                toolbox.msgtrans_lookup("Version")
 
 if __name__ == "__main__":
     toolbox.initialise('<Pyper$Dir>')

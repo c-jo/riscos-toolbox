@@ -1,7 +1,10 @@
 """RISC OS Toolbox - Window"""
 
-from .. import Object
-from ..types import BBox
+from ..base import Object
+from ..types import BBox, Point
+from ..events import WimpEvent
+from .. import Wimp
+
 import swi
 import ctypes
 
@@ -66,9 +69,26 @@ class Window(Object):
         swi.swi('Toolbox_ObjectMiscOp','IIII',
                 0, self.id, 17, ctypes.addressof(bbox))
 
+class UserRedrawMixin:
+    @WimpEvent(Wimp.RedrawWindow)
+    def redraw(self, reason, id_block, poll_block):
+        block = poll_block
+
+        more = swi.swi("Wimp_RedrawWindow", ".b;I", poll_block)
+        while more:
+            visible = BBox ( block.tosigned(1), block.tosigned(2),
+                             block.tosigned(3), block.tosigned(4) )
+            scroll =  Point( block.tosigned(5), block.tosigned(6) )
+            redraw =  BBox ( block.tosigned(7), block.tosigned(8),
+                             block.tosigned(9), block.tosigned(10) )
+
+            offset = Point( visible.min.x - scroll.x,
+                            visible.max.y - scroll.y )
+
+            self.on_redraw( visible, scroll, redraw, offset )
+
+            more = swi.swi("Wimp_GetRectangle", ".b;I", poll_block)
+
     def on_redraw(self, visible, scroll, redraw, offset):
         pass
 
-
-class UserRedrawMixin:
-    pass
