@@ -48,7 +48,7 @@ class Scale(Object):
             return self.dialogue_completed(id_block)
         if event_code == Scale.class_id+ 2: # Scale_Applyfactor
             return self.apply_factor(id_block, poll_block[4])
-            return false
+            return False
 
     def about_to_be_shown(self, id_block):
         return False

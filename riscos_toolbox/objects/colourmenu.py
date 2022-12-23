@@ -20,12 +20,12 @@ class ColourMenur(Object):
         super().__init__(id)
 
     @property
-    get_colour(self):
+    def colour(self):
         colour = self._miscop_get_signed(1)
         return colour if colour > 0 else None
 
     @colour.setter
-    set_colour(self, colour):
+    def colour(self, colour):
         self._miscop_set_signed(0, colour if colour else -1)
 
     @property

@@ -29,39 +29,31 @@ class SaveAs(Object):
 
     @property
     def window_id(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 0)
+        return self._miscop_get_unsigned(0)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI',
-                self.id, 2, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(2)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
+        self._miscop_set_string(1, title)
 
     @property
     def file_name(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 4)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI',
-                self.id, 4, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(4)
 
     @file_name.setter
     def file_name(self, file_name):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, file_name)
+        self._miscop_set_string(3, title)
 
     @property
     def file_type(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0II;I', self.id, 6)
+        return self._miscop_get_unsigned(6)
 
     @file_type.setter
     def file_type(self, file_type):
-        swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 5, file_type)
+        self._miscop_set_unsigned(5, file_type)
 
     @property
     def file_size(self):

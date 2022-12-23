@@ -25,7 +25,7 @@ class Iconbar(Object):
 
     @menu_id.setter
     def menu_id(self, id):
-        return self._miscop_set__unsigned(1, id`)
+        return self._miscop_set__unsigned(1, id)
 
     @property
     def help_message(self):
