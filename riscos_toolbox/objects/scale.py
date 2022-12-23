@@ -1,5 +1,7 @@
 """RISC OS Toolbox - Scale"""
 
+from swi import swi
+
 from ..base import Object
 from ..events import EventDecoder
 
