@@ -21,44 +21,44 @@ class ColourDboxr(Object):
         super().__init__(id)
 
     @property
-    window_id(self):
+    def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 0)
 
     @property
-    page_ranfe(self):
+    def page_ranfe(self):
         return PageRange(swi.swi(
             "Toolbox_ObjectMiscOp","III;II", 0, self.id, 2))
 
     @page_range.setter
-    page_ranger(self, page_range):
+    def page_ranger(self, page_range):
         swi.swi("Toolbox_ObjectMiscOp","IIIII",
                 0, self.id, 1, page_range.Start, page_range.End)
 
     @property
-    copies(self):
+    def copies(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 4)
 
     @copies.setter
-    copies(self, coies):
+    def copies(self, coies):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 3, copies)
 
     @property
-    scale(self):
+    def scale(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 6)
 
     @scale.setter
-    scale(self, scale):
+    def scale(self, scale):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 5, scale)
 
     @property
-    orientation(self):
+    def orientation(self):
         if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) != 0:
             return Orientation.Upright
         else:
              else Orientation.Sideways
 
     @orientation.setter
-    orientation(self, orientation):
+    def orientation(self, orientation):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
                 0, self.id, 7, 1 if orientation == Orientation.Sideways else 0)
 
@@ -74,14 +74,14 @@ class ColourDboxr(Object):
         return swi.swi("Toolbox_ObjectMiscOp","III;...I", 0,self.id, 11) != 0
 
     @draft.setter
-    draft(self, draft):
+    def draft(self, draft):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
                 0, self.id, 10, 1 if draft else 0)
 
     @property
-    page_limit(self):
+    def page_limit(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 13)
 
     @page_limit.setter
-    scale(self, scale):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 12, scale)
+    def page_limit(self, limit):
+        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 12, limit)

@@ -4,9 +4,9 @@ from ..base import Object
 
 class Iconbar(Object):
     class_id = 0x82900
-    Clicked              = class_Id + 0
-    SelectAboutToBeShown = class_Id + 1
-    AdjustAboutToBeShown = class_Id + 2
+    Clicked              = class_id + 0
+    SelectAboutToBeShown = class_id + 1
+    AdjustAboutToBeShown = class_id + 2
 
     def __init__(self, id):
         super().__init__(id)
