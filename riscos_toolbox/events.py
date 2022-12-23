@@ -144,6 +144,11 @@ def _handler_for_comp(handlers, component_id):
         return None
 
 def _dispatch(item, decoders, handlers, id_block, poll_block):
+    if item not in handlers:
+        return
+
+    handlers = handlers[item]
+
     from .base import _objects
     args = _decode(item, decoders, poll_block)
     # Does an object have a handler for this event?
@@ -162,18 +167,15 @@ def _dispatch(item, decoders, handlers, id_block, poll_block):
 
 def _event_dispatch(event, id_block, poll_block):
     print("_event_dispatch {:x}".format(event))
-    if event in _event_handlers:
-        return _dispatch(event, _event_decoders, _event_handlers[event],
-                         id_block, poll_block)
+    _dispatch(event, _event_decoders, _event_handlers,
+                     id_block, poll_block)
 
 def _message_dispatch(message, id_block, poll_block):
     print("_message_dispatch {:x}".format(message))
-    if message in _message_handlers:
-        return _dispatch(message, _message_decoders, _message_handlers[message],
-                         id_block, poll_block)
+    _dispatch(message, _message_decoders, _message_handlers,
+                       id_block, poll_block)
 
 def _wimp_dispatch(reason, id_block, poll_block):
     print("_wimp_dispatch {:x}".format(reason))
-    if reason in _wimp_handlers:
-        return _dispatch(reason, _event_decoders, _wimp_handlers[reason],
-                         id_block, poll_block)
+    _dispatch(reason, _event_decoders, _wimp_handlers,
+                      id_block, poll_block)
