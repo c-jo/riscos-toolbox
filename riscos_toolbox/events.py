@@ -122,7 +122,7 @@ def _object_dispatch(obj, code, handlers, id_block, args):
     if False:
         handlers = handlers[cls]
         if None in handlers.keys():
-            handlers[None](item, id_block, *args)
+            handlers[None](code, id_block, *args)
 
         comp_id = id_block.self.component
         for event in [
