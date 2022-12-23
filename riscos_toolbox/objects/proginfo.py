@@ -36,7 +36,7 @@ class ProgInfo(Object):
 
     @property
     def licence_type(self):
-        return LicenceType(
+        return ProgInfo.LicenceType(
                    swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 4))
 
     @licence_type.setter

@@ -33,7 +33,7 @@ class ColourMenur(Object):
         return self._miscop_get_unsigned(3) != 0
 
     @none_available.setter
-    none_available(self, available):
+    def none_available(self, available):
         self._miscop_set_unsigned(2, 1 if available else 0)
 
     @property

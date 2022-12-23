@@ -1,5 +1,7 @@
 """RISC OS Toolbox - ColourDBox"""
 
+import swi
+
 from ..base import Object
 from enum import Enum
 
@@ -15,22 +17,21 @@ class ColourDboxr(Object):
         super().__init__(id)
 
     @property
-    get_colour(self):
+    def colour(self):
         colour = swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 1)
         return colour if colour > 0 else None
 
     @colour.setter
-    set_colour(self, colour):
+    def colour(self, colour):
         swi.swi("Toolbox_ObjectMiscOp","IIIi",
                 0, self.id, 1, colour if colour else -1)
 
     @property
     def none_available(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;...I", 0,self.id, 3) != 0
-           return colour if colour > 0 else Non
 
     @none_available.setter
-    none_available(self, available):
+    def none_available(self, available):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
                 0, self.id, 2, 1 if available else 0)
 

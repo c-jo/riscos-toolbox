@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import swi
 
 _objects = {}

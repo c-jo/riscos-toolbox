@@ -119,6 +119,7 @@ def _object_dispatch(obj, code, handlers, id_block, args):
                 return True
 
     return False
+    """
     if False:
         handlers = handlers[cls]
         if None in handlers.keys():
@@ -134,7 +135,7 @@ def _object_dispatch(obj, code, handlers, id_block, args):
                    if handler(self, event_code, id_block, *args) != False:
                        return True
     return False
-
+    """
 def _handler_for_comp(handlers, component_id):
     if component_id in handlers:
         return handlers[component_id]

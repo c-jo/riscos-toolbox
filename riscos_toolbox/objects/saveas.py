@@ -45,7 +45,7 @@ class SaveAs(Object):
 
     @file_name.setter
     def file_name(self, file_name):
-        self._miscop_set_string(3, title)
+        self._miscop_set_string(3, file_name)
 
     @property
     def file_type(self):

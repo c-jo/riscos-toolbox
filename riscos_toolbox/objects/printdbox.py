@@ -1,10 +1,12 @@
 """RISC OS Toolbox - PrintDBox"""
 
+import swi
+
 from ..base import Object
 from enum import Enum
 from collections import namedtuple
 
-class ColourDboxr(Object):
+class PrintDBox(Object):
     class_id = 0x82b00
     AboutToBeShown      = class_id + 0
     DialogueCompleted   = class_id + 1
@@ -25,8 +27,8 @@ class ColourDboxr(Object):
         return swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 0)
 
     @property
-    def page_ranfe(self):
-        return PageRange(swi.swi(
+    def page_range(self):
+        return PrintDBox.PageRange(swi.swi(
             "Toolbox_ObjectMiscOp","III;II", 0, self.id, 2))
 
     @page_range.setter
@@ -39,7 +41,7 @@ class ColourDboxr(Object):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 4)
 
     @copies.setter
-    def copies(self, coies):
+    def copies(self, copies):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 3, copies)
 
     @property
@@ -53,14 +55,15 @@ class ColourDboxr(Object):
     @property
     def orientation(self):
         if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) != 0:
-            return Orientation.Upright
+            return PrintDBox.Orientation.Upright
         else:
-             else Orientation.Sideways
+            return PrintDBox.Orientation.Sideways
 
     @orientation.setter
     def orientation(self, orientation):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
-                0, self.id, 7, 1 if orientation == Orientation.Sideways else 0)
+                0, self.id, 7,
+                1 if orientation == PrintDBox.Orientation.Sideways else 0)
 
     @property
     def title(self):

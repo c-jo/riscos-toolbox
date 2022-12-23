@@ -15,7 +15,7 @@ class DCS(Object):
         super().__init__(id)
 
     @property
-    window_id(self):
+    def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
 
     @property

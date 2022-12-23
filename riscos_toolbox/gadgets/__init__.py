@@ -78,7 +78,7 @@ class Gadget:
     def _miscop_get_int(self, op):
         """Use Toolbox_ObjectMiscOp to get an unsigned integer."""
         return swi.swi('Toolbox_ObjectMiscOp', '0III:I',
-                       self.window.id,op,self.id,value)
+                       self.window.id,op,self.id)
 
     def _miscop_set_text(self, op, text):
         """Use Toolbox_ObjectMiscOp to set a string."""
@@ -93,5 +93,5 @@ class Gadget:
         buffer = swi.block((buf_size+3)/4)
         swi.swi('Toolbox_ObjectMiscOp', '0IIIIbI',
                            self.window.id,op,self.id,buffer,buf_size)
-        return block.nullstring()
+        return buffer.nullstring()
 
