@@ -14,6 +14,7 @@ import swi
 TEST_OBJECT_ID = 0x1001
 TEST_WINDOW_ID = 0x2001
 TEST_TITLE     = "Test Title"
+TEST_NAME      = "Test"
 
 class SwiMock:
     def __init__(self):
@@ -74,7 +75,7 @@ class SaveAs(unittest.TestCase):
         swimock.expect(*expect_miscop(TEST_OBJECT_ID, 0, TEST_WINDOW_ID))
         swi.swi = swimock.swi
 
-        saveas = riscos_toolbox.objects.saveas.SaveAs(TEST_OBJECT_ID)
+        saveas = riscos_toolbox.objects.saveas.SaveAs(TEST_OBJECT_ID, TEST_NAME)
         self.assertEqual(saveas.window_id, TEST_WINDOW_ID)
         self.assertTrue(swimock.completed)
 
@@ -85,6 +86,6 @@ class SaveAs(unittest.TestCase):
         swi.swi = swimock.swi
         swi.block = MockBlockString(TEST_TITLE)
 
-        saveas = riscos_toolbox.objects.saveas.SaveAs(TEST_OBJECT_ID)
+        saveas = riscos_toolbox.objects.saveas.SaveAs(TEST_OBJECT_ID, TEST_NAME)
         self.assertEqual(saveas.title, "Test Title")
         self.assertTrue(swimock.completed)
