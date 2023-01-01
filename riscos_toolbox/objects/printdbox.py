@@ -1,4 +1,4 @@
-"""RISC OS Toolbox - PrintDBox"""
+"""RISC OS Toolbox - PrintDbox"""
 
 import swi
 from enum import Enum
@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from ..base import Object
 
-class PrintDBox(Object):
+class PrintDbox(Object):
     class_id = 0x82b00
     AboutToBeShown      = class_id + 0
     DialogueCompleted   = class_id + 1
@@ -28,7 +28,7 @@ class PrintDBox(Object):
 
     @property
     def page_range(self):
-        return PrintDBox.PageRange(swi.swi(
+        return PrintDbox.PageRange(swi.swi(
             "Toolbox_ObjectMiscOp","III;II", 0, self.id, 2))
 
     @page_range.setter
@@ -55,15 +55,15 @@ class PrintDBox(Object):
     @property
     def orientation(self):
         if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) != 0:
-            return PrintDBox.Orientation.Upright
+            return PrintDbox.Orientation.Upright
         else:
-            return PrintDBox.Orientation.Sideways
+            return PrintDbox.Orientation.Sideways
 
     @orientation.setter
     def orientation(self, orientation):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
                 0, self.id, 7,
-                1 if orientation == PrintDBox.Orientation.Sideways else 0)
+                1 if orientation == PrintDbox.Orientation.Sideways else 0)
 
     @property
     def title(self):

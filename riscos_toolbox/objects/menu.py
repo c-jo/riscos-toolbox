@@ -75,6 +75,11 @@ class Menu(Object):
 
         details.text = ctypes.addressof(text_buffer)
         details.max_text = len(details.text)+1
+        if click_event:
+            details.click_event = click_event
 
         return swi.swi('Toolbox_ObjectMiscOp','IIIiI;I',
                 flags, self.id, 20, -1, ctypes.addressof(details))
+
+    def remove(self, component):
+        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 21, component)

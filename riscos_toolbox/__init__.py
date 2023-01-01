@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from .types import IDBlock, BBox, Point
 from .base import Object, _objects, get_object, create_object, find_objects
-from events import *
+from .events import *
 
 class Wimp:
     Null = 0
@@ -67,8 +67,8 @@ def initialise(appdir):
             block[index] = id
         return block
 
-    wimp_messages  = _handler_block(_message_handlers)
-    toolbox_events = _handler_block(_event_handlers,
+    wimp_messages  = _handler_block(events._message_handlers)
+    toolbox_events = _handler_block(events._event_handlers,
                          [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver,task_handle,sprite_area = \
@@ -111,7 +111,7 @@ def run():
                     print("Object {} delted". _id_block.self.id)
                     continue
 
-                event_dispatch(event_code, _id_block, poll_block)
+                events.event_dispatch(event_code, _id_block, poll_block)
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
@@ -119,11 +119,11 @@ def run():
                 if message == 0:
                     _quit = True
                 else:
-                    message_dispatch(message, _id_block, poll_block)
+                    events.message_dispatch(message, _id_block, poll_block)
                 continue
 
             else: # Other reasons
-                wimp_dispatch(reason, _id_block, poll_block)
+                events.wimp_dispatch(reason, _id_block, poll_block)
 
         except Exception as e:
             report_exception(e)

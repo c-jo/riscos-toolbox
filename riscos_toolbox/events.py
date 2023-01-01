@@ -156,5 +156,5 @@ def message_dispatch(message, id_block, poll_block):
                        id_block, poll_block)
 
 def wimp_dispatch(reason, id_block, poll_block):
-    _dispatch(reason, _event_decoders, _wimp_handlers,
+    _dispatch(reason, _wimp_decoders, _wimp_handlers,
                       id_block, poll_block)

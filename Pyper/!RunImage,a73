@@ -52,14 +52,26 @@ class IbarMenu(Menu):
         self[2].fade = self[3].fade = len(_views) == 0
         views_menu = toolbox.find_objects("Views")[0]
         for view in filter(lambda v:_views[v] is None, _views):
-            _views[view] = views_menu.add_at_end( id(view), view.name)
+            _views[view] = views_menu.add_at_end(
+                id(view), view.name,click_event=ViewEvent)
 
-    @ToolboxEvent(Menu.Selection)
-    def menu_selection(self, event, id_block, poll_block):
-        print("IbarMenu.menu_selection",id_block)
+    @ToolboxEvent(ViewEvent)
+    def view_event(self, event, id_block, poll_block):
+        views_menu = toolbox.get_object(id_block.self.id)
+        if id_block.parent.component == IbarMenuShowStack:
+            for view in list(filter(
+                    lambda v:_views[v] == id_block.self.component, _views)):
+                view.show()
+
         if id_block.parent.component == IbarMenuDeleteStack:
-            for view in filter(lambda v:_views[v] == id_block.self.component, _views):
-                print("Views menu: remove {} {}".format(view,id_block.self.component))
+            for view in list(filter(
+                    lambda v:_views[v] == id_block.self.component, _views)):
+                view.hide()
+                views_menu.remove(id_block.self.component)
+                del(_views[view])
+            if len(_views) == 0:
+                self[2].fade = self[3].fade = True
+
 
 class Viewer(UserRedrawMixin, Window):
     class_name = "HyperViewer"
