@@ -16,8 +16,8 @@ class ProgInfo(Object):
         "PublicDomain SingleUser SingleMachine Site Network Authority".split(),
         start=0)
 
-    def __init__(self, id):
-        super().__init__(id)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def window_id(self):

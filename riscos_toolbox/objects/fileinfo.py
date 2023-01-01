@@ -11,8 +11,8 @@ class FileInfo(Object):
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
 
-    def __init__(self, id):
-        super().__init__(id)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def window_id(self):

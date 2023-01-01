@@ -105,37 +105,18 @@ def _decode(item, decoders, poll_block):
 
 def _object_dispatch(obj, code, handlers, id_block, args):
     cls = obj.__class__.__qualname__
-    print("_object_dispatch {} ({}) {:x}".format(obj,cls,code))
 
     for k in obj.__class__.mro():
         if k == object:
             break
         cls = k.__qualname__
-
         if cls in handlers:
-
             handler = _handler_for_comp(handlers[cls], id_block.self.component)
             if handler(obj, code, id_block, *args) != False:
                 return True
 
     return False
-    """
-    if False:
-        handlers = handlers[cls]
-        if None in handlers.keys():
-            handlers[None](code, id_block, *args)
 
-        comp_id = id_block.self.component
-        for event in [
-                (event_code, comp_id), (event_code, None),
-                (AnyEvent,   comp_id), (AnyEvent,   None)]:
-           if event in self._events:
-               handlers = self._events[event]
-               for handler in handlers:
-                   if handler(self, event_code, id_block, *args) != False:
-                       return True
-    return False
-    """
 def _handler_for_comp(handlers, component_id):
     if component_id in handlers:
         return handlers[component_id]
@@ -166,17 +147,14 @@ def _dispatch(item, decoders, handlers, id_block, poll_block):
         if handler:
             handler(item, id_block, *args)
 
-def _event_dispatch(event, id_block, poll_block):
-    print("_event_dispatch {:x}".format(event))
+def event_dispatch(event, id_block, poll_block):
     _dispatch(event, _event_decoders, _event_handlers,
                      id_block, poll_block)
 
-def _message_dispatch(message, id_block, poll_block):
-    print("_message_dispatch {:x}".format(message))
+def message_dispatch(message, id_block, poll_block):
     _dispatch(message, _message_decoders, _message_handlers,
                        id_block, poll_block)
 
-def _wimp_dispatch(reason, id_block, poll_block):
-    print("_wimp_dispatch {:x}".format(reason))
+def wimp_dispatch(reason, id_block, poll_block):
     _dispatch(reason, _event_decoders, _wimp_handlers,
                       id_block, poll_block)

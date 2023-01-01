@@ -8,8 +8,8 @@ class Iconbar(Object):
     SelectAboutToBeShown = class_id + 1
     AdjustAboutToBeShown = class_id + 2
 
-    def __init__(self, id):
-        super().__init__(id)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def icon_handle(self):

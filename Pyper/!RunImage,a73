@@ -6,10 +6,11 @@ from riscos_toolbox.objects.scale import Scale
 from riscos_toolbox.objects.saveas import SaveAs, SaveAsMixin
 from riscos_toolbox.objects.proginfo import ProgInfo
 from riscos_toolbox.objects.fileinfo import FileInfo
+from riscos_toolbox.objects.printdbox import PrintDbox
 from riscos_toolbox.objects.quit import Quit
 from riscos_toolbox.gadgets.button import ActionButton
 
-from riscos_toolbox.types import Point
+from riscos_toolbox.types import Point, BBox
 
 from HCLFile import HCLFile
 
@@ -32,20 +33,55 @@ ViewEvent            = 0x601
 ViewMenuShow         = 0x900
 StatusEvent          = 0x901
 
+ViewMenuPrint = 1
+ViewMenuStatus = 4
+
+IbarMenuShowStack = 2
+IbarMenuDeleteStack = 3
+
+_views = {} # View -> Views menu component (or None if not yet added)
+
+class IbarMenu(Menu):
+    class_name = "IbarMenu"
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    @ToolboxEvent(Menu.AboutToBeShown)
+    def menu_show(self, event, id_block, poll_block):
+        self[2].fade = self[3].fade = len(_views) == 0
+        views_menu = toolbox.find_objects("Views")[0]
+        for view in filter(lambda v:_views[v] is None, _views):
+            _views[view] = views_menu.add_at_end( id(view), view.name)
+
+    @ToolboxEvent(Menu.Selection)
+    def menu_selection(self, event, id_block, poll_block):
+        print("IbarMenu.menu_selection",id_block)
+        if id_block.parent.component == IbarMenuDeleteStack:
+            for view in filter(lambda v:_views[v] == id_block.self.component, _views):
+                print("Views menu: remove {} {}".format(view,id_block.self.component))
+
 class Viewer(UserRedrawMixin, Window):
-    name = "HyperViewer"
+    class_name = "HyperViewer"
 
-    def __init__(self, id, filename):
-        super().__init__(id)
-        self.name        = "New stack"
-        self.layers      = []
-        self.buttons     = {} # comp.id -> target
-        self.hcl         = HCLFile(filename)
-        self.status_line = True
-        self.colour      = 0
-        self.history     = []
+    def __init__(self, id, template, filename):
+        super().__init__(id, template)
+        self.name         = "New stack"
+        self.layers       = []
+        self.buttons      = {} # comp.id -> target
+        self.hcl          = HCLFile(filename)
+        self.show_status  = True
+        self.colour       = 0
+        self.history      = []
+        self.scale        = 100
+        self._status_line = None
+        self._extent      = self.extent
 
-        self._display(None)
+    @property
+    def status_line(self):
+        if self._status_line is None:
+            self._status_line = self.toolbars.internal_bottom_left
+        return self._status_line
 
     def _display(self, card):
         self.card = card
@@ -59,8 +95,12 @@ class Viewer(UserRedrawMixin, Window):
         self.layers.clear()
 
     def add_button(self, defn, target):
-        comp_id = swi.swi("Toolbox_ObjectMiscOp", "0IiI;i", self.id, 1, ctypes.addressof(defn))
+        comp_id = swi.swi("Toolbox_ObjectMiscOp", "0IiI;i",
+                          self.id, 1, ctypes.addressof(defn))
         self.buttons[comp_id] = target
+
+    def set_status(self, status):
+        print("set_status",self.status_line,status)
 
     def refresh(self):
         self.force_redraw()
@@ -68,10 +108,10 @@ class Viewer(UserRedrawMixin, Window):
     def on_redraw(self, visible, scroll, redraw, offset):
         tm = (ctypes.c_int32*2*3)()
         height = self.extent.max.y - self.extent.min.y
-        tm[0][0] = 1<<16
+        tm[0][0] = (self.scale << 16) // 100
         tm[0][1] = 0
         tm[1][0] = 0
-        tm[1][1] = 1<<16
+        tm[1][1] = (self.scale << 16) // 100
         tm[2][0] = (visible.min.x          - scroll.x) * 256
         tm[2][1] = (visible.max.y - height - scroll.y) * 256
 
@@ -84,28 +124,140 @@ class Viewer(UserRedrawMixin, Window):
                 ctypes.addressof(tm),
                 ctypes.addressof(visible))
 
+    @ToolboxEvent(ViewMenuShow)
+    def view_menu_show(self, event, id_block, poll_block):
+        view_menu = toolbox.get_object(id_block.self.id)
+        try:
+            swi.swi("PDriver_Info","")
+            have_pdriver = True
+        except:
+            have_pdriver = False
+        view_menu[ViewMenuPrint].fade = not have_pdriver
+        view_menu[ViewMenuStatus].tick = self.show_status
+
     @ToolboxEvent(FileInfo.AboutToBeShown)
     def fileinfo_show(self, event, id_block, data):
         fi = toolbox.get_object(id_block.self.id)
-        fi.file_name = self.filename
-        return True
+        fi.file_name = sel.fhcl.filename
+
+    @ToolboxEvent(Scale.ApplyFactor)
+    def apply_scale(self, event, id_block, scale):
+        self.scale = scale
+        self.extent = BBox(
+            self._extent.min.x,
+            self._extent.min.y * self.scale // 100,
+            self._extent.max.x * self.scale // 100,
+            self._extent.max.y)
+        self.show()
+        self._display(self.card)
+        self.refresh()
 
     @ToolboxEvent(StatusEvent)
-    def status_handler(self, event, id_block, data):
-        print("status_handler", id_block.self, data)
-        return True
+    def status_handler(self, event, id_block, poEl_block):
+        self.show_status = not self.show_status
+        if id_block.self.component != -1:  # Menu
+            menu = toolbox.get_object(id_block.self.id)
+            menu[id_block.self.component].tick = self.show_status
+
+        if self.show_status:
+            self.status_line.show()
+        else:
+            self.status_line.hide()
 
     @ToolboxEvent(HomeButtonEvent)
-    def home_handler(self, event, id_block, data):
+    def home_handler(self, event, id_block, poll_block):
         self.history.clear()
         self._display(None)
-        return True
 
     @ToolboxEvent(BackButtonEvent)
-    def back_handler(self, event, id_block, data):
+    def back_handler(self, event, id_block, poll_block):
         card = self.history.pop() if len(self.history) else None
         self._display(card)
-        return True
+
+    @ToolboxEvent(PrintDbox.Print)
+    def print_handler(self, event, id_block, poll_block):
+        print_dbox = toolbox.get_object(id_block.self.id)
+
+        copies = 1
+        scale = 100
+
+        try:
+            features = swi.swi("PDriver_Info",";...I")
+        except:
+            # Error?
+            return
+
+        print("Features: {:x}".format(features))
+
+        transform = (ctypes.c_int32*2*2)()
+        transform[0][0] = 1<<16
+        transform[0][1] = 0
+        transform[1][0] = 0
+        transform[1][1] = 1<<16
+
+        origin = Point(0,0)
+
+        job = swi.swi("OS_Find","Is;I",0x83,"printer:")
+        if job == 0:
+            print("Failed to open printer:")
+            return
+
+        print("Job: {}".format(job))
+
+        print("Selecting job")
+        swi.swi("PDriver_SelectJob","Is",job,"Pyper")
+
+        if features & 1<<29: # Declare font
+            # drawfile_declare_fonts
+            print("Declaring fonts")
+            for layer,size in self.layers:
+                swi.swi("DrawFile_DeclareFonts","III",
+                        0, ctypes.addressof(layer), size)
+
+            swi.swi("PDriver_DeclareFont","000")
+
+        print("Give rectangles")
+
+        e = BBox(0,0,self.extent.max.x,-self.extent.min.y)
+        swi.swi("PDriver_GiveRectangle", "IIIII",
+            0,
+            ctypes.addressof(e),
+            ctypes.addressof(transform),
+            ctypes.addressof(origin),
+            0xffffff00)
+
+        print("Draw page")
+        rect = BBox(0,0,0,0)
+
+        tm = (ctypes.c_int32*2*3)()
+        tm[0][0] = (scale << 16) // 100
+        tm[0][1] = 0
+        tm[1][0] = 0
+        tm[1][1] = (scale << 16) // 100
+        tm[2][0] = 0#(visible.min.x          - scroll.x) * 256
+        tm[2][1] = 0#(visible.max.y - height - scroll.y) * 256
+
+        more = swi.swi("PDriver_DrawPage","IIII;I",1,ctypes.addressof(rect),0,0)
+        while more:
+            # process it
+
+            for layer,size in self.layers:
+                swi.swi("DrawFile_Render","IIIII",
+                    0,
+                    ctypes.addressof(layer),
+                    size,
+                    ctypes.addressof(tm),
+                    ctypes.addressof(rect))
+
+            more = swi.swi("PDriver_GetRectangle",".I;I",
+                           ctypes.addressof(rect))
+
+        if job != 0:
+            print("End job")
+            swi.swi("PDriver_EndJob","I",job)
+            print("Close file")
+            swi.swi("OS_Find","II",0,job)
+
 
     @WimpEvent(toolbox.Wimp.MouseClick)
     def mouse_clicked(self, reason, id_block, poll_block):
@@ -115,6 +267,12 @@ class Viewer(UserRedrawMixin, Window):
             self._display(target)
             return True
         return False
+
+def create_view(filename):
+    viewer = toolbox.create_object(Viewer.class_name, Viewer, (filename,))
+    viewer.show()
+    viewer._display(None)
+    _views[viewer] = None
 
 @WimpMessage([3,5]) # DataLoad, DataOpen
 def data_loader(message, id_block, poll_block):
@@ -126,8 +284,7 @@ def data_loader(message, id_block, poll_block):
     if message == 5:
         message = 4
 
-    viewer = toolbox.create_object(Viewer.name, Viewer, (filename,))
-    viewer.show()
+    create_view(filename)
 
     poll_block[3] = poll_block[2]
     swi.swi("Wimp_SendMessage", "ibi", 17, poll_block, poll_block[1])
@@ -145,7 +302,6 @@ if __name__ == "__main__":
     toolbox.initialise('<Pyper$Dir>')
 
     for filename in sys.argv[1:]:
-        viewer = toolbox.create_object(Viewer.name, Viewer, (filename,))
-        viewer.show()
+        create_view(filename)
 
     toolbox.run()

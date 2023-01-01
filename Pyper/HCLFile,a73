@@ -8,6 +8,7 @@ from utils import file_load
 
 class HCLFile:
     def __init__(self, filename):
+        self.filename = filename
         with open(filename, "r") as f:
             self.lines = list(map(lambda l:l.strip().split(' ',1), f.readlines()))
             self.labels = {None:0}
@@ -58,7 +59,7 @@ class HCLFile:
          "*":       self._star,
          "title":   self._title,
          "button":  self._button,
-         "status":  None, #self._status,
+         "status":  self._status,
          "colour":  self._colour,
          "new":     None, #self._new,
          "res":     None, #self._res,
@@ -104,8 +105,8 @@ class HCLFile:
         ctypes.memmove(ctypes.addressof(buffer), gadget, size)
         header = ctypes.cast(buffer, ctypes.POINTER(Gadget.Header)).contents
         header.component_id = -1
-        header.min.x, header.min.y = map(lambda x:int(x), args[0:2])
-        header.max.x, header.max.y = map(lambda x:int(x), args[2:4])
+        header.min.x, header.min.y, header.max.x, header.max.y = \
+            map(lambda x:int(x)*viewer.scale//100, args[0:4])
         viewer.add_button(buffer, args[4])
 
     def _colour(self, viewer, colour):
@@ -116,3 +117,7 @@ class HCLFile:
 
     def _refresh(self, viewer):
         viewer.refresh()
+
+    def _status(self, viewer, status):
+        print("Status: {}".format(status))
+        viewer.set_status(status)

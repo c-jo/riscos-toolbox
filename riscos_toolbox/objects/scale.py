@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Scale"""
 
-from swi import swi
+import swi
 
 from ..base import Object
 from ..events import EventDecoder
@@ -16,8 +16,8 @@ class Scale(Object):
     def decode_apply_factor(poll_block):
         return (poll_block[4],)
 
-    def __init__(self, id):
-        super().__init__(id)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def window_id(self):
@@ -46,11 +46,14 @@ class Scale(Object):
     def event_handler_old(self, event_code, id_block, poll_block):
         if event_code == Scale.class_id+ 0: #AboutToBeShown
             return self.about_to_be_shown(id_block)
+
         if event_code == Scale.class_id+ 1: # Scale_DialogueCompleted
             return self.dialogue_completed(id_block)
+
         if event_code == Scale.class_id+ 2: # Scale_Applyfactor
             return self.apply_factor(id_block, poll_block[4])
-            return False
+
+        return False
 
     def about_to_be_shown(self, id_block):
         return False

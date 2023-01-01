@@ -1,10 +1,10 @@
 """RISC OS Toolbox - PrintDBox"""
 
 import swi
-
-from ..base import Object
 from enum import Enum
 from collections import namedtuple
+
+from ..base import Object
 
 class PrintDBox(Object):
     class_id = 0x82b00
@@ -19,8 +19,8 @@ class PrintDBox(Object):
     PageRange   = namedtuple("PageRange", ["Start", "End"])
 
 
-    def __init__(self, id):
-        super().__init__(id)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def window_id(self):
@@ -32,7 +32,7 @@ class PrintDBox(Object):
             "Toolbox_ObjectMiscOp","III;II", 0, self.id, 2))
 
     @page_range.setter
-    def page_ranger(self, page_range):
+    def page_range(self, page_range):
         swi.swi("Toolbox_ObjectMiscOp","IIIII",
                 0, self.id, 1, page_range.Start, page_range.End)
 

@@ -10,18 +10,15 @@ def get_object(id):
     else:
         return None
 
-def find_object(name):
-    for id,obj in _objects.items():
-        if obj.name == name:
-           return obj
-    return None
+def find_objects(template):
+    return [obj for obj in _objects.values() if obj.template == template]
 
 def create_object(template, klass=None, args=None):
     id = swi.swi('Toolbox_CreateObject', 'Is;I', 0, template)
     if klass:
         if args is None:
             args = []
-        _objects[id] = klass(id,*args)
+        _objects[id] = klass(id,template,*args)
     else:
         obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
         _objects[id] = Object.create(obj_class, template, id)
@@ -32,28 +29,25 @@ class Component:
        self.id = id
 
 class Object:
-    class_id  = None
-    name      = None
-    #messages  = {} # Message -> Handler fn
-    _classes  = {} # (Class ID,Name) -> Class
-    #_messages = {} # (Message ID) -> [Class..]
-    #_handlers = {} # (Type,ID) -> [Class...]
+    class_id = None
+    class_name = None
+    _classes = {} # (Class ID,Class Name) -> Class
 
-    def __init__(self, id):
+    def __init__(self, id, template):
         self.id = id
+        self.template = template
         self.components = {}
 
     def __init_subclass__(subclass):
-        Object._classes[(subclass.class_id, subclass.name)] = subclass
+        Object._classes[(subclass.class_id, subclass.class_name)] = subclass
 
     @staticmethod
     def create(class_id, name, id):
         if (class_id,name) in Object._classes:
-            return Object._classes[(class_id,name)](id)
+            return Object._classes[(class_id,name)](id,name)
         if (class_id,None) in Object._classes:
-            return Object._classes[(class_id,None)](id)
-        else:
-            return Object(id)
+            return Object._classes[(class_id,None)](id,name)
+        return Object(id,name)
 
     def show(self, menu_semantics=False, submenu_semantics=False,
                    type=0, parent=None):

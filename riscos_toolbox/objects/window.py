@@ -1,6 +1,6 @@
 """RISC OS Toolbox - Window"""
 
-from ..base import Object
+from ..base import Object, get_object
 from ..types import BBox, Point
 from ..events import WimpEvent
 from .. import Wimp
@@ -16,16 +16,29 @@ class Window(Object):
     NoFocus = -1
     InvisibleCaret = -2
 
-    def __init__(self, id):
-        super().__init__(id)
+    class Toolbars:
+        def __init__(self, window):
+            self.window = window
+
+        @property
+        def internal_bottom_left(self):
+            return get_object(
+                swi.swi("Toolbox_ObjectMiscOp", "III;I",
+                        1<<0, self.window.id, 19))
+
+        @internal_bottom_left.setter
+        def internal_top_left(self, window):
+            swi.swi("Toolbox_ObjectMiscOp", "IIII;I",
+                    1<<0, self.window.id, 18, window.id)
+
+    def __init__(self, *args):
+        super().__init__(*args)
         self.gadgets = self.components
-        self._wimp_handle = None
+        self.toolbars = Window.Toolbars(self)
 
     @property
     def wimp_handle(self):
-        if self._wimp_handle is None:
-            self._wimp_handle = self._miscop_get_unsigned(0)
-        return self._wimp_handle
+        return self._miscop_get_unsigned(0)
 
     @property
     def help_message(self):
@@ -91,4 +104,3 @@ class UserRedrawMixin:
 
     def on_redraw(self, visible, scroll, redraw, offset):
         pass
-

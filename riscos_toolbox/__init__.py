@@ -2,12 +2,13 @@
 
 import swi
 import ctypes
+import traceback
 
 from collections import namedtuple
 
 from .types import IDBlock, BBox, Point
-from .base import Object, _objects, get_object, create_object, find_object
-from .events import _event_handlers, _message_handlers, _event_dispatch, _message_dispatch, _wimp_dispatch
+from .base import Object, _objects, get_object, create_object, find_objects
+from events import *
 
 class Wimp:
     Null = 0
@@ -39,6 +40,8 @@ _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
 
 def report_exception(e):
+    print(e)
+    print(traceback.extract_tb(e.__traceback__).format())
     error_block = swi.block(64)
     error_block[0] = 0
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
@@ -97,17 +100,18 @@ def run():
                     name      = poll_block.nullstring(0x10,size)
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
+                    print("Object {} ({}) auto-create".format(
+                          _id_block.self.id, name))
+
                     _objects[_id_block.self.id] = \
                          Object.create(obj_class, name, _id_block.self.id)
-                    print("Object {} ({}) auto-created".format(
-                          _id_block.self.id, name))
                     continue
 
                 if event_code == Toolbox.ObjectDeleted:
                     print("Object {} delted". _id_block.self.id)
                     continue
 
-                _event_dispatch(event_code, _id_block, poll_block)
+                event_dispatch(event_code, _id_block, poll_block)
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
@@ -115,14 +119,15 @@ def run():
                 if message == 0:
                     _quit = True
                 else:
-                    _message_dispatch(message, _id_block, poll_block)
+                    message_dispatch(message, _id_block, poll_block)
                 continue
 
             else: # Other reasons
-                _wimp_dispatch(reason, _id_block, poll_block)
+                wimp_dispatch(reason, _id_block, poll_block)
 
         except Exception as e:
             report_exception(e)
+
 
 def quit():
      global _quit
