@@ -1,23 +1,34 @@
 """RISC OS Toolbox library: events"""
 
 from collections.abc import Iterable
-
-from .base import Object, get_object
+import inspect
 
 # Handlers
 # --------
 # The following is based on the toolbox event handlers. A similar mechanism
 # is used for both wimp messages and wimp events.
-# To handle a toolbox event, the @ToolboxEvent decorator is used on either a
-# global function, or a member of a class which is derived from riscos_toolbox.
-# Object or .Applicaton.
+#
+# To handle a toolbox event, the @ToolboxEvent decorator is used on a member of
+# a class derived from riscos_toolbox.  event.EvebtDispatcher, such as .Object
+# or .Application. The decorator can be used to match all components (with
+# @ToolboxEvebt(event)...), one component (@ToolboxEvent(event, component)...)
+# or a list of components (@ToolboxEvent(event, [comp1,comp2]...)
 #
 # When a toolbox event is recieved, the library will try each of the self,
-# parent and ancestor objects, followed by the application object and then
-# global functions for a handler. If one is found and it DOESN'T
-# return False, the process with end. If the handler is not found, or returns
-# False, the next one will be tried. Not returning anything from the handler
-# will therefore cause further handlers not to be tried.
+# parent and ancestor objects, followed by the application object, to see if
+# it has a suitable handler.
+#
+# For each level; if a a handler exists for the component id (from id_block.
+# self.component) it will be called, or if no such handler exists, but there
+# is an "all components" handler that will  be called.
+#
+# This means a "all components" handler from a more specific object will
+# take precedence over a more specific one from a less specific object.
+#
+# If one is found and it DOESN'T return False, the process with end. If the
+# handler is not found, or returns  False, the next one will be tried. Not
+# returning anything from the handler will therefore cause further handlers not
+# to be tried.
 
 # Decoders
 # --------
@@ -25,16 +36,79 @@ from .base import Object, get_object
 # handler function. They are optional - if a decoder is not provided the poll
 # block is passed to the handler as-is.
 
-# The dicts
+# The registry dicts
 # decoders : { event : decoder-func }
-# handlers : { event : { class-name | None
+# handlers : { event : { class-name
 #                            : { component | None : handler-function } } }
 
+class EventHandler(object):
+    """Base class for things that can handle events."""
+    def __init__(self):
+        self.toolbox_handlers = {} # Event ID: Component ID: [Handlers]
+        self.wimp_handlers    = {}
+        self.message_handlers = {}
+
+        def _build_handlers(registry, handlers, classname):
+            for event, handler_map in registry.items():
+                if classname in handler_map:
+                    for component, handler in handler_map[classname].items():
+                        if event not in handlers:
+                            handlers[event] = {component:[handler]}
+                        elif component not in handlers[event]:
+                            handlers[event][component] = [handler]
+                        else:
+                            handlers[event][component].append(handler)
+
+        for klass in inspect.getmro(self.__class__):
+            classname = klass.__qualname__
+
+            _build_handlers(_event_handlers,   self.toolbox_handlers, classname)
+            _build_handlers(_wimp_handlers,    self.wimp_handlers,    classname)
+            _build_handlers(_message_handlers, self.message_handlers, classname)
+
+    def _dispatch(self, handlers, decoders, event, id_block, poll_block):
+        if event not in handlers:
+            return False
+
+        handlers = handlers[event]
+        component = id_block.self.component
+
+        def _decode(event, decoders, poll_block):
+            if event in decoders:
+                return decoders[event](poll_block)
+            else:
+                return (poll_block,)
+
+        if component in handlers:
+            args = _decode(event, decoders, poll_block)
+            for handler in handlers[component]:
+                if handler(self, event, id_block, *args) != False:
+                    return True
+
+        if None in handlers:
+            args = _decode(event, decoders, poll_block)
+            for handler in handlers[None]:
+                if handler(self, event, id_block, *args) != False:
+                    return True
+
+    def toolbox_dispatch(self, event, id_block, poll_block):
+        return self._dispatch(self.toolbox_handlers, _event_decoders,
+                              event, id_block, poll_block)
+
+    def wimp_dispatch(self, event, id_block, poll_block):
+        return self._dispatch(self.wimp_handlers, _wimp_decoders,
+                              event, id_block, poll_block)
+
+    def message_dispatch(self, event, id_block, poll_block):
+        return self._dispatch(self.message_handlers, _message_decoders,
+                              event, id_block, poll_block)
+
 _event_decoders   = {}
-_event_handlers   = {}
 _wimp_decoders    = {}
-_wimp_handlers    = {}
 _message_decoders = {}
+
+_event_handlers   = {}
+_wimp_handlers    = {}
 _message_handlers = {}
 
 def _set_handler(code, component, handler, handlers):
@@ -96,65 +170,3 @@ def WimpDecoder(event):
         _wimp_decoders[event] = handler
         return handler
     return decorator
-
-def _decode(item, decoders, poll_block):
-    if item in decoders.keys():
-        return decoders[item](poll_block)
-    else:
-        return (poll_block,)
-
-def _object_dispatch(obj, code, handlers, id_block, args):
-    cls = obj.__class__.__qualname__
-
-    for k in obj.__class__.mro():
-        if k == object:
-            break
-        cls = k.__qualname__
-        if cls in handlers:
-            handler = _handler_for_comp(handlers[cls], id_block.self.component)
-            if handler(obj, code, id_block, *args) != False:
-                return True
-
-    return False
-
-def _handler_for_comp(handlers, component_id):
-    if component_id in handlers:
-        return handlers[component_id]
-    elif None in handlers:
-        return handlers[None]
-    else:
-        return None
-
-def _dispatch(item, decoders, handlers, id_block, poll_block):
-    if item not in handlers:
-        return
-
-    handlers = handlers[item]
-
-    from .base import _objects
-    args = _decode(item, decoders, poll_block)
-    # Does an object have a handler for this event?
-    for obj in filter(lambda o:o is not None, map(get_object,
-                          [ id_block.self.id,
-                            id_block.parent.id,
-                            id_block.ancestor.id ] )):
-        if _object_dispatch(obj, item, handlers, id_block, args) != False:
-            return # Handled
-
-    # Other handlers (free functions)
-    if None in handlers:
-        handler = _handler_for_comp(handlers[None], id_block.self.component)
-        if handler:
-            handler(item, id_block, *args)
-
-def event_dispatch(event, id_block, poll_block):
-    _dispatch(event, _event_decoders, _event_handlers,
-                     id_block, poll_block)
-
-def message_dispatch(message, id_block, poll_block):
-    _dispatch(message, _message_decoders, _message_handlers,
-                       id_block, poll_block)
-
-def wimp_dispatch(reason, id_block, poll_block):
-    _dispatch(reason, _wimp_decoders, _wimp_handlers,
-                      id_block, poll_block)

@@ -1,8 +1,10 @@
 from collections import namedtuple
+from .events import EventHandler
 
 import swi
 
 _objects = {}
+_application = None
 
 def get_object(id):
     if id in _objects:
@@ -28,12 +30,13 @@ class Component:
    def __init__(self, id):
        self.id = id
 
-class Object:
+class Object(EventHandler):
     class_id = None
     class_name = None
     _classes = {} # (Class ID,Class Name) -> Class
 
     def __init__(self, id, template):
+        super().__init__()
         self.id = id
         self.template = template
         self.components = {}

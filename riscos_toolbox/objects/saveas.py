@@ -24,8 +24,8 @@ class SaveAs(Object):
     def decode_save_completed(poll_block):
         return (poll_block[4], poll_block.nullstring(20))
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, id):
+        super().__init__(id)
 
     @property
     def window_id(self):

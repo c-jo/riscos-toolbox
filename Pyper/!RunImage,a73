@@ -10,7 +10,9 @@ from riscos_toolbox.objects.printdbox import PrintDbox
 from riscos_toolbox.objects.quit import Quit
 from riscos_toolbox.gadgets.button import ActionButton
 
+from riscos_toolbox.application import Application
 from riscos_toolbox.types import Point, BBox
+from riscos_toolbox.mixins.data_transfer import DataOpenMixin
 
 from HCLFile import HCLFile
 
@@ -112,7 +114,7 @@ class Viewer(UserRedrawMixin, Window):
         self.buttons[comp_id] = target
 
     def set_status(self, status):
-        print("set_status",self.status_line,status)
+        print("set_status", self.status_line, status)
 
     def refresh(self):
         self.force_redraw()
@@ -150,7 +152,7 @@ class Viewer(UserRedrawMixin, Window):
     @ToolboxEvent(FileInfo.AboutToBeShown)
     def fileinfo_show(self, event, id_block, data):
         fi = toolbox.get_object(id_block.self.id)
-        fi.file_name = sel.fhcl.filename
+        fi.file_name = self.hcl.filename
 
     @ToolboxEvent(Scale.ApplyFactor)
     def apply_scale(self, event, id_block, scale):
@@ -280,40 +282,37 @@ class Viewer(UserRedrawMixin, Window):
             return True
         return False
 
-def create_view(filename):
-    viewer = toolbox.create_object(Viewer.class_name, Viewer, (filename,))
-    viewer.show()
-    viewer._display(None)
-    _views[viewer] = None
+class Pyper(DataOpenMixin, Application):
+    def __init__(self):
+        super().__init__('<Pyper$Dir>')
 
-@WimpMessage([3,5]) # DataLoad, DataOpen
-def data_loader(message, id_block, poll_block):
-    filetype = poll_block[10]
-    if filetype != 0xfac:
-        return
-    filename = poll_block.nullstring(44)
+    @ToolboxEvent(Quit.Quit)
+    def quit(self, event, id_block, poll_block):
+        toolbox.quit()
 
-    if message == 5:
-        message = 4
+    @ToolboxEvent(ProgInfo.AboutToBeShown)
+    def proginfo_show(self, event, id_block, poll_block):
+        toolbox.get_object(id_block.self.id).version = \
+            toolbox.msgtrans_lookup("Version")
 
-    create_view(filename)
+    def on_data_open(self, filename, filetype):
+        if filetype != 0xfac:
+            return False
 
-    poll_block[3] = poll_block[2]
-    swi.swi("Wimp_SendMessage", "ibi", 17, poll_block, poll_block[1])
+        self.create_view(filename)
+        return True
 
-@ToolboxEvent(Quit.Quit)
-def quit(event, id_block, poll_block):
-    toolbox.quit()
-
-@ToolboxEvent(ProgInfo.AboutToBeShown)
-def proginfo_show(event, id_block, poll_block):
-    toolbox.get_object(id_block.self.id).version = \
-                toolbox.msgtrans_lookup("Version")
+    def create_view(self, filename):
+        viewer = toolbox.create_object(Viewer.class_name, Viewer, (filename,))
+        viewer.show()
+        viewer._display(None)
+        _views[viewer] = None
 
 if __name__ == "__main__":
+    app = Pyper()#'<Pyper$Dir>')
     toolbox.initialise('<Pyper$Dir>')
 
     for filename in sys.argv[1:]:
-        create_view(filename)
+        app.create_view(filename)
 
-    toolbox.run()
+    toolbox.run(app)

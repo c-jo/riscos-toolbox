@@ -7,7 +7,7 @@ import traceback
 from collections import namedtuple
 
 from .types import IDBlock, BBox, Point
-from .base import Object, _objects, get_object, create_object, find_objects
+from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
 
 class Wimp:
@@ -35,6 +35,7 @@ class Toolbox:
     ObjectAutoCreated = 0x44ec1
     ObjectDeleted     = 0x44ec2
 
+_application    = None
 _quit           = False
 _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
@@ -60,8 +61,9 @@ def report_exception(e):
 
 def initialise(appdir):
     def _handler_block(handlers, add=[]):
-        ids = sorted(filter(lambda k:k >= 0,
-                            handlers.keys())) + add + [0]
+        ids = sorted(list(filter(lambda k:k >= 0,
+                                handlers.keys())) + add) + [0]
+        print(ids)
         block = swi.block(len(ids))
         for index,id in zip(range(0,len(ids)),ids):
             block[index] = id
@@ -83,12 +85,24 @@ def msgtrans_lookup(token, *args, bufsize=256):
             _msgtrans_block, token, buffer,bufsize, *args)
     return buffer.ctrlstring()
 
-def run():
+def run(application):
     poll_block = swi.block(64)
     global _quit
 
     while not _quit:
         reason,sender = swi.swi('Wimp_Poll','Ib;I.I', 0b1, poll_block)
+
+        spaa = list(
+                filter(lambda o:o is not None,
+                          map(get_object,
+                              set( [_id_block.self.id,
+                                    _id_block.parent.id,
+                                    _id_block.ancestor.id]
+                                 )
+                              )
+                         )
+               ) + [application]
+
         try:
             if reason == Wimp.ToolboxEvent:
                 size       = poll_block[0]
@@ -100,7 +114,7 @@ def run():
                     name      = poll_block.nullstring(0x10,size)
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
-                    print("Object {} ({}) auto-create".format(
+                    print("Object {:x} ({}) auto-created".format(
                           _id_block.self.id, name))
 
                     _objects[_id_block.self.id] = \
@@ -111,23 +125,29 @@ def run():
                     print("Object {} delted". _id_block.self.id)
                     continue
 
-                events.event_dispatch(event_code, _id_block, poll_block)
+                for obj in spaa:
+                    if obj.toolbox_dispatch(event_code, _id_block, poll_block):
+                        break
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
                 message = poll_block[4]
                 if message == 0:
                     _quit = True
-                else:
-                    events.message_dispatch(message, _id_block, poll_block)
+                    continue
+
+                for obj in spaa:
+                   if obj.message_dispatch(message, _id_block, poll_block):
+                       break
                 continue
 
-            else: # Other reasons
-                events.wimp_dispatch(reason, _id_block, poll_block)
+            else:
+                for obj in spaa:
+                    if obj.wimp_dispatch(reason, _id_block, poll_block):
+                        break
 
         except Exception as e:
             report_exception(e)
-
 
 def quit():
      global _quit
