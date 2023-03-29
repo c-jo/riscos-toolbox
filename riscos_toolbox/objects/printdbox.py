@@ -59,6 +59,7 @@ class PrintDbox(Object):
         else:
             return PrintDbox.Orientation.Sideways
 
+
     @orientation.setter
     def orientation(self, orientation):
         swi.swi("Toolbox_ObjectMiscOp","IIII",

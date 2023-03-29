@@ -1,4 +1,5 @@
 from .events import EventHandler
+from . import initialise, run
 
 _application = None
 
@@ -7,4 +8,7 @@ class Application(EventHandler):
         super().__init__()
         global _application
         _application = self
-        #toolbox.init(appdir)
+        initialise(appdir)
+
+    def run(self):
+        run(self)

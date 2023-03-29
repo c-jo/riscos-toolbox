@@ -1,4 +1,5 @@
 from ..events import WimpMessage
+import ctypes
 import swi
 
 class Messages:

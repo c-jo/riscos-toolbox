@@ -2,17 +2,18 @@ import riscos_toolbox as toolbox
 
 from riscos_toolbox.objects.menu import Menu
 from riscos_toolbox.objects.window import Window, UserRedrawMixin
-from riscos_toolbox.objects.scale import Scale
-from riscos_toolbox.objects.saveas import SaveAs, SaveAsMixin
+from riscos_toolbox.objects.scale import ApplyFactorEvent
 from riscos_toolbox.objects.proginfo import ProgInfo
 from riscos_toolbox.objects.fileinfo import FileInfo
 from riscos_toolbox.objects.printdbox import PrintDbox
 from riscos_toolbox.objects.quit import Quit
 from riscos_toolbox.gadgets.button import ActionButton
 
+from riscos_toolbox import Point, BBox
 from riscos_toolbox.application import Application
-from riscos_toolbox.types import Point, BBox
 from riscos_toolbox.mixins.data_transfer import DataOpenMixin
+
+from riscos_toolbox.wimp_events.mouse_click import MouseClick
 
 from HCLFile import HCLFile
 
@@ -154,9 +155,9 @@ class Viewer(UserRedrawMixin, Window):
         fi = toolbox.get_object(id_block.self.id)
         fi.file_name = self.hcl.filename
 
-    @ToolboxEvent(Scale.ApplyFactor)
-    def apply_scale(self, event, id_block, scale):
-        self.scale = scale
+    @ToolboxEvent(ApplyFactorEvent)
+    def apply_scale(self, code, id_block, event):
+        self.scale = event.factor
         self.extent = BBox(
             self._extent.min.x,
             self._extent.min.y * self.scale // 100,
@@ -167,7 +168,7 @@ class Viewer(UserRedrawMixin, Window):
         self.refresh()
 
     @ToolboxEvent(StatusEvent)
-    def status_handler(self, event, id_block, poEl_block):
+    def status_handler(self, event, id_block, poll_block):
         self.show_status = not self.show_status
         if id_block.self.component != -1:  # Menu
             menu = toolbox.get_object(id_block.self.id)
@@ -273,8 +274,9 @@ class Viewer(UserRedrawMixin, Window):
             swi.swi("OS_Find","II",0,job)
 
 
-    @WimpEvent(toolbox.Wimp.MouseClick)
-    def mouse_clicked(self, reason, id_block, poll_block):
+    @WimpEvent(MouseClick)
+    def mouse_clicked(self, reason, id_block, event):
+        print("mouse_click",event)
         if id_block.self.component in self.buttons:
             target = self.buttons[id_block.self.component]
             self.history.append(self.card)
@@ -309,10 +311,9 @@ class Pyper(DataOpenMixin, Application):
         _views[viewer] = None
 
 if __name__ == "__main__":
-    app = Pyper()#'<Pyper$Dir>')
-    toolbox.initialise('<Pyper$Dir>')
+    app = Pyper()
 
     for filename in sys.argv[1:]:
         app.create_view(filename)
 
-    toolbox.run(app)
+    app.run()

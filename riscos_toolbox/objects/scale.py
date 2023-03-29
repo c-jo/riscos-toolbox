@@ -1,9 +1,11 @@
 """RISC OS Toolbox - Scale"""
 
 import swi
+import ctypes
 
 from ..base import Object
-from ..events import EventDecoder
+from ..events import EventData
+from ..toolbox_events import ToolboxEventData
 
 class Scale(Object):
     class_id = 0x82c00
@@ -11,10 +13,6 @@ class Scale(Object):
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
     ApplyFactor       = class_id + 2
-
-    @EventDecoder(ApplyFactor)
-    def decode_apply_factor(poll_block):
-        return (poll_block[4],)
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -43,23 +41,10 @@ class Scale(Object):
     def title(self, title):
         swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 5, title)
 
-    def event_handler_old(self, event_code, id_block, poll_block):
-        if event_code == Scale.class_id+ 0: #AboutToBeShown
-            return self.about_to_be_shown(id_block)
+class ApplyFactorEvent(ToolboxEventData):
+    event_id = Scale.ApplyFactor
 
-        if event_code == Scale.class_id+ 1: # Scale_DialogueCompleted
-            return self.dialogue_completed(id_block)
+    _fields_ = [ ("factor", ctypes.c_int32) ]
 
-        if event_code == Scale.class_id+ 2: # Scale_Applyfactor
-            return self.apply_factor(id_block, poll_block[4])
-
-        return False
-
-    def about_to_be_shown(self, id_block):
-        return False
-
-    def apply_factor(self, id_block, factor):
-        return False
-
-    def dialogue_completed(self, id_block):
-        return False
+    def __init__(self):
+        super().__init__()

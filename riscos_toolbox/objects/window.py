@@ -1,10 +1,9 @@
 """RISC OS Toolbox - Window"""
 
 from ..base import Object, get_object
-from ..types import BBox, Point
 from ..events import WimpEvent
-from .. import Wimp
-
+from .. import Wimp, BBox, Point
+from ..wimp_events.redraw_window import RedrawWindow
 import swi
 import ctypes
 
@@ -83,24 +82,23 @@ class Window(Object):
                 0, self.id, 17, ctypes.addressof(bbox))
 
 class UserRedrawMixin:
-    @WimpEvent(Wimp.RedrawWindow)
-    def redraw(self, reason, id_block, poll_block):
-        block = poll_block
+    @WimpEvent(RedrawWindow)
+    def redraw(self, reason, id_block, event):
 
-        more = swi.swi("Wimp_RedrawWindow", ".b;I", poll_block)
+        class RedrawData(ctypes.Structure):
+            _fields_ = [ ("handle", ctypes.c_int32),
+                  ("visible", BBox), ("scroll", Point), ("redraw", BBox) ]
+
+        rd = RedrawData()
+        rd.handle = event.window_handle
+        more = swi.swi("Wimp_RedrawWindow", ".I;I", ctypes.addressof(rd))
         while more:
-            visible = BBox ( block.tosigned(1), block.tosigned(2),
-                             block.tosigned(3), block.tosigned(4) )
-            scroll =  Point( block.tosigned(5), block.tosigned(6) )
-            redraw =  BBox ( block.tosigned(7), block.tosigned(8),
-                             block.tosigned(9), block.tosigned(10) )
+            offset = Point( rd.visible.min.x - rd.scroll.x,
+                            rd.visible.max.y - rd.scroll.y )
 
-            offset = Point( visible.min.x - scroll.x,
-                            visible.max.y - scroll.y )
+            self.on_redraw( rd.visible, rd.scroll, rd.redraw, offset )
 
-            self.on_redraw( visible, scroll, redraw, offset )
-
-            more = swi.swi("Wimp_GetRectangle", ".b;I", poll_block)
+            more = swi.swi("Wimp_RedrawWindow", ".I;I", ctypes.addressof(rd))
 
     def on_redraw(self, visible, scroll, redraw, offset):
         pass

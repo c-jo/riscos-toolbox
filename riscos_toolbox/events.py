@@ -1,6 +1,7 @@
 """RISC OS Toolbox library: events"""
 
 from collections.abc import Iterable
+import ctypes
 import inspect
 
 # Handlers
@@ -30,21 +31,46 @@ import inspect
 # returning anything from the handler will therefore cause further handlers not
 # to be tried.
 
-# Decoders
-# --------
-# Decoders are used to unpack the wimp's poll block into arguments for the
-# handler function. They are optional - if a decoder is not provided the poll
-# block is passed to the handler as-is.
+# handlers
+# { event :
+#     { class-name :
+#         { component | None:
+#             (handler-function, data-class | None )
+#         }
+#     }
+# }
 
-# The registry dicts
-# decoders : { event : decoder-func }
-# handlers : { event : { class-name
-#                            : { component | None : handler-function } } }
+class EventData(object):
+    id = None
+
+    @classmethod
+    def from_block(cls, data):
+        """Create an object setup from `data` (a byte string). The default
+           version here will setup a ctypes Structure derived class."""
+        if issubclass(cls, ctypes.Structure):
+            if len(data) < ctypes.sizeof(cls):
+                raise RuntimeError("not enough data for "+cls.__name__)
+            obj = cls()
+            dst = ctypes.cast(
+                ctypes.pointer(obj), ctypes.POINTER(ctypes.c_ubyte))
+            for b in range(0, ctypes.sizeof(cls)):
+                dst[b] = data[b]
+            return obj
+
+        else:
+            raise RuntimeError("from_block not implemented for "+cls.__name__)
+
+    @classmethod
+    def from_poll_block(cls, poll_block):
+        return cls.from_block(poll_block.tobytes())
+
+    def __init__(self):
+        super().__init__()
 
 class EventHandler(object):
     """Base class for things that can handle events."""
     def __init__(self):
-        self.toolbox_handlers = {} # Event ID: Component ID: [Handlers]
+        self.toolbox_handlers = {} # event: component: [(handler, data-class)..]
         self.wimp_handlers    = {}
         self.message_handlers = {}
 
@@ -62,52 +88,45 @@ class EventHandler(object):
         for klass in inspect.getmro(self.__class__):
             classname = klass.__qualname__
 
-            _build_handlers(_event_handlers,   self.toolbox_handlers, classname)
+            _build_handlers(_toolbox_handlers, self.toolbox_handlers, classname)
             _build_handlers(_wimp_handlers,    self.wimp_handlers,    classname)
             _build_handlers(_message_handlers, self.message_handlers, classname)
 
-    def _dispatch(self, handlers, decoders, event, id_block, poll_block):
+    def _dispatch(self, handlers, event, id_block, poll_block):
         if event not in handlers:
             return False
 
         handlers = handlers[event]
         component = id_block.self.component
 
-        def _decode(event, decoders, poll_block):
-            if event in decoders:
-                return decoders[event](poll_block)
-            else:
-                return (poll_block,)
+        def _data(data_class, poll_block):
+            if data_class is not None:
+                return data_class.from_poll_block(poll_block)
+            return poll_block
 
         if component in handlers:
-            args = _decode(event, decoders, poll_block)
-            for handler in handlers[component]:
-                if handler(self, event, id_block, *args) != False:
+            for handler,data_class in handlers[component]:
+                if handler(self, event, id_block, _data(data_class, poll_block)) != False:
                     return True
 
         if None in handlers:
-            args = _decode(event, decoders, poll_block)
-            for handler in handlers[None]:
-                if handler(self, event, id_block, *args) != False:
+            for handler,data_class in handlers[None]:
+                if handler(self, event, id_block, _data(data_class, poll_block)) != False:
                     return True
 
     def toolbox_dispatch(self, event, id_block, poll_block):
-        return self._dispatch(self.toolbox_handlers, _event_decoders,
+        return self._dispatch(self.toolbox_handlers,
                               event, id_block, poll_block)
 
     def wimp_dispatch(self, event, id_block, poll_block):
-        return self._dispatch(self.wimp_handlers, _wimp_decoders,
+        return self._dispatch(self.wimp_handlers,
                               event, id_block, poll_block)
 
     def message_dispatch(self, event, id_block, poll_block):
-        return self._dispatch(self.message_handlers, _message_decoders,
+        return self._dispatch(self.message_handlers,
                               event, id_block, poll_block)
 
-_event_decoders   = {}
-_wimp_decoders    = {}
-_message_decoders = {}
-
-_event_handlers   = {}
+_toolbox_handlers = {}
 _wimp_handlers    = {}
 _message_handlers = {}
 
@@ -118,17 +137,21 @@ def _set_handler(code, component, handler, handlers):
         cls = None
 
     def _add_handler(handlers, code, component, cls, handler):
-        handlers2 = {}
-        if isinstance(code, Iterable):
-            for component in component:
-                handlers2[component] = handler
+        if isinstance(code, int):
+            event_type = None
+        elif issubclass(code, EventData):
+            event_type = code
+            code = code.event_id
         else:
-            handlers2[component] = handler
+            raise RuntimeError("Handler must be for int or EventData")
 
         if code in handlers.keys():
-            handlers[code][cls] = handlers2
+            if cls in handlers[code]:
+                handlers[code][cls][component] = handler
+            else:
+                handlers[code][cls] = { component: (handler, event_tyoe) }
         else:
-            handlers[code] = {cls:handlers2}
+            handlers[code] = {cls:{ component: (handler, event_type) } }
 
     if isinstance(code, Iterable):
         for code in code:
@@ -140,13 +163,7 @@ def _set_handler(code, component, handler, handlers):
 
 def ToolboxEvent(event, component=None):
     def decorator(handler):
-        return _set_handler(event, component, handler, _event_handlers)
-    return decorator
-
-def EventDecoder(event):
-    def decorator(handler):
-        _event_decoders[event] = handler
-        return handler
+        return _set_handler(event, component, handler, _toolbox_handlers)
     return decorator
 
 def WimpMessage(message, component=None):
@@ -154,19 +171,7 @@ def WimpMessage(message, component=None):
         return _set_handler(message, component, handler, _message_handlers)
     return decorator
 
-def MessageDecoder(event):
-    def decorator(handler):
-        _message_decoders[event] = handler
-        return handler
-    return decorator
-
 def WimpEvent(reason, component=None):
     def decorator(handler):
         return _set_handler(reason, component, handler, _wimp_handlers)
-    return decorator
-
-def WimpDecoder(event):
-    def decorator(handler):
-        _wimp_decoders[event] = handler
-        return handler
     return decorator

@@ -6,7 +6,7 @@ import traceback
 
 from collections import namedtuple
 
-from .types import IDBlock, BBox, Point
+from ._types import *
 from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
 
@@ -35,7 +35,6 @@ class Toolbox:
     ObjectAutoCreated = 0x44ec1
     ObjectDeleted     = 0x44ec2
 
-_application    = None
 _quit           = False
 _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
@@ -70,7 +69,7 @@ def initialise(appdir):
         return block
 
     wimp_messages  = _handler_block(events._message_handlers)
-    toolbox_events = _handler_block(events._event_handlers,
+    toolbox_events = _handler_block(events._toolbox_handlers,
                          [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver,task_handle,sprite_area = \
