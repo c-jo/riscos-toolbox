@@ -149,7 +149,7 @@ def _set_handler(code, component, handler, handlers):
             if cls in handlers[code]:
                 handlers[code][cls][component] = handler
             else:
-                handlers[code][cls] = { component: (handler, event_tyoe) }
+                handlers[code][cls] = { component: (handler, event_type) }
         else:
             handlers[code] = {cls:{ component: (handler, event_type) } }
 
@@ -197,7 +197,7 @@ def toolbox_dispatch(event_code, application, id_block, poll_block):
          if obj.toolbox_dispatch(event_code, id_block, poll_block):
              break
 
-def message_dispatch(message, applicaton, id_block, poll_block):
+def message_dispatch(message, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
          if obj.message_dispatch(message, id_block, poll_block):
              break

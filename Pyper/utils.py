@@ -30,4 +30,4 @@ def file_load(filename):
     return buffer,size
 
 if __name__ == "__main__":
-    print(file_Load("underlay"))
+    print(file_load("underlay"))
