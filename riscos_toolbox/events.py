@@ -67,6 +67,15 @@ class EventData(object):
     def __init__(self):
         super().__init__()
 
+
+class ToolboxEvent(EventData, ctypes.Structure):
+    _fields_ = [ \
+        ("size", ctypes.c_uint32),
+        ("reference_number", ctypes.c_int32),
+        ("event_code", ctypes.c_uint32),
+        ("flags", ctypes.c_uint32)
+    ]
+
 class EventHandler(object):
     """Base class for things that can handle events."""
     def __init__(self):
@@ -161,17 +170,17 @@ def _set_handler(code, component, handler, handlers):
 
     return handler
 
-def ToolboxEvent(event, component=None):
+def toolbox_handler(event, component=None):
     def decorator(handler):
         return _set_handler(event, component, handler, _toolbox_handlers)
     return decorator
 
-def WimpMessage(message, component=None):
+def Message_handler(message, component=None):
     def decorator(handler):
         return _set_handler(message, component, handler, _message_handlers)
     return decorator
 
-def WimpEvent(reason, component=None):
+def wimp_handler(reason, component=None):
     def decorator(handler):
         return _set_handler(reason, component, handler, _wimp_handlers)
     return decorator

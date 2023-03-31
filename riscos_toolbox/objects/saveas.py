@@ -1,5 +1,5 @@
 from ..base import Object, get_object
-from ..events import ToolboxEvent, EventData
+from ..events import toolbox_handler, ToolboxEvent
 
 import swi
 import ctypes
@@ -11,28 +11,26 @@ class SaveAs(Object):
 
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
-    FillBuffer        = class_id + 3
-    SaveCompleted     = class_id + 4
 
-    class SaveToFile(EventData):
+    class SaveToFile(ToolboxEvent):
         event_id = _class_id + 2
+        _fields_ = [ ("filename", ctypes.c_char*212) ]
 
-        _fields_ = [ ("filename", ctypes.c_char*240) ]
+        @property
+        def selection(self):
+            return True if (self.flags & 1<<0) else False
 
-        def __init__(self):
-            super().__init__()
+    class FillBuffer(ToolboxEvent):
+        event_id = _class_id + 3
+        _fields_ = [ ("size", ctypes.c_uint32),
+                     ("address", ctypes.c_void_p),
+                     ("no_bytes", ctypes.c_uint32) ]
 
-#    @EventDecoder(SaveToFile)
-#    def decode_save_to_file(poll_block):
-#        return (poll_block.nullstring(16),)
-
-#    @EventDecoder(FillBuffer)
-#    def decode_fill_buffer(poll_block):
-#        return (poll_block[4], poll_block[5], poll_block[6])
-
-#    @EventDecoder(SaveCompleted)
-#    def decode_save_completed(poll_block):
-#        return (poll_block[4], poll_block.nullstring(20))
+    class SaveCompleted(ToolboxEvent):
+        event_id = _class_id + 4
+        _fields_ = [ ("size", ctypes.c_uint32),
+                     ("address", ctypes.c_void_p),
+                     ("no_bytes", ctypes.c_uint32) ]
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -92,7 +90,7 @@ class SaveAsMixin:
 #    def __init__(self, id):
 #       super().__init__(id)
 
-    @ToolboxEvent(SaveAs.SaveToFile)
+    @toolbox_handler(SaveAs.SaveToFile)
     def _saveas_save_to_file(self, event_code, id_block, filename):
         saved = self.save_to_file(filename)
         if saved:
@@ -102,7 +100,7 @@ class SaveAsMixin:
     def save_to_file(self, filename):
         return None
 
-    @ToolboxEvent(SaveAs.SaveCompleted)
+    @toolbox_handler(SaveAs.SaveCompleted)
     def _saveas_save_completed(self, event_code, id_block,
                                wimp_message, filename):
         self.save_completed(filename)

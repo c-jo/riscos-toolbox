@@ -2,8 +2,7 @@ import unittest
 import sys
 
 import riscos_toolbox as toolbox
-
-ToolboxEvent = toolbox.events.ToolboxEvent
+from riscos_toolbox.events import toolbox_handler
 
 id_block = toolbox.IDBlock()
 id_block.self.id            = 0x1d001
@@ -19,7 +18,7 @@ class TestClass01(toolbox.Object):
     def __init__(self, id):
         super().__init__(id, "test")
 
-    @ToolboxEvent(0xc101)
+    @toolbox_handler(0xc101)
     def event_c101(self, event, id_block, poll_block):
         calls.append((self.__class__.__name__, self.id, event, id_block, poll_block))
 
@@ -27,7 +26,7 @@ class TestClass02(toolbox.Object):
     def __init__(self, id):
         super().__init__(id, "test")
 
-    @ToolboxEvent(0xc102)
+    @toolbox_handler(0xc102)
     def __init__(self, id):
         super().__init__(id)
 
@@ -38,11 +37,11 @@ class TestClass03(toolbox.Object):
     def __init__(self, id):
         super().__init__(id, "test")
 
-    @ToolboxEvent(0xc103)
+    @toolbox_handler(0xc103)
     def event_c103(self, event, id_block, poll_block):
         calls.append((self.__class__.__name__, self.id, event, id_block, poll_block))
 
-@ToolboxEvent(0xff01)
+@toolbox_handler(0xff01)
 def test_func(event, id_block, *args):
     calls.append((test_func.__name__, None, event, id_block, args))
 
