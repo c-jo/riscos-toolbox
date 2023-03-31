@@ -41,7 +41,7 @@ import inspect
 # }
 
 class EventData(object):
-    id = None
+    event_id = None
 
     @classmethod
     def from_block(cls, data):
@@ -175,3 +175,34 @@ def WimpEvent(reason, component=None):
     def decorator(handler):
         return _set_handler(reason, component, handler, _wimp_handlers)
     return decorator
+
+# List of self, parent, ancestor, applcation with duplicated and None's removed.
+# This is the list of objects to try to handle the event, in order.
+def _get_spaa(application, id_block):
+        from .base import get_object
+        return list(
+                filter(lambda o:o is not None,
+                          map(get_object,
+                              set( [id_block.self.id,
+                                    id_block.parent.id,
+                                    id_block.ancestor.id,
+                                    application]
+                                 )
+                              )
+                         )
+               )
+
+def toolbox_dispatch(event_code, application, id_block, poll_block):
+    for obj in _get_spaa(application, id_block):
+         if obj.toolbox_dispatch(event_code, id_block, poll_block):
+             break
+
+def message_dispatch(message, applicaton, id_block, poll_block):
+    for obj in _get_spaa(application, id_block):
+         if obj.message_dispatch(message, id_block, poll_block):
+             break
+
+def wimp_dispatch(reason, application, id_block, poll_block):
+    for obj in _get_spaa(application, id_block):
+         if obj.wimp_dispatch(reason, id_block, poll_block):
+             break

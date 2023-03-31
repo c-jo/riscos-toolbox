@@ -10,7 +10,6 @@ import riscos_toolbox.objects.saveas
 
 import swi
 
-
 TEST_OBJECT_ID = 0x1001
 TEST_WINDOW_ID = 0x2001
 TEST_TITLE     = "Test Title"

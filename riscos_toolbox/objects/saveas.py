@@ -1,31 +1,41 @@
 from ..base import Object, get_object
-from ..events import EventDecoder, ToolboxEvent
+from ..events import ToolboxEvent, EventData
 
 import swi
+import ctypes
+
+_class_id = 0x82bc0
 
 class SaveAs(Object):
-    class_id = 0x82bc0
+    class_id = _class_id
 
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
-    SaveToFile        = class_id + 2
     FillBuffer        = class_id + 3
     SaveCompleted     = class_id + 4
 
-    @EventDecoder(SaveToFile)
-    def decode_save_to_file(poll_block):
-        return (poll_block.nullstring(16),)
+    class SaveToFile(EventData):
+        event_id = _class_id + 2
 
-    @EventDecoder(FillBuffer)
-    def decode_fill_buffer(poll_block):
-        return (poll_block[4], poll_block[5], poll_block[6])
+        _fields_ = [ ("filename", ctypes.c_char*240) ]
 
-    @EventDecoder(SaveCompleted)
-    def decode_save_completed(poll_block):
-        return (poll_block[4], poll_block.nullstring(20))
+        def __init__(self):
+            super().__init__()
 
-    def __init__(self, id):
-        super().__init__(id)
+#    @EventDecoder(SaveToFile)
+#    def decode_save_to_file(poll_block):
+#        return (poll_block.nullstring(16),)
+
+#    @EventDecoder(FillBuffer)
+#    def decode_fill_buffer(poll_block):
+#        return (poll_block[4], poll_block[5], poll_block[6])
+
+#    @EventDecoder(SaveCompleted)
+#    def decode_save_completed(poll_block):
+#        return (poll_block[4], poll_block.nullstring(20))
+
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @property
     def window_id(self):

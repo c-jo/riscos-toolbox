@@ -3,10 +3,9 @@ import sys
 
 import riscos_toolbox as toolbox
 
-_dispatch = toolbox.events._dispatch
 ToolboxEvent = toolbox.events.ToolboxEvent
 
-id_block = toolbox.types.IDBlock()
+id_block = toolbox.IDBlock()
 id_block.self.id            = 0x1d001
 id_block.self.component     = 0xc0001
 id_block.parent.id          = 0x1d002
@@ -47,42 +46,30 @@ class TestClass03(toolbox.Object):
 def test_func(event, id_block, *args):
     calls.append((test_func.__name__, None, event, id_block, args))
 
-class FreeFuncTest(unittest.TestCase):
-    def setUp(self):
-        calls.clear()
-
-    def test_free_func(self):
-        toolbox.events.event_dispatch(0xff01, id_block, None)
-        self.assertEqual(len(calls), 1)
-
-    def test_free_func_no_handler(self):
-        toolbox.events.event_dispatch(0xff00, id_block, None)
-        self.assertEqual(len(calls), 0)
-
 class ObjectDispatchTest(unittest.TestCase):
     def setUp(self):
         calls.clear()
 
     def test_self_handler(self):
         toolbox.base._objects[id_block.self.id] = TestClass01(id_block.self.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][2], 0xc101)
 
     def test_self_handler_different_call(self):
         toolbox.base._objects[id_block.self.id] = TestClass01(id_block.self.id)
-        toolbox.events.event_dispatch(0xa101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xa101, None, id_block, None)
         self.assertEqual(len(calls), 0)
 
     def test_parent_handler(self):
         toolbox.base._objects[id_block.parent.id] = TestClass01(id_block.parent.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][2], 0xc101)
 
     def test_ancesgtor_handler(self):
         toolbox.base._objects[id_block.ancestor.id] = TestClass01(id_block.ancestor.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][2], 0xc101)
 
@@ -95,7 +82,7 @@ class ObjectDispatchTestSame(unittest.TestCase):
     def test_self_parent(self):
         toolbox.base._objects[id_block.self.id] = TestClass01(id_block.self.id)
         toolbox.base._objects[id_block.parent.id] = TestClass01(id_block.parent.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][1], id_block.self.id)
         self.assertEqual(calls[0][2], 0xc101)
@@ -103,7 +90,7 @@ class ObjectDispatchTestSame(unittest.TestCase):
     def test_self_ancestor(self):
         toolbox.base._objects[id_block.self.id] = TestClass01(id_block.self.id)
         toolbox.base._objects[id_block.ancestor.id] = TestClass01(id_block.ancestor.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][1], id_block.self.id)
         self.assertEqual(calls[0][2], 0xc101)
@@ -111,7 +98,7 @@ class ObjectDispatchTestSame(unittest.TestCase):
     def test_parent_ancestor(self):
         toolbox.base._objects[id_block.parent.id] = TestClass01(id_block.parent.id)
         toolbox.base._objects[id_block.ancestor.id] = TestClass01(id_block.ancestor.id)
-        toolbox.events.event_dispatch(0xc101, id_block, None)
+        toolbox.events.toolbox_dispatch(0xc101, None, id_block, None)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][1], id_block.parent.id)
         self.assertEqual(calls[0][2], 0xc101)
