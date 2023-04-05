@@ -1,30 +1,27 @@
-import riscos_toolbox as toolbox
-
-from riscos_toolbox.objects.menu import Menu
-from riscos_toolbox.objects.window import Window, UserRedrawMixin
-from riscos_toolbox.objects.scale import ApplyFactorEvent
-from riscos_toolbox.objects.proginfo import ProgInfo
-from riscos_toolbox.objects.fileinfo import FileInfo
-from riscos_toolbox.objects.printdbox import PrintDbox
-from riscos_toolbox.objects.quit import Quit
-from riscos_toolbox.gadgets.button import ActionButton
-
-from riscos_toolbox import Point, BBox
-from riscos_toolbox.application import Application
-from riscos_toolbox.mixins.data_transfer import DataOpenMixin
-
-from riscos_toolbox.wimp_events.mouse_click import MouseClick
-
-from HCLFile import HCLFile
-
-ToolboxEvent = toolbox.events.ToolboxEvent
-WimpEvent    = toolbox.events.WimpEvent
-WimpMessage  = toolbox.events.WimpMessage
-
 import swi
 import sys
 import os
 import ctypes
+
+import riscos_toolbox as toolbox
+from riscos_toolbox import Point, BBox
+
+from riscos_toolbox.objects.menu import Menu
+from riscos_toolbox.objects.window import Window
+from riscos_toolbox.objects.scale import ApplyFactorEvent
+from riscos_toolbox.objects.proginfo import ProgInfo
+from riscos_toolbox.objects.fileinfo import FileInfo
+from riscos_toolbox.objects.printdbox import PrintEvent
+from riscos_toolbox.objects.quit import Quit
+from riscos_toolbox.gadgets.button import ActionButton
+from riscos_toolbox.application import Application
+from riscos_toolbox.mixins.data_transfer import DataOpenMixin
+from riscos_toolbox.mixins.printing import PrintMixin
+from riscos_toolbox.mixins.window import UserRedrawMixin
+from riscos_toolbox.wimp_events.mouse_click import MouseClick
+from riscos_toolbox.events import toolbox_handler, wimp_handler
+
+from HCLFile import HCLFile
 
 HomeButtonEvent      = 0x101
 BackButtonEvent      = 0x103
@@ -76,7 +73,7 @@ class IbarMenu(Menu):
                 self[2].fade = self[3].fade = True
 
 
-class Viewer(UserRedrawMixin, Window):
+class Viewer(UserRedrawMixin, PrintMixin, Window):
     class_name = "HyperViewer"
 
     def __init__(self, id, template, filename):
@@ -120,7 +117,8 @@ class Viewer(UserRedrawMixin, Window):
     def refresh(self):
         self.force_redraw()
 
-    def on_redraw(self, visible, scroll, redraw, offset):
+    # UserRedrawMixin
+    def redraw_window(self, visible, scroll, redraw, offset):
         tm = (ctypes.c_int32*2*3)()
         height = self.extent.max.y - self.extent.min.y
         tm[0][0] = (self.scale << 16) // 100
@@ -189,100 +187,60 @@ class Viewer(UserRedrawMixin, Window):
         card = self.history.pop() if len(self.history) else None
         self._display(card)
 
-    @toolbox_handler(PrintDbox.Print)
-    def print_handler(self, event, id_block, poll_block):
-        print_dbox = toolbox.get_object(id_block.self.id)
-
-        copies = 1
-        scale = 100
-
-        try:
-            features = swi.swi("PDriver_Info",";...I")
-        except:
-            # Error?
-            return
-
-        print("Features: {:x}".format(features))
-
-        transform = (ctypes.c_int32*2*2)()
-        transform[0][0] = 1<<16
-        transform[0][1] = 0
-        transform[1][0] = 0
-        transform[1][1] = 1<<16
-
-        origin = Point(0,0)
-
-        job = swi.swi("OS_Find","Is;I",0x83,"printer:")
-        if job == 0:
-            print("Failed to open printer:")
-            return
-
-        print("Job: {}".format(job))
-
-        print("Selecting job")
-        swi.swi("PDriver_SelectJob","Is",job,"Pyper")
-
-        if features & 1<<29: # Declare font
-            # drawfile_declare_fonts
-            print("Declaring fonts")
-            for layer,size in self.layers:
-                swi.swi("DrawFile_DeclareFonts","III",
-                        0, ctypes.addressof(layer), size)
-
-            swi.swi("PDriver_DeclareFont","000")
-
-        print("Give rectangles")
-
-        e = BBox(0,0,self.extent.max.x,-self.extent.min.y)
-        swi.swi("PDriver_GiveRectangle", "IIIII",
-            0,
-            ctypes.addressof(e),
-            ctypes.addressof(transform),
-            ctypes.addressof(origin),
-            0xffffff00)
-
-        print("Draw page")
-        rect = BBox(0,0,0,0)
-
-        tm = (ctypes.c_int32*2*3)()
-        tm[0][0] = (scale << 16) // 100
-        tm[0][1] = 0
-        tm[1][0] = 0
-        tm[1][1] = (scale << 16) // 100
-        tm[2][0] = 0#(visible.min.x          - scroll.x) * 256
-        tm[2][1] = 0#(visible.max.y - height - scroll.y) * 256
-
-        more = swi.swi("PDriver_DrawPage","IIII;I",1,ctypes.addressof(rect),0,0)
-        while more:
-            # process it
-
-            for layer,size in self.layers:
-                swi.swi("DrawFile_Render","IIIII",
-                    0,
-                    ctypes.addressof(layer),
-                    size,
-                    ctypes.addressof(tm),
-                    ctypes.addressof(rect))
-
-            more = swi.swi("PDriver_GetRectangle",".I;I",
-                           ctypes.addressof(rect))
-
-        if job != 0:
-            print("End job")
-            swi.swi("PDriver_EndJob","I",job)
-            print("Close file")
-            swi.swi("OS_Find","II",0,job)
-
-
     @wimp_handler(MouseClick)
     def mouse_clicked(self, reason, id_block, event):
-        print("mouse_click",event)
         if id_block.self.component in self.buttons:
             target = self.buttons[id_block.self.component]
             self.history.append(self.card)
             self._display(target)
             return True
         return False
+
+    # PrintMixin handlers
+    def declare_fonts(self):
+        for layer,size in self.layers:
+            swi.swi("DrawFile_DeclareFonts","III",
+                0, ctypes.addressof(layer), size)
+
+    def give_rectangles(self, page, sideways, scale):
+        palette = (ctypes.c_uint32*20)()
+        swi.swi("Wimp_ReadPalette", ".II",
+            ctypes.addressof(palette), 0x45555254) # True-colour
+
+        # Print as much as we can
+        rect = BBox( 0,0, 0xffff, 0xffff )
+
+        transform = PrintMixin.Transform()
+        transform[0][0] = 1<<16
+        transform[0][1] = 0
+        transform[1][0] = 0
+        transform[1][1] = 1<<16
+
+        origin = Point(0,0)
+        background = palette[self.colour]
+
+        return [(0, rect, transform, origin, background)]
+
+    def draw_rectangle(self, page, rect, sideways, scale, id):
+        height = -self.extent.min.y
+
+        transform = (ctypes.c_int32*2*3)()
+
+        if sideways:
+            transform[0][1] = (scale << 16) // 100
+            transform[1][0] = -(scale << 16) // 100
+            transform[2][0] = (height * scale * 256) // 100
+        else:
+            transform[0][0] = (scale << 16) // 100
+            transform[1][1] = (scale << 16) // 100
+
+        for layer,size in self.layers:
+            swi.swi("DrawFile_Render","IIIII",
+                0,
+                ctypes.addressof(layer),
+                size,
+                ctypes.addressof(transform),
+                ctypes.addressof(rect))
 
 class Pyper(DataOpenMixin, Application):
     def __init__(self):
@@ -297,7 +255,7 @@ class Pyper(DataOpenMixin, Application):
         toolbox.get_object(id_block.self.id).version = \
             toolbox.msgtrans_lookup("Version")
 
-    def on_data_open(self, filename, filetype):
+    def data_open(self, filename, filetype):
         if filetype != 0xfac:
             return False
 

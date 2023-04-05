@@ -1,20 +1,17 @@
 from ..events import message_handler
+from ..user_messages.data_transfer import *
+
 import ctypes
 import swi
 
-class Messages:
-    DataOpen = 5
-
 class DataOpenMixin:
-    @message_handler(Messages.DataOpen)
-    def data_open(self, message, id_block, poll_block):
-        filetype = poll_block[10]
-        filename = poll_block.nullstring(44)
+    @message_handler(DataOpenMessage)
+    def _data_open(self, code, id_block, message):
+        if self.data_open(message.path_name, message.file_type) != False:
+            message.your_ref = message.my_ref
+            message.action_code = Messages.DataLoadAck
+            swi.swi("Wimp_SendMessage", "iIi",
+                17, ctypes.addressof(message), message.sender)
 
-        if self.on_data_open(filename, filetype) != False:
-            poll_block[3] = poll_block[2]
-            poll_block[4] = 4
-            swi.swi("Wimp_SendMessage", "ibi", 17, poll_block, poll_block[1])
-
-    def on_data_open(self, filename, filetype):
+    def data_open(self, filename, filetype):
         return False

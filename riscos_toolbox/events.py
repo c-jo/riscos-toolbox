@@ -138,12 +138,11 @@ class AboutToBeShownEvent(ToolboxEvent):
 
 class UserMessage(Event, ctypes.Structure):
     _fields_ = [ \
-        ("size", ctypes.c_uint32), # 20 <= size <= 256, multiple of 4
-        ("task_handle", ctypes.c_uint32), # task handle of sender (*)
-        ("my_ref", ctypes.c_uint32), # unique ref number (*)
-        ("your_ref", ctypes.c_uint32), # if non-zero, acknowldge
-        ("action", ctypes.c_uint32), # message action code
-        # Fields marked (*) are filled in by the wimp.
+        ("size", ctypes.c_uint32),
+        ("sender", ctypes.c_uint32),
+        ("my_ref", ctypes.c_uint32),
+        ("your_ref", ctypes.c_uint32),
+        ("code", ctypes.c_uint32),
     ]
 
 class EventHandler(object):

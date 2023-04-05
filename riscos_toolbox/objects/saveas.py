@@ -1,5 +1,5 @@
-from ..base import Object, get_object
-from ..events import toolbox_handler, ToolboxEvent
+from ..base import Object
+from ..events import ToolboxEvent
 
 import swi
 import ctypes
@@ -85,22 +85,3 @@ class FillBufferEvent(ToolboxEvent):
 class SaveCompletedEvent(ToolboxEvent):
     event_id = SaveAs.SaveCompleted
     _fields_ = [ ("filename", ctypes.c_char*212) ]
-
-
-class SaveAsMixin:
-    @toolbox_handler(SaveAs.SaveToFile)
-    def _saveas_save_to_file(self, event_code, id_block, event):
-        saved = self.save_to_file(event.filename)
-        if saved:
-            saveas = get_object(id_block.self.id)
-            saveas.file_save_completed(*saved)
-
-    def save_to_file(self, filename):
-        return None
-
-    @toolbox_handler(SaveAs.SaveCompleted)
-    def _saveas_save_completed(self, event_code, id_block, event):
-        self.save_completed(event.filename)
-
-    def save_completed(self, filename):
-        pass
