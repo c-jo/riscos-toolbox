@@ -1,6 +1,7 @@
 """RISC OS Toolbox - FileInfo"""
 
 from ..base import Object
+from ..events import ToolboxEvent, AboutToBeShownEvent
 import datetime
 import swi
 
@@ -81,3 +82,10 @@ class FileInfo(Object):
     @title.setter
     def title(self, title):
         swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 10, title)
+
+
+def AboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = FileInfo.AboutToBeShown
+
+def DialogueCompletedEvent(ToolboxEvent):
+    event_id = FileInfo.DialogueCompleted

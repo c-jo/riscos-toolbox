@@ -4,33 +4,14 @@ from ..events import toolbox_handler, ToolboxEvent
 import swi
 import ctypes
 
-_class_id = 0x82bc0
-
 class SaveAs(Object):
-    class_id = _class_id
+    class_id = 0x82bc0
 
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
-
-    class SaveToFile(ToolboxEvent):
-        event_id = _class_id + 2
-        _fields_ = [ ("filename", ctypes.c_char*212) ]
-
-        @property
-        def selection(self):
-            return True if (self.flags & 1<<0) else False
-
-    class FillBuffer(ToolboxEvent):
-        event_id = _class_id + 3
-        _fields_ = [ ("size", ctypes.c_uint32),
-                     ("address", ctypes.c_void_p),
-                     ("no_bytes", ctypes.c_uint32) ]
-
-    class SaveCompleted(ToolboxEvent):
-        event_id = _class_id + 4
-        _fields_ = [ ("size", ctypes.c_uint32),
-                     ("address", ctypes.c_void_p),
-                     ("no_bytes", ctypes.c_uint32) ]
+    SaveToFile        = class_id + 2
+    FillBuffer        = class_id + 3
+    SaveCompleted     = class_id + 4
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -86,13 +67,30 @@ class SaveAs(Object):
         swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
                 1 if saved else 0, self.id, 12, filename)
 
-class SaveAsMixin:
-#    def __init__(self, id):
-#       super().__init__(id)
+class SaveToFileEvent(ToolboxEvent):
+    event_id = SaveAs.SaveToFile
+    _fields_ = [ ("wimp_message_no", ctypes.c_int32),
+                 ("filename", ctypes.c_char*208) ]
 
+    @property
+    def selection(self):
+        return True if (self.flags & 1<<0) else False
+
+class FillBufferEvent(ToolboxEvent):
+    event_id = SaveAs.FillBuffer
+    _fields_ = [ ("size", ctypes.c_uint32),
+                 ("address", ctypes.c_void_p),
+                 ("no_bytes", ctypes.c_uint32) ]
+
+class SaveCompletedEvent(ToolboxEvent):
+    event_id = SaveAs.SaveCompleted
+    _fields_ = [ ("filename", ctypes.c_char*212) ]
+
+
+class SaveAsMixin:
     @toolbox_handler(SaveAs.SaveToFile)
-    def _saveas_save_to_file(self, event_code, id_block, filename):
-        saved = self.save_to_file(filename)
+    def _saveas_save_to_file(self, event_code, id_block, event):
+        saved = self.save_to_file(event.filename)
         if saved:
             saveas = get_object(id_block.self.id)
             saveas.file_save_completed(*saved)
@@ -101,9 +99,8 @@ class SaveAsMixin:
         return None
 
     @toolbox_handler(SaveAs.SaveCompleted)
-    def _saveas_save_completed(self, event_code, id_block,
-                               wimp_message, filename):
-        self.save_completed(filename)
+    def _saveas_save_completed(self, event_code, id_block, event):
+        self.save_completed(event.filename)
 
     def save_completed(self, filename):
         pass

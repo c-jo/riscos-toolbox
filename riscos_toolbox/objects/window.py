@@ -1,7 +1,7 @@
 """RISC OS Toolbox - Window"""
 
 from ..base import Object, get_object
-from ..events import WimpEvent
+from ..events import wimp_handler
 from .. import Wimp, BBox, Point
 from ..wimp_events.redraw_window import RedrawWindow
 import swi
@@ -82,7 +82,7 @@ class Window(Object):
                 0, self.id, 17, ctypes.addressof(bbox))
 
 class UserRedrawMixin:
-    @WimpEvent(RedrawWindow)
+    @wimp_handler(RedrawWindow)
     def redraw(self, reason, id_block, event):
 
         class RedrawData(ctypes.Structure):

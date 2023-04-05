@@ -1,13 +1,16 @@
 """RISC OS Toolbox - PrintDbox"""
 
+import ctypes
 import swi
 from enum import Enum
 from collections import namedtuple
 
 from ..base import Object
+from ..events import ToolboxEvent
 
 class PrintDbox(Object):
     class_id = 0x82b00
+
     AboutToBeShown      = class_id + 0
     DialogueCompleted   = class_id + 1
     SetupAboutToBeShown = class_id + 2
@@ -17,7 +20,6 @@ class PrintDbox(Object):
 
     Orientation = Enum("Orientation", ["Sideways", "Upright"])
     PageRange   = namedtuple("PageRange", ["Start", "End"])
-
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -54,7 +56,7 @@ class PrintDbox(Object):
 
     @property
     def orientation(self):
-        if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) != 0:
+        if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) == 0:
             return PrintDbox.Orientation.Upright
         else:
             return PrintDbox.Orientation.Sideways
@@ -64,7 +66,7 @@ class PrintDbox(Object):
     def orientation(self, orientation):
         swi.swi("Toolbox_ObjectMiscOp","IIII",
                 0, self.id, 7,
-                1 if orientation == PrintDbox.Orientation.Sideways else 0)
+                0 if orientation == PrintDbox.Orientation.Upright else 1)
 
     @property
     def title(self):
@@ -89,3 +91,20 @@ class PrintDbox(Object):
     @page_limit.setter
     def page_limit(self, limit):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 12, limit)
+
+class PrintEvent(ToolboxEvent):
+    event_id = PrintDbox.Print
+
+    _fields_ = [\
+        ("start_page", ctypes.c_int32),
+        ("finish_page", ctypes.c_int32),
+        ("copies", ctypes.c_int32),
+        ("scale_factor", ctypes.c_int32) ]
+
+    @property
+    def sideways(self):
+        return self.flags & 0x01 != 0
+
+    @property
+    def draft(self):
+        return self.flags & 0x02 != 0

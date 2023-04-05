@@ -50,7 +50,7 @@ class IbarMenu(Menu):
     def __init__(self, *args):
         super().__init__(*args)
 
-    @ToolboxEvent(Menu.AboutToBeShown)
+    @toolbox_handler(Menu.AboutToBeShown)
     def menu_show(self, event, id_block, poll_block):
         self[2].fade = self[3].fade = len(_views) == 0
         views_menu = toolbox.find_objects("Views")[0]
@@ -58,7 +58,7 @@ class IbarMenu(Menu):
             _views[view] = views_menu.add_at_end(
                 id(view), view.name,click_event=ViewEvent)
 
-    @ToolboxEvent(ViewEvent)
+    @toolbox_handler(ViewEvent)
     def view_event(self, event, id_block, poll_block):
         views_menu = toolbox.get_object(id_block.self.id)
         if id_block.parent.component == IbarMenuShowStack:
@@ -139,7 +139,7 @@ class Viewer(UserRedrawMixin, Window):
                 ctypes.addressof(tm),
                 ctypes.addressof(visible))
 
-    @ToolboxEvent(ViewMenuShow)
+    @toolbox_handler(ViewMenuShow)
     def view_menu_show(self, event, id_block, poll_block):
         view_menu = toolbox.get_object(id_block.self.id)
         try:
@@ -150,12 +150,12 @@ class Viewer(UserRedrawMixin, Window):
         view_menu[ViewMenuPrint].fade = not have_pdriver
         view_menu[ViewMenuStatus].tick = self.show_status
 
-    @ToolboxEvent(FileInfo.AboutToBeShown)
+    @toolbox_handler(FileInfo.AboutToBeShown)
     def fileinfo_show(self, event, id_block, data):
         fi = toolbox.get_object(id_block.self.id)
         fi.file_name = self.hcl.filename
 
-    @ToolboxEvent(ApplyFactorEvent)
+    @toolbox_handler(ApplyFactorEvent)
     def apply_scale(self, code, id_block, event):
         self.scale = event.factor
         self.extent = BBox(
@@ -167,7 +167,7 @@ class Viewer(UserRedrawMixin, Window):
         self._display(self.card)
         self.refresh()
 
-    @ToolboxEvent(StatusEvent)
+    @toolbox_handler(StatusEvent)
     def status_handler(self, event, id_block, poll_block):
         self.show_status = not self.show_status
         if id_block.self.component != -1:  # Menu
@@ -179,17 +179,17 @@ class Viewer(UserRedrawMixin, Window):
         else:
             self.status_line.hide()
 
-    @ToolboxEvent(HomeButtonEvent)
+    @toolbox_handler(HomeButtonEvent)
     def home_handler(self, event, id_block, poll_block):
         self.history.clear()
         self._display(None)
 
-    @ToolboxEvent(BackButtonEvent)
+    @toolbox_handler(BackButtonEvent)
     def back_handler(self, event, id_block, poll_block):
         card = self.history.pop() if len(self.history) else None
         self._display(card)
 
-    @ToolboxEvent(PrintDbox.Print)
+    @toolbox_handler(PrintDbox.Print)
     def print_handler(self, event, id_block, poll_block):
         print_dbox = toolbox.get_object(id_block.self.id)
 
@@ -274,7 +274,7 @@ class Viewer(UserRedrawMixin, Window):
             swi.swi("OS_Find","II",0,job)
 
 
-    @WimpEvent(MouseClick)
+    @wimp_handler(MouseClick)
     def mouse_clicked(self, reason, id_block, event):
         print("mouse_click",event)
         if id_block.self.component in self.buttons:
@@ -288,11 +288,11 @@ class Pyper(DataOpenMixin, Application):
     def __init__(self):
         super().__init__('<Pyper$Dir>')
 
-    @ToolboxEvent(Quit.Quit)
+    @toolbox_handler(Quit.Quit)
     def quit(self, event, id_block, poll_block):
         toolbox.quit()
 
-    @ToolboxEvent(ProgInfo.AboutToBeShown)
+    @toolbox_handler(ProgInfo.AboutToBeShown)
     def proginfo_show(self, event, id_block, poll_block):
         toolbox.get_object(id_block.self.id).version = \
             toolbox.msgtrans_lookup("Version")

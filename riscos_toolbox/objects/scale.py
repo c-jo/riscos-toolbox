@@ -4,8 +4,7 @@ import swi
 import ctypes
 
 from ..base import Object
-from ..events import EventData
-from ..toolbox_events import ToolboxEventData
+from ..events import ToolboxEvent
 
 class Scale(Object):
     class_id = 0x82c00
@@ -41,10 +40,7 @@ class Scale(Object):
     def title(self, title):
         swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 5, title)
 
-class ApplyFactorEvent(ToolboxEventData):
+class ApplyFactorEvent(ToolboxEvent):
     event_id = Scale.ApplyFactor
 
     _fields_ = [ ("factor", ctypes.c_int32) ]
-
-    def __init__(self):
-        super().__init__()

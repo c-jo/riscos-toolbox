@@ -1,4 +1,4 @@
-from ..events import WimpMessage
+from ..events import message_handler
 import ctypes
 import swi
 
@@ -6,7 +6,7 @@ class Messages:
     DataOpen = 5
 
 class DataOpenMixin:
-    @WimpMessage(Messages.DataOpen)
+    @message_handler(Messages.DataOpen)
     def data_open(self, message, id_block, poll_block):
         filetype = poll_block[10]
         filename = poll_block.nullstring(44)

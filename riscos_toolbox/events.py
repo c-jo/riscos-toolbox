@@ -4,16 +4,23 @@ from collections.abc import Iterable
 import ctypes
 import inspect
 
+from . import BBox, Point
+
 # Handlers
 # --------
 # The following is based on the toolbox event handlers. A similar mechanism
 # is used for both wimp messages and wimp events.
 #
-# To handle a toolbox event, the @ToolboxEvent decorator is used on a member of
+# To handle a toolbox event, the @toolbox_handler decorator is used on a member of
 # a class derived from riscos_toolbox.  event.EvebtDispatcher, such as .Object
 # or .Application. The decorator can be used to match all components (with
-# @ToolboxEvebt(event)...), one component (@ToolboxEvent(event, component)...)
-# or a list of components (@ToolboxEvent(event, [comp1,comp2]...)
+# @ToolboxEvebt(event)...), one component (@toolbxo_handler(event, component)...)
+# or a list of components (@toolbox_handler(event, [comp1,comp2]...)
+#
+# 'event' can either be a class name derived from Event, or an integer number. In
+# the first case, the handler will be called with an instance of the class, created
+# using it's from_block method. In the second, the handler will be called with the
+# raw data from the wimp poll block.
 #
 # When a toolbox event is recieved, the library will try each of the self,
 # parent and ancestor objects, followed by the application object, to see if
@@ -40,7 +47,7 @@ import inspect
 #     }
 # }
 
-class EventData(object):
+class Event(object):
     event_id = None
 
     @classmethod
@@ -67,13 +74,76 @@ class EventData(object):
     def __init__(self):
         super().__init__()
 
-
-class ToolboxEvent(EventData, ctypes.Structure):
+class ToolboxEvent(Event, ctypes.Structure):
     _fields_ = [ \
         ("size", ctypes.c_uint32),
         ("reference_number", ctypes.c_int32),
         ("event_code", ctypes.c_uint32),
         ("flags", ctypes.c_uint32)
+    ]
+
+class AboutToBeShownEvent(ToolboxEvent):
+    ShowType_Default = 0
+    ShowType_FullSpec = 1
+    ShowType_TopLeft = 2
+    ShowType_Centre = 3
+    ShowType_AtPointer = 4
+
+    _fields_ = [ \
+        ("show_type", ctypes.c_uint32),
+        ("_visible_area", BBox),
+        ("_scroll", Point),
+        ("_behind", ctypes.c_int32),
+        ("_window_flags", ctypes.c_uint32),
+        ("+parent_window_handle", ctypes.c_int32),
+        ("_alignment_flags", ctypes.c_uint32)]
+
+    def get_if(self, value, show_type):
+        return value if self.show_type == show_type else None
+
+    @property
+    def top_left(self):
+        return self.get_if(self._visible_area.min,
+                           AboutToBeShownEvent.ShowType_TopLeft)
+
+    @property
+    def visible_area(self):
+        return self.get_if(self._visible_area,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+    @property
+    def scroll(self):
+        return self.get_if(self._scroll,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+    @property
+    def behind(self):
+        return self.get_if(self._behind,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+    @property
+    def window_flags(self):
+        return self.get_if(self._window_flags,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+    @property
+    def parent_window_handle(self):
+        return self.get_if(self._parent_window_handle,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+    @property
+    def alignment_flags(self):
+        return self.get_if(self._alignment_flags,
+                           AboutToBeShownEvent.ShowType_FullSpec)
+
+class UserMessage(Event, ctypes.Structure):
+    _fields_ = [ \
+        ("size", ctypes.c_uint32), # 20 <= size <= 256, multiple of 4
+        ("task_handle", ctypes.c_uint32), # task handle of sender (*)
+        ("my_ref", ctypes.c_uint32), # unique ref number (*)
+        ("your_ref", ctypes.c_uint32), # if non-zero, acknowldge
+        ("action", ctypes.c_uint32), # message action code
+        # Fields marked (*) are filled in by the wimp.
     ]
 
 class EventHandler(object):
@@ -148,11 +218,11 @@ def _set_handler(code, component, handler, handlers):
     def _add_handler(handlers, code, component, cls, handler):
         if isinstance(code, int):
             event_type = None
-        elif issubclass(code, EventData):
+        elif issubclass(code, Event):
             event_type = code
             code = code.event_id
         else:
-            raise RuntimeError("Handler must be for int or EventData")
+            raise RuntimeError("Handler must be for int or Event")
 
         if code in handlers.keys():
             if cls in handlers[code]:
@@ -175,7 +245,7 @@ def toolbox_handler(event, component=None):
         return _set_handler(event, component, handler, _toolbox_handlers)
     return decorator
 
-def Message_handler(message, component=None):
+def message_handler(message, component=None):
     def decorator(handler):
         return _set_handler(message, component, handler, _message_handlers)
     return decorator

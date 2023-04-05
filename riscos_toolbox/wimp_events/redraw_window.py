@@ -1,14 +1,10 @@
-from ..events import EventData
+from ..events import Event
 from .. import Wimp
 
-import struct
+import ctypes
 
-class RedrawWindow(EventData):
+class RedrawWindow(Event, ctypes.Structure):
     event_id = Wimp.RedrawWindow
 
-    def __init__(self, window_handle):
-        self.window_handle = window_handle
-
-    @staticmethod
-    def from_block(data):
-        return RedrawWindow(*struct.unpack("i", data[0:4]))
+    _fields_ = [
+        ("window_handle", ctypes.c_uint32) ]
