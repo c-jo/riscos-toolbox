@@ -1,9 +1,11 @@
 """RISC OS Toolbox - Iconbar"""
 
 from ..base import Object
+from ..events import ToolboxEvent
 
 class Iconbar(Object):
     class_id = 0x82900
+    # Events
     Clicked              = class_id + 0
     SelectAboutToBeShown = class_id + 1
     AdjustAboutToBeShown = class_id + 2
@@ -50,3 +52,14 @@ class Iconbar(Object):
     @text.setter
     def sprite(self, name):
         self._miscop_set_string(11, name)
+
+class ClickedEvent(ToolboxEvent):
+    event_id = Iconbar.Clicked
+
+    @property
+    def select(self):
+        return self.flags & 0x04 != 0
+
+    @property
+    def adjust(self):
+        return self.flags & 0x01 != 0

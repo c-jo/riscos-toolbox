@@ -50,8 +50,6 @@ class PrintMixin:
         scale = event.scale_factor
         sideways = event.sideways
 
-        print("print_event",copies,scale,sideways)
-
         try:
             features = swi.swi("PDriver_Info",";...I")
         except:

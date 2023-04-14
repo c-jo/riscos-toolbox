@@ -16,7 +16,7 @@ def find_objects(template):
     return [obj for obj in _objects.values() if obj.template == template]
 
 def create_object(template, klass=None, args=None):
-    id = swi.swi('Toolbox_CreateObject', 'Is;I', 0, template)
+    id = swi.swi('Toolbox_CreateObject', '0s;i', template)
     if klass:
         if args is None:
             args = []
@@ -32,8 +32,8 @@ class Component:
 
 class Object(EventHandler):
     class_id = None
-    class_name = None
-    _classes = {} # (Class ID,Class Name) -> Class
+    template = None
+    _classes = {} # (Class ID,Template Name) -> Class
 
     def __init__(self, id, template):
         super().__init__()
@@ -42,7 +42,7 @@ class Object(EventHandler):
         self.components = {}
 
     def __init_subclass__(subclass):
-        Object._classes[(subclass.class_id, subclass.class_name)] = subclass
+        Object._classes[(subclass.class_id, subclass.template)] = subclass
 
     @staticmethod
     def create(class_id, name, id):

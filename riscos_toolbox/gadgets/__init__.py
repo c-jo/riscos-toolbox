@@ -3,41 +3,31 @@
 import swi
 import ctypes
 
+from .._types import BBox, ComponentID
+
+_gadgets = {} # type -> class
+
 def encode_and_len(s, m):
     if s is None:
         return None, 0 if m is None else m
     s = s.encode('latin-1')
     return s, len(s)+1 if m is None else m
 
-class Point(ctypes.Structure):
-    _fields_ = [ ("x", ctypes.c_int), ("y", ctypes.c_int) ]
-
-class BBox(ctypes.Structure):
-    _fields_ = [ ("min", Point ), ("max", Point) ]
-
 class Gadget:
-    class Header(ctypes.Structure):
-        _anonymous_ = ("box",)
-        _fields_ = [("flags",        ctypes.c_uint  ),
-                    ("type",         ctypes.c_uint  ),
-                    ("box",          BBox           ),
-                    ("component_id", ctypes.c_int   ),
-                    ("help_message", ctypes.c_char_p),
-                    ("max_help",     ctypes.c_uint  )]
+    _type = None
 
-        def __init__(self, flags, type, box, component_id=-1,
-                           help_message=None, max_help=None):
-            self.flags = flags
-            self.type  = type
-            self.min.x, self.min.y, self.max.x, self.max.y = box
-            self.component_id = component_id
-            self.help_message,self.max_help = encode_and_len(help_message,max_help)
+    def __subclass_init__(self, cls):
+        if cls._type is not None:
+            _gadgets[cls._type] = cls
 
     def __init__(self, window, id):
         self.window = window
-        self.id     = id
+        self.id = id
+        window.components[id] = self
 
-        window.gadgets[id] = self
+    @staticmethod
+    def create(gadget_type, window, gadget_id):
+        return _gadgets[gadget_type](window, gadget_id)
 
     @property
     def flags(self):
@@ -82,8 +72,8 @@ class Gadget:
 
     def _miscop_set_text(self, op, text):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi('Toolbox_ObjectMiscOp', '0IIIs',
-                           self.window.id,op,self.id,text)
+        swi.swi('Toolbox_ObjectMiscOp', '0iIis',
+                           self.window.id, op, self.id, text)
 
     def _miscop_get_text(self, op):
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
@@ -95,3 +85,19 @@ class Gadget:
                            self.window.id,op,self.id,buffer,buf_size)
         return buffer.nullstring()
 
+class GadgetDefinition(ctypes.Structure):
+    _fields_ = [
+         ("flags",        ctypes.c_int32 ),
+         ("type",         ctypes.c_int32 ),
+         ("box",          BBox           ),
+         ("component_id", ComponentID    ),
+         ("help_message", ctypes.c_char_p),
+         ("max_help",     ctypes.c_int32 ) ]
+
+    def __init__(self, flags, type, box, component_id=-1,
+                       help_message=None, max_help=None):
+        self.flags = flags
+        self.type  = type
+        self.box = box
+        self.component_id = component_id
+        self.help_message,self.max_help = encode_and_len(help_message,max_help)

@@ -46,7 +46,11 @@ class DataOpenMessage(UserMessage):
         ("pposition", Point),
         ("zero", ctypes.c_int32),
         ("file_type", ctypes.c_int32),
-        ("path_name", ctypes.c_char*212) ]
+        ("_path_name", ctypes.c_char*212) ]
+
+    @property
+    def path_name(self):
+        return self._path_name.decode('latin-1')
 
 class RAMFetchMessage(UserMessage):
     event_id = Messages.RAMFetch

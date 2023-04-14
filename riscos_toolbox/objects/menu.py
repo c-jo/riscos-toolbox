@@ -1,4 +1,6 @@
 from ..base import Object
+from ..events import ToolboxEvent
+
 import ctypes
 import swi
 
@@ -83,3 +85,6 @@ class Menu(Object):
 
     def remove(self, component):
         swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 21, component)
+
+class SelectionEvent(ToolboxEvent):
+    event_id = Menu.Selection

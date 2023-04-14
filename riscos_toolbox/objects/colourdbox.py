@@ -8,8 +8,9 @@ from enum import Enum
 class ColourDboxr(Object):
     class_id = 0x829c0
     AboutToBeShown    = class_id + 0
-    ColourSelected    = class_id + 1
-    DialogueCompleted = class_id + 2
+    DialogueCompleted = class_id + 1
+    ColourSelected    = class_id + 2
+
 
     ColourModel = Enum("ColourModel", ["RGB", "CMYK", "HSV"])
 

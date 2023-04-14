@@ -2,7 +2,7 @@ import os
 import swi
 import ctypes
 
-from riscos_toolbox.gadgets import Gadget
+from riscos_toolbox.gadgets import Gadget, GadgetDefinition
 
 from utils import file_load
 
@@ -103,9 +103,10 @@ class HCLFile:
         gadget,size = swi.swi("Window_ExtractGadgetInfo", "0II;II",  blk, 0)
         buffer = (ctypes.c_byte*size)()
         ctypes.memmove(ctypes.addressof(buffer), gadget, size)
-        header = ctypes.cast(buffer, ctypes.POINTER(Gadget.Header)).contents
+        header = ctypes.cast(buffer, ctypes.POINTER(GadgetDefinition)).contents
         header.component_id = -1
-        header.min.x, header.min.y, header.max.x, header.max.y = \
+        header.box.min.x, header.box.min.y, \
+        header.box.max.x, header.box.max.y = \
             map(lambda x:int(x)*viewer.scale//100, args[0:4])
         viewer.add_button(buffer, args[4])
 
@@ -119,5 +120,4 @@ class HCLFile:
         viewer.refresh()
 
     def _status(self, viewer, status):
-        print("Status: {}".format(status))
         viewer.set_status(status)

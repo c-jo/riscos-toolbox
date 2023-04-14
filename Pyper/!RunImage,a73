@@ -13,7 +13,7 @@ from riscos_toolbox.objects.proginfo import ProgInfo
 from riscos_toolbox.objects.fileinfo import FileInfo
 from riscos_toolbox.objects.printdbox import PrintEvent
 from riscos_toolbox.objects.quit import Quit
-from riscos_toolbox.gadgets.button import ActionButton
+from riscos_toolbox.gadgets.button import Button
 from riscos_toolbox.application import Application
 from riscos_toolbox.mixins.data_transfer import DataOpenMixin
 from riscos_toolbox.mixins.printing import PrintMixin
@@ -39,10 +39,12 @@ ViewMenuStatus = 4
 IbarMenuShowStack = 2
 IbarMenuDeleteStack = 3
 
+StatusButton = 0
+
 _views = {} # View -> Views menu component (or None if not yet added)
 
 class IbarMenu(Menu):
-    class_name = "IbarMenu"
+    tempate = "IbarMenu"
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -74,26 +76,23 @@ class IbarMenu(Menu):
 
 
 class Viewer(UserRedrawMixin, PrintMixin, Window):
-    class_name = "HyperViewer"
+    template = "HyperViewer"
 
-    def __init__(self, id, template, filename):
-        super().__init__(id, template)
-        self.name         = "New stack"
-        self.layers       = []
-        self.buttons      = {} # comp.id -> target
-        self.hcl          = HCLFile(filename)
-        self.show_status  = True
-        self.colour       = 0
-        self.history      = []
-        self.scale        = 100
-        self._status_line = None
-        self._extent      = self.extent
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.name          = "New stack"
+        self.layers        = []
+        self.buttons       = {} # comp.id -> target
+        self.hcl           = None
+        self.show_status   = True
+        self.colour        = 0
+        self.history       = []
+        self.scale         = 100
+        self._extent       = self.extent
 
-    @property
-    def status_line(self):
-        if self._status_line is None:
-            self._status_line = self.toolbars.internal_bottom_left
-        return self._status_line
+    def load(self, filename):
+        self.hcl = HCLFile(filename)
+        self._display(None)
 
     def _display(self, card):
         self.card = card
@@ -112,7 +111,9 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
         self.buttons[comp_id] = target
 
     def set_status(self, status):
-        print("set_status", self.status_line, status)
+        swi.swi("Toolbox_ObjectMiscOp", "0iIis",
+            self.get_toolbar_id(Window.InternalBottomLeftToolbar),
+            Button.SetValue, StatusButton, status)
 
     def refresh(self):
         self.force_redraw()
@@ -263,8 +264,9 @@ class Pyper(DataOpenMixin, Application):
         return True
 
     def create_view(self, filename):
-        viewer = toolbox.create_object(Viewer.class_name, Viewer, (filename,))
+        viewer = toolbox.create_object(Viewer.template, Viewer)
         viewer.show()
+        viewer.load(filename)
         viewer._display(None)
         _views[viewer] = None
 

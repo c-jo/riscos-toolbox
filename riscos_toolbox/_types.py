@@ -2,9 +2,12 @@
 
 import ctypes
 
+ObjectID = ctypes.c_int32
+ComponentID = ctypes.c_int32
+
 class IDBlock(ctypes.Structure):
     class Level(ctypes.Structure):
-        _fields_ = [ ("id", ctypes.c_uint32), ("component", ctypes.c_int32) ]
+        _fields_ = [ ("id", ObjectID), ("component", ComponentID) ]
 
         def __init__(self):
             self.id = -1

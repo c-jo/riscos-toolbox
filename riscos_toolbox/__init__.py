@@ -40,8 +40,7 @@ _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
 
 def report_exception(e):
-    print(e)
-    print(traceback.extract_tb(e.__traceback__).format())
+    #print(e, traceback.extract_tb(e.__traceback__).format())
     error_block = swi.block(64)
     error_block[0] = 0
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
@@ -62,7 +61,6 @@ def initialise(appdir):
     def _handler_block(handlers, add=[]):
         ids = sorted(list(filter(lambda k:k >= 0,
                                 handlers.keys())) + add) + [0]
-        print(ids)
         block = swi.block(len(ids))
         for index,id in zip(range(0,len(ids)),ids):
             block[index] = id
@@ -83,6 +81,11 @@ def msgtrans_lookup(token, *args, bufsize=256):
     swi.swi("MessageTrans_Lookup","bsbi"+("s"*len(args)),
             _msgtrans_block, token, buffer,bufsize, *args)
     return buffer.ctrlstring()
+
+def extract_gadget_info_from_template(self, template, gadget):
+    blk = swi.swi("Toolbox_TemplateLookUp", "0s;I", template)
+    data,size = swi.swi("Window_ExtraxtGadgetInfo","iii;II",
+                        0, self.id, gadget)
 
 def run(application):
     poll_block = swi.block(64)
@@ -113,15 +116,14 @@ def run(application):
                     name      = poll_block.nullstring(0x10,size)
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
-                    print("Object {:x} ({}) auto-created".format(
-                          _id_block.self.id, name))
 
                     _objects[_id_block.self.id] = \
                          Object.create(obj_class, name, _id_block.self.id)
                     continue
 
                 if event_code == Toolbox.ObjectDeleted:
-                    print("Object {} delted". _id_block.self.id)
+                    if _id_block.self.id in _objects:
+                        del(_objects[id_block.self.id])
                     continue
 
                 for obj in spaa:
