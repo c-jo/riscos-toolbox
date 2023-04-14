@@ -48,10 +48,6 @@ class Gadget:
         mask = ~(1<<flag)
         self.flags = self.flags & mask | (1<<flag if value else 0)
 
-    def event_handler(self, event_code, id_block, poll_block):
-        pass
-        #raise(RuntimeError(f'toolbox event 0x{event_code:x} not handled.'))
-
     @property
     def faded(self):
         return self.get_flag(31)
