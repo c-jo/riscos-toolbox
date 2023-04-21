@@ -254,21 +254,17 @@ def wimp_handler(reason, component=None):
         return _set_handler(reason, component, handler, _wimp_handlers)
     return decorator
 
-# List of self, parent, ancestor, applcation with duplicated and None's removed.
+# List of self, parent, ancestor and application objects (if they exist)
 # This is the list of objects to try to handle the event, in order.
 def _get_spaa(application, id_block):
         from .base import get_object
-        return list(
-                filter(lambda o:o is not None,
-                          map(get_object,
-                              set( [id_block.self.id,
-                                    id_block.parent.id,
-                                    id_block.ancestor.id,
-                                    application]
-                                 )
-                              )
-                         )
-               )
+        return list(filter(lambda o:o is not None,
+            map( get_object,
+                 set( [ id_block.self.id,
+                        id_block.parent.id,
+                        id_block.ancestor.id,
+                    ] )
+                ) ) ) + ([application] if application else [])
 
 def toolbox_dispatch(event_code, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):

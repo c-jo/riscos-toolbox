@@ -1,8 +1,0 @@
-|
-| !Pyper Boot file
-|
-
-if "<Pyper$dir>" = "" then set Pyper$dir <obey$dir>
-iconsprites <Pyper$dir>.!sprites
-set alias$@runtype_fac run <Pyper$dir>.!run %*0
-set file$type_fac HCL

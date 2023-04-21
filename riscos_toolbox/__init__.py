@@ -126,26 +126,17 @@ def run(application):
                         del(_objects[id_block.self.id])
                     continue
 
-                for obj in spaa:
-                    if obj.toolbox_dispatch(event_code, _id_block, poll_block):
-                        break
+                toolbox_dispatch(event_code, application, _id_block, poll_block)
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
                 message = poll_block[4]
-                if message == 0:
+                if message == 0: # Quit
                     _quit = True
                     continue
-
-                for obj in spaa:
-                   if obj.message_dispatch(message, _id_block, poll_block):
-                       break
-                continue
-
+                message_dispatch(message, application, _id_block, poll_block)
             else:
-                for obj in spaa:
-                    if obj.wimp_dispatch(reason, _id_block, poll_block):
-                        break
+                wimp_dispatch(reason, application, _id_block, poll_block)
 
         except Exception as e:
             report_exception(e)

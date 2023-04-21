@@ -243,9 +243,9 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
                 ctypes.addressof(transform),
                 ctypes.addressof(rect))
 
-class Pyper(DataOpenMixin, Application):
+class Hyper(DataOpenMixin, Application):
     def __init__(self):
-        super().__init__('<Pyper$Dir>')
+        super().__init__('<Hyper$Dir>')
 
     @toolbox_handler(Quit.Quit)
     def quit(self, event, id_block, poll_block):
@@ -271,7 +271,7 @@ class Pyper(DataOpenMixin, Application):
         _views[viewer] = None
 
 if __name__ == "__main__":
-    app = Pyper()
+    app = Hyper()
 
     for filename in sys.argv[1:]:
         app.create_view(filename)
