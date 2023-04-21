@@ -9,8 +9,8 @@ class RedrawWindow(unittest.TestCase):
         rw = redraw_window.RedrawWindow()
         assert(rw.event_id == 1)
 
-    def test_from_bytes(self):
-        rw = redraw_window.RedrawWindow.from_block(
+    def test_from_block(self):
+        rw = redraw_window.RedrawWindow.from_poll_block(
             struct.pack("i",42)
         )
         assert(rw.event_id == 1)

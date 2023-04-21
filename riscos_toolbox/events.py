@@ -51,25 +51,21 @@ class Event(object):
     event_id = None
 
     @classmethod
-    def from_block(cls, data):
-        """Create an object setup from `data` (a byte string). The default
+    def from_poll_block(cls, poll_block):
+        """Create an object setup from `poll_block` (a byte string). The default
            version here will setup a ctypes Structure derived class."""
         if issubclass(cls, ctypes.Structure):
-            if len(data) < ctypes.sizeof(cls):
+            if len(poll_block) < ctypes.sizeof(cls):
                 raise RuntimeError("not enough data for "+cls.__name__)
             obj = cls()
             dst = ctypes.cast(
-                ctypes.pointer(obj), ctypes.POINTER(ctypes.c_ubyte))
+                ctypes.pointer(obj), ctypes.POINTER(ctypes.c_byte))
             for b in range(0, ctypes.sizeof(cls)):
-                dst[b] = data[b]
+                dst[b] = poll_block[b]
             return obj
 
         else:
             raise RuntimeError("from_block not implemented for "+cls.__name__)
-
-    @classmethod
-    def from_poll_block(cls, poll_block):
-        return cls.from_block(poll_block.tobytes())
 
     def __init__(self):
         super().__init__()

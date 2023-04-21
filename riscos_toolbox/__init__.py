@@ -3,6 +3,7 @@
 import swi
 import ctypes
 import traceback
+import struct
 
 from collections import namedtuple
 
@@ -88,35 +89,28 @@ def extract_gadget_info_from_template(self, template, gadget):
                         0, self.id, gadget)
 
 def run(application):
-    poll_block = swi.block(64)
+    poll_buffer = (ctypes.c_byte*256)()
     global _quit
 
     while not _quit:
-        reason,sender = swi.swi('Wimp_Poll','Ib;I.I', 0b1, poll_block)
-
-        spaa = list(
-                filter(lambda o:o is not None,
-                          map(get_object,
-                              set( [_id_block.self.id,
-                                    _id_block.parent.id,
-                                    _id_block.ancestor.id]
-                                 )
-                              )
-                         )
-               ) + [application]
+        reason,sender = swi.swi(
+            'Wimp_Poll','II;I.I',
+            0b1, ctypes.addressof(poll_buffer))
 
         try:
+            poll_block = bytes(poll_buffer)
             if reason == Wimp.ToolboxEvent:
-                size       = poll_block[0]
-                reference  = poll_block[1]
-                event_code = poll_block[2]
-                flags      = poll_block[3]
+                size, reference, event_code, flags = \
+                    struct.unpack("IIII", poll_block[0:16])
 
                 if event_code == Toolbox.ObjectAutoCreated:
-                    name      = poll_block.nullstring(0x10,size)
+                    name =''.join([chr(c) for c in \
+                        iter(lambda i=iter(poll_block[0x10:]): next(i), 0)])
+
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
 
+                    print("auto-create {} {}".format(name, obj_class))
                     _objects[_id_block.self.id] = \
                          Object.create(obj_class, name, _id_block.self.id)
                     continue
@@ -130,7 +124,7 @@ def run(application):
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
-                message = poll_block[4]
+                message = struct.unpack("I", poll_block[0:4])
                 if message == 0: # Quit
                     _quit = True
                     continue
