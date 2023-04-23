@@ -2,34 +2,27 @@
 | !Hyper Run file
 |
 
-set Hyper$dir <obey$dir>
-iconsprites <Hyper$dir>.!sprites
-
-RMEnsure UtilityModule 3.70 RMEnsure CallASWI 0.02 RMLoad System:Modules.CallASWI
-RMEnsure UtilityModule 3.70 RMEnsure CallASWI 0.02 Error You need CallASWI 0.02 or later to run !Hyper
-RMEnsure FPEmulator 4.03 RMLoad System:Modules.FPEmulator
-RMEnsure FPEmulator 4.03 Error You need FPEmulator 4.03 or later to run !Hyper
-RMEnsure SharedCLibrary 5.17 RMLoad System:Modules.CLib
-RMEnsure SharedCLibrary 5.34 Error You need SharedCLibrary 5.34 or later to run !Hyper
-
-RMENSURE Window  0.00  RMLOAD System:modules.toolbox.window
-RMENSURE Window  1.17  ERROR You need window 1.17 or later to run !Hyper
-RMENSURE Menu  0.00  RMLOAD System:modules.toolbox.menu
-RMENSURE Menu  0.13  ERROR You need menu 0.13 or later to run !Hyper
-RMENSURE ProgInfo  0.00  RMLOAD System:modules.toolbox.proginfo
-RMENSURE Proginfo  0.00  ERROR You need proginfo to run !Hyper
-RMENSURE PrintDBox  0.00  RMLOAD System:modules.toolbox.PrintDBox
-RMENSURE PrintDBox  0.00  ERROR You need PrintDBox to run !Hyper
-RMENSURE DrawFile  0.00  RMLOAD System:modules.DrawFile
-RMENSURE DrawFile  0.00  ERROR You need DrawFile to run !Hyper
-RMENSURE FileInfo  0.00  RMLOAD System:modules.toolbox.FileInfo
-RMENSURE FileInfo  0.00  ERROR You need FileInfo to run !Hyper
-RMENSURE IconBar  0.00  RMLOAD System:modules.toolbox.IconBar
-RMENSURE IconBar  0.00  ERROR You need IconBar to run !Hyper
-RMENSURE Scale  0.00  RMLOAD System:modules.toolbox.Scale
-RMENSURE Scale  0.00  ERROR You need Scale to run !Hyper
+Set Hyper$dir <obey$Dir>
+IconSPrites <Hyper$Dir>.!Sprites
 
 If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
 
-wimpslot -min 4M
-Run <Python3$Dir>.bin.python38 <Hyper$dir>.!RunImage %*0 > RAM::0.$.Log 2>&1
+RMEnsure Window 0.00 RMLoad System:modules.toolbox.window
+RMEnsure Window 1.17 Error You need window 1.17 or later to run !Hyper
+RMEnsure Menu 0.00 RMLoad System:modules.toolbox.menu
+RMEnsure Menu 0.13 Error You need menu 0.13 or later to run !Hyper
+RMEnsure ProgInfo 0.00 RMLoad System:modules.toolbox.proginfo
+RMEnsure Proginfo 0.00 Error You need proginfo to run !Hyper
+RMEnsure PrintDBox 0.00 RMLoad System:modules.toolbox.PrintDBox
+RMEnsure PrintDBox 0.00 Error You need PrintDBox to run !Hyper
+RMEnsure DrawFile 0.00 RMLoad System:modules.DrawFile
+RMEnsure DrawFile 0.00 Error You need DrawFile to run !Hyper
+RMEnsure FileInfo 0.00 RMLoad System:modules.toolbox.FileInfo
+RMEnsure FileInfo 0.00 Error You need FileInfo to run !Hyper
+RMEnsure IconBar 0.00 RMLoad System:modules.toolbox.IconBar
+RMEnsure IconBar 0.00 Error You need IconBar to run !Hyper
+RMEnsure Scale 0.00 RMLoad System:modules.toolbox.Scale
+RMEnsure Scale 0.00 Error You need Scale to run !Hyper
+
+WimpSlot -min 4M
+Run <Python3$Dir>.bin.python38 <Hyper$Dir>.!RunImage %*0

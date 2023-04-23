@@ -36,6 +36,9 @@ class Toolbox:
     ObjectAutoCreated = 0x44ec1
     ObjectDeleted     = 0x44ec2
 
+class Messages:
+    Quit = 0
+
 _quit           = False
 _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
@@ -63,7 +66,7 @@ def initialise(appdir):
         ids = sorted(list(filter(lambda k:k >= 0,
                                 handlers.keys())) + add) + [0]
         block = swi.block(len(ids))
-        for index,id in zip(range(0,len(ids)),ids):
+        for index,id in enumerate(ids):
             block[index] = id
         return block
 
@@ -125,7 +128,7 @@ def run(application):
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
                 message = struct.unpack("I", poll_block[0:4])
-                if message == 0: # Quit
+                if message == Messages.Quit:
                     _quit = True
                     continue
                 message_dispatch(message, application, _id_block, poll_block)

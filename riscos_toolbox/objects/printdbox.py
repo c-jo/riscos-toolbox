@@ -92,11 +92,12 @@ class PrintDbox(Object):
 class PrintEvent(ToolboxEvent):
     event_id = PrintDbox.Print
 
-    _fields_ = [\
+    _fields_ = [
         ("start_page", ctypes.c_int32),
         ("finish_page", ctypes.c_int32),
         ("copies", ctypes.c_int32),
-        ("scale_factor", ctypes.c_int32) ]
+        ("scale_factor", ctypes.c_int32)
+        ]
 
     @property
     def sideways(self):

@@ -60,7 +60,7 @@ class FileInfo(Object):
         return _ro_epoch + datetime.timedelta(seconds=quin/100).astimezone()
 
     @date.setter
-    def data(self, date):
+    def date(self, date):
         if date.tzinfo is None:
             date = date.astimezone()
         quin = int((date - _ro_epoch).total_seconds() * 100)

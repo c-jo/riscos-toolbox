@@ -3,7 +3,7 @@
 from ..base import Object
 from enum import Enum
 
-class ColourMenur(Object):
+class ColourMenu(Object):
     class_id = 0x82980
     AboutToBeShown = class_id + 0
     HasBeenHidden  = class_id + 1

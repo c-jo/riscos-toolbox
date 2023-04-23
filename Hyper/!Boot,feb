@@ -2,7 +2,7 @@
 | !Hyper Boot file
 |
 
-if "<Hyper$dir>" = "" then set Hyper$dir <obey$dir>
-iconsprites <Hyper$dir>.!sprites
-set alias$@runtype_fac run <Hyper$dir>.!run %*0
-set file$type_fac HCL
+if "<Hyper$Dir>" = "" then set Hyper$Dir <Obey$Dir>
+IconSprites <Hyper$Dir>.!Sprites
+Set Alias$@RunType_fac Run <Hyper$Dir>.!Run %*0
+Set File$Type_fac HCL

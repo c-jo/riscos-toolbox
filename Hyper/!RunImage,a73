@@ -46,12 +46,10 @@ _views = {} # View -> Views menu component (or None if not yet added)
 class IbarMenu(Menu):
     tempate = "IbarMenu"
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @toolbox_handler(Menu.AboutToBeShown)
     def menu_show(self, event, id_block, poll_block):
-        self[2].fade = self[3].fade = len(_views) == 0
+        self[IbarMenuShowStack].fade = not bool(_views)
+        self[IBarMenuDeleteStack].fade = not bool(_views)
         views_menu = toolbox.find_objects("Views")[0]
         for view in filter(lambda v:_views[v] is None, _views):
             _views[view] = views_menu.add_at_end(
@@ -60,12 +58,13 @@ class IbarMenu(Menu):
     @toolbox_handler(ViewEvent)
     def view_event(self, event, id_block, poll_block):
         views_menu = toolbox.get_object(id_block.self.id)
+
         if id_block.parent.component == IbarMenuShowStack:
             for view in list(filter(
                     lambda v:_views[v] == id_block.self.component, _views)):
                 view.show()
 
-        if id_block.parent.component == IbarMenuDeleteStack:
+        elif id_block.parent.component == IbarMenuDeleteStack:
             for view in list(filter(
                     lambda v:_views[v] == id_block.self.component, _views)):
                 view.hide()
