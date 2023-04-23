@@ -5,17 +5,13 @@ import swi
 from ..base import Object
 from enum import Enum
 
-class ColourDboxr(Object):
+class ColourDbox(Object):
     class_id = 0x829c0
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
     ColourSelected    = class_id + 2
 
-
     ColourModel = Enum("ColourModel", ["RGB", "CMYK", "HSV"])
-
-    def __init__(self, id):
-        super().__init__(id)
 
     @property
     def colour(self):

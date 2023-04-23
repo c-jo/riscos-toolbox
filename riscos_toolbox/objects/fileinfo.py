@@ -12,9 +12,6 @@ class FileInfo(Object):
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)

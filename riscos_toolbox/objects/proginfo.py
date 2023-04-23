@@ -16,9 +16,6 @@ class ProgInfo(Object):
         "PublicDomain SingleUser SingleMachine Site Network Authority".split(),
         start=0)
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","0II;I", self.id, 0)

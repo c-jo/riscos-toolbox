@@ -13,9 +13,6 @@ class SaveAs(Object):
     FillBuffer        = class_id + 3
     SaveCompleted     = class_id + 4
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def window_id(self):
         return self._miscop_get_unsigned(0)

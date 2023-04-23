@@ -67,9 +67,6 @@ class Event(object):
         else:
             raise RuntimeError("from_block not implemented for "+cls.__name__)
 
-    def __init__(self):
-        super().__init__()
-
 class ToolboxEvent(Event, ctypes.Structure):
     _fields_ = [ \
         ("size", ctypes.c_uint32),

@@ -61,9 +61,6 @@ class Menu(Object):
             swi.swi('Toolbox_ObjectMiscOp','0IIII',
                     self.menu.id, 2, self.id, 1 if val else 0)
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     def __getitem__(self, id):
         return Menu.Entry(self, id)
 

@@ -13,9 +13,6 @@ class Scale(Object):
     DialogueCompleted = class_id + 1
     ApplyFactor       = class_id + 2
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","0II;.I",self.id, 0)

@@ -9,9 +9,6 @@ class FontDBox(object):
     ApplyFont         = class_id + 1
     DialogueCompleted = class_id + 2
 
-    def __init__(self, id):
-        super().__init__(id)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)

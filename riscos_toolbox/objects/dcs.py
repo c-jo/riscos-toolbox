@@ -11,9 +11,6 @@ class DCS(Object):
     DialogueCompleted = class_id + 3
     Cancel            = class_id + 4
 
-    def __init__(self, id):
-        super().__init__(id)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)

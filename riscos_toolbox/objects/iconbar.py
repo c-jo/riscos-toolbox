@@ -10,9 +10,6 @@ class Iconbar(Object):
     SelectAboutToBeShown = class_id + 1
     AdjustAboutToBeShown = class_id + 2
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def icon_handle(self):
         return self._miscop_get_unsigned(0)

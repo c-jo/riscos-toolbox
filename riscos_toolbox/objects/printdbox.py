@@ -21,9 +21,6 @@ class PrintDbox(Object):
     Orientation = Enum("Orientation", ["Sideways", "Upright"])
     PageRange   = namedtuple("PageRange", ["Start", "End"])
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
     @property
     def window_id(self):
         return swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 0)

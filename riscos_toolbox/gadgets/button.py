@@ -8,9 +8,6 @@ import ctypes
 class Button(Gadget):
     _type = 960
 
-    def __init__(self, window, id):
-        super().__init__(window, id)
-
     GetFlags       = _type + 0
     SetFlags       = _type + 1
     SetValue       = _type + 2

@@ -16,9 +16,6 @@ class ColourMenur(Object):
 
     NoSelection = None
 
-    def __init__(self, id):
-        super().__init__(id)
-
     @property
     def colour(self):
         colour = self._miscop_get_signed(1)

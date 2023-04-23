@@ -10,9 +10,6 @@ class Quit(Object):
     DialogueCompleted = class_id + 2
     Cancel            = class_id + 3
 
-    def __init__(self, id):
-        super().__init__(id)
-
     @property
     def window_id(self):
         return self._miscop_get_unsigned(0)

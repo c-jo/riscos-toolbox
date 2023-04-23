@@ -9,9 +9,6 @@ class FontMenu(object):
     DialogueCompleted = class_id + 1
     Selection         = class_id + 2
 
-    def __init__(self, id):
-        super().__init__(id)
-
     @property
     def font(self):
         return self._miscop_get_string(1)
