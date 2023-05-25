@@ -44,7 +44,6 @@ _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
 
 def report_exception(e):
-    #print(e, traceback.extract_tb(e.__traceback__).format())
     error_block = swi.block(64)
     error_block[0] = 0
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
@@ -113,7 +112,7 @@ def run(application):
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
 
-                    print("auto-create {} {}".format(name, obj_class))
+                    #print("auto-create {} {}".format(name, obj_class))
                     _objects[_id_block.self.id] = \
                          Object.create(obj_class, name, _id_block.self.id)
                     continue
@@ -127,7 +126,7 @@ def run(application):
 
             elif reason == Wimp.UserMessage or \
                  reason == Wimp.UserMessageRecorded:
-                message = struct.unpack("I", poll_block[0:4])
+                message = struct.unpack("I", poll_block[16:20])[0]
                 if message == Messages.Quit:
                     _quit = True
                     continue

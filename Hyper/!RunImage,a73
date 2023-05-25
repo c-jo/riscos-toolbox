@@ -49,7 +49,7 @@ class IbarMenu(Menu):
     @toolbox_handler(Menu.AboutToBeShown)
     def menu_show(self, event, id_block, poll_block):
         self[IbarMenuShowStack].fade = not bool(_views)
-        self[IBarMenuDeleteStack].fade = not bool(_views)
+        self[IbarMenuDeleteStack].fade = not bool(_views)
         views_menu = toolbox.find_objects("Views")[0]
         for view in filter(lambda v:_views[v] is None, _views):
             _views[view] = views_menu.add_at_end(
@@ -172,10 +172,13 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
             menu = toolbox.get_object(id_block.self.id)
             menu[id_block.self.component].tick = self.show_status
 
+        status_line = toolbox.get_object(
+            self.get_toolbar_id(Window.InternalBottomLeftToolbar))
+
         if self.show_status:
-            self.status_line.show()
+            status_line.show()
         else:
-            self.status_line.hide()
+            status_line.hide()
 
     @toolbox_handler(HomeButtonEvent)
     def home_handler(self, event, id_block, poll_block):
