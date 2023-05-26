@@ -1,0 +1,8 @@
+|
+| !Hyper Boot file
+|
+
+if "<Hyper$Dir>" = "" then set Hyper$Dir <Obey$Dir>
+IconSprites <Hyper$Dir>.!Sprites
+Set Alias$@RunType_fac Run <Hyper$Dir>.!Run %*0
+Set File$Type_fac HCL

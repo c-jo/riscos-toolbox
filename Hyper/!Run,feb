@@ -1,0 +1,28 @@
+|
+| !Hyper Run file
+|
+
+Set Hyper$dir <obey$Dir>
+IconSPrites <Hyper$Dir>.!Sprites
+
+If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
+
+RMEnsure Window 0.00 RMLoad System:modules.toolbox.window
+RMEnsure Window 1.17 Error You need window 1.17 or later to run !Hyper
+RMEnsure Menu 0.00 RMLoad System:modules.toolbox.menu
+RMEnsure Menu 0.13 Error You need menu 0.13 or later to run !Hyper
+RMEnsure ProgInfo 0.00 RMLoad System:modules.toolbox.proginfo
+RMEnsure Proginfo 0.00 Error You need proginfo to run !Hyper
+RMEnsure PrintDBox 0.00 RMLoad System:modules.toolbox.PrintDBox
+RMEnsure PrintDBox 0.00 Error You need PrintDBox to run !Hyper
+RMEnsure DrawFile 0.00 RMLoad System:modules.DrawFile
+RMEnsure DrawFile 0.00 Error You need DrawFile to run !Hyper
+RMEnsure FileInfo 0.00 RMLoad System:modules.toolbox.FileInfo
+RMEnsure FileInfo 0.00 Error You need FileInfo to run !Hyper
+RMEnsure IconBar 0.00 RMLoad System:modules.toolbox.IconBar
+RMEnsure IconBar 0.00 Error You need IconBar to run !Hyper
+RMEnsure Scale 0.00 RMLoad System:modules.toolbox.Scale
+RMEnsure Scale 0.00 Error You need Scale to run !Hyper
+
+WimpSlot -min 4M
+Run <Python3$Dir>.bin.python38 <Hyper$Dir>.!RunImage %*0
