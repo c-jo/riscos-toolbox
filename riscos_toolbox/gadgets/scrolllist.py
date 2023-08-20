@@ -9,12 +9,12 @@ class ScrollList(Gadget):
 
     @property
     def state(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I",
+        return swi.swi("Toolbox_ObjectMiscOp","0iIi;I",
                        self.window.id, 16410, self.id)
 
     @state.setter
     def state(self, state):
-        swi.swi("Toolbox_ObjectMiscOp","0III",
+        swi.swi("Toolbox_ObjectMiscOp","0iIiI",
                 self.window.id, 16411, self.id, state)
 
     def add_item(self, text, index):
