@@ -1,0 +1,20 @@
+/*
+ * draw.h
+ *
+ * The draw.c file handles the various aspects of !Hyper that
+ * are associated with drawfiles, such as rendering, loading and
+ * scaling.
+ */
+
+#include "event.h"
+
+int draw_file_load(Viewer *v,char * filename);
+int draw_render(Viewer *v,int *w);
+int do_overlay(Viewer *view,char * filename);
+int load_in_file(Viewer *view,char * filename,int layer);
+
+void apply_scale (Viewer *v, int factor);
+
+extern WimpEventHandler         redraw_window;
+extern ToolboxEventHandler      scale_view;
+extern ToolboxEventHandler      scale_show;

@@ -1,0 +1,22 @@
+#include "hyper.h"
+
+/* string comparisons */
+
+#define EQUAL 0
+#define GREATER 1
+#define LESSTHAN -1
+
+void commands_free(Viewer *v);
+int commands_size(Viewer *v);
+int command_file_load(Viewer *v,char * filename);
+int command_start(Viewer *v, char *label);
+int command_parse(Viewer *c,char *label);
+void commands_goto_last(Viewer *c);
+void commands_goto_self(Viewer *v);
+void commands_search(Viewer *c,int casei,int lab, char *string);
+
+int do_goto(Viewer *c,char *cmd);
+int do_star(Viewer *v,char *cmd);
+int do_gosub(Viewer *v,char *cmd);
+int do_eend(Viewer *v, char *label);
+int do_end(Viewer *v, char *cmd);

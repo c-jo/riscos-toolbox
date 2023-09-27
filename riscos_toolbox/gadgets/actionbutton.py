@@ -41,7 +41,7 @@ class ActionButton(Gadget):
     def click_show(self, cs):
         return self._miscop_get_int(132, cs)
 
-class SelectedEvent(ToolboxEvent):
+class ActionButtonSelectedEvent(ToolboxEvent):
     event_id = ActionButton.Selected
     # Flags
     Adjust  = 0x00000001
@@ -49,3 +49,6 @@ class SelectedEvent(ToolboxEvent):
     Default = 0x00000008
     Cancel  = 0x00000010
     Local   = 0x00000020
+
+# For anything using the old name.
+SelectedEvent = ActionButtonSelectedEvent

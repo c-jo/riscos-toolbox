@@ -1,0 +1,266 @@
+/* c.commands
+ *
+ * This file forms the basis of a commands interpreter. It was not specifically
+ * designed for Hyper as such could be done better. Hyper is intended to be a
+ * demonstration of the toolbox and as such for the purposes of this example,
+ * this is not a cause for concern.
+ */
+
+/* Copyright (C) Acorn Computers Ltd 1994 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "string.h"
+
+#include "commands.h"
+#include "utils.h"
+
+static int NUM_CMDS;
+static int (** parsefns)(Viewer *v,char *c);
+static char ** parsings;
+
+int command_parse(Viewer *v,char *c);
+
+void commands_free(Viewer *v)
+{
+   int size;
+   /* need to free up the lines */
+   for (size = v->commands.size-1; size >=0; size--) {
+      if(v->commands.lines[size].flags & FreeLine) free(v->commands.lines[size].cmd);
+   }
+   free (v->commands.lines);
+
+}
+
+int commands_size(Viewer *v)
+{
+    int size,total =0;
+    for (size = v->commands.size-1; size >=0; size--) total += (strlen(v->commands.lines[size].cmd)+1);
+
+    return total;
+}
+
+int command_file_load(Viewer *v,char * filename)
+{
+   int size;
+   char *p;
+
+   if (v->commands.size) commands_free(v);
+
+   v->commands.lines = malloc(sizeof(LINE));
+   v->commands.size =1;
+   v->commands.lines[0].flags = FreeLine;
+
+   size = file_size(filename);
+
+   if ((!(size)) || ((v->commands.lines[0].cmd = malloc (size)) == NULL)) return FAILED;
+
+   file_load(filename,v->commands.lines[0].cmd);
+
+   /* set up line numbers */
+
+   p = v->commands.lines[0].cmd;
+   while (p<(size+v->commands.lines[0].cmd)) {
+      if (*p <32) *p =0;
+      if ((*p++ <32) && ((*p >31) && (p < (size +v->commands.lines[0].cmd)))) {
+         v->commands.size++;
+         v->commands.lines = realloc (v->commands.lines,v->commands.size*sizeof (LINE));
+         v->commands.lines[v->commands.size -1].flags =0;
+         v->commands.lines[v->commands.size -1].cmd = p;
+         if (!strncmp(p,"!!data",6)) break;
+      }
+
+   }
+
+   return SUCCESS;
+}
+
+int do_star(Viewer *v,char *cmd)
+{
+   IGNORE(v);
+
+   system(cmd);
+   return SUCCESS;
+}
+
+int do_goto(Viewer *v,char *cmd)
+{
+   v->commands.last = v->commands.Cfunction;
+
+   command_parse(v,cmd);
+   return FAILED;       /* drop out */
+}
+
+static int gosubing=0;
+
+int do_gosub(Viewer *v,char *cmd)
+{
+   char *t,*r;
+   t = v->commands.Cfunction;
+   r = v->commands.last;
+   gosubing ++;
+
+/* gosub only really used for styles */
+
+   do_goto(v,cmd);
+
+   v->commands.Cfunction =t;
+   v->commands.last = r;
+
+   return SUCCESS;
+}
+
+int do_eend(Viewer *v, char *label)
+{
+   v=v;
+   label = label;
+
+   if (gosubing) {
+      gosubing--;
+      return FAILED;
+   }
+   return SUCCESS;
+}
+
+int command_start(Viewer *v, char *label)
+{
+    LINE *po;
+    char buf[128]="!!start ",*p=buf+8;
+    int start=0;
+
+    if (!(v->commands.size)) return NULL;
+
+    if (!label) return 1;
+
+    while ((*p++ = *label++) >31 ) ;
+    *(p-1)=0;
+
+    po = v->commands.lines;
+    while(start < (v->commands.size-1)) {
+
+       if (!strcmp(po[start++].cmd,buf)) {
+          v->commands.Cfunction = po[start-1].cmd +8;
+          return start;
+       }
+    }
+    return 0;
+}
+
+/* look for b within a (up to ctrl) */
+static int string_compare (char *a, char *b)
+{
+    int p,q;
+
+    while((*b) >31) {
+       p=*a++;
+       q=*b++;
+
+       if (p<32) p=0;
+       if (q<32) q=0;
+
+       if (p>q) return GREATER;
+       if (p<q) return LESSTHAN;
+   }
+   return EQUAL;
+}
+
+
+int command_parse(Viewer *v,char *label)
+{
+    int i;
+    int start;
+    CCTRL *con = (CCTRL *)v->control;
+    char *line;
+    start = command_start(v,label);
+
+    if (!start) return FAILED;
+
+    parsefns = con->fns;
+    parsings = con->psings;
+    NUM_CMDS = con->num;
+
+    while (start < v->commands.size) {
+       line = v->commands.lines[start++].cmd;
+       if ((*line == '!') && string_compare(line,"!!start") == EQUAL) {
+          line += strlen("!!start");
+          while (*line == ' ') line++;
+          v->commands.Cfunction = line;
+
+       } else {
+          for (i=0;i<NUM_CMDS;i++) {
+             if (string_compare(line,parsings[i]) == EQUAL) {
+                line += strlen(parsings[i]);
+                while (*line == ' ') line++;
+                if ((*parsefns[i])(v,line) == FAILED) return SUCCESS;
+             }
+          }
+       }
+    }
+    return SUCCESS;
+}
+
+int do_end(Viewer *v, char *cmd)
+{
+   IGNORE(v);
+   IGNORE(cmd);
+
+   return FAILED;
+}
+
+void commands_goto_last(Viewer *v)
+{
+   do_goto(v,v->commands.last);
+}
+
+void commands_goto_self(Viewer *v)
+{
+   char *temp = v->commands.last;
+   do_goto(v,v->commands.Cfunction);
+   v->commands.last = temp;
+}
+
+/* search a viewer for a given string */
+
+void commands_search(Viewer *v,int casei,int lab, char *string)
+{
+    int start;
+    CCTRL *con = (CCTRL *)v->control;
+    char *line,*temp=NULL;
+    char *lb =0;
+
+    if (lab ==1) lb = v->commands.Cfunction;
+
+    start = command_start(v,lb);
+
+    if (!start) return;
+
+    parsefns = con->fns;
+    parsings = con->psings;
+    NUM_CMDS = con->num;
+
+    /* look for and end */
+    while (string_compare(v->commands.lines[start++].cmd,"!!end") != EQUAL);
+
+    while (start < v->commands.size) {
+       line = v->commands.lines[start++].cmd;
+       if ((*line == '!') && string_compare(line,"!!start") == EQUAL) {
+          line += strlen("!!start");
+          while (*line == ' ') line++;
+          temp =line;
+       }
+       if (string_compare(line,"keyword") == EQUAL) {
+           if (casei) {
+               if (strstr(line+7,string)) {
+                   do_goto(v,temp);
+                   break;
+               }
+           } else {
+               if (strstr(line+7,string)) {
+                   do_goto(v,temp);
+                   break;
+               }
+           }
+       }
+    }
+}
+

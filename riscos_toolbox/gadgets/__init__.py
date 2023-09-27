@@ -74,11 +74,11 @@ class Gadget:
     def _miscop_get_text(self, op):
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
            a suitably-sized buffer, read the string and return it."""
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0IIII00;....I',
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0III00;.....I',
                            self.window.id,op,self.id)
         buffer = swi.block((buf_size+3)//4)
-        swi.swi('Toolbox_ObjectMiscOp', '0iIIIbI',
-                           self.window.id, op,self.id, buffer, buf_size)
+        swi.swi('Toolbox_ObjectMiscOp', '0iIibI',
+                self.window.id, op,self.id, buffer, buf_size)
         return buffer.nullstring()
 
 class GadgetDefinition(ctypes.Structure):
