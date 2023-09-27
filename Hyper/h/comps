@@ -1,0 +1,20 @@
+#define TitleGadget     15
+#define NameGadget      9
+#define StyleGadget     3
+#define ColourGadget    12
+#define UnderlayGadget  1
+#define PageGadget      5
+#define OverlayGadget   7
+#define KeyWdsGadget    17
+
+#define NewView         2
+#define RemoveView      3
+
+#define SelectionTool   0
+#define HotSpotTool     1
+#define TryLinksTool    2
+
+#define HomeButton      3
+#define BackButton      1
+
+#define ShowStatusEntry 4

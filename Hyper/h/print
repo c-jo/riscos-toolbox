@@ -1,0 +1,9 @@
+/*
+ * print.h
+ *
+ * definitions of RISC OS print driver flags
+ */
+
+#define DM (1<<16)
+#define DU (256)
+#define DownLoadFont (1<<29)

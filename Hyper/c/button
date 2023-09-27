@@ -1,0 +1,99 @@
+/*
+ * button.c
+ *
+ * This file demonstrates how button gadgets may be added and removed
+ * from a Window object at run time. The technique is easilly extendible
+ * to other gadget types.
+ *
+ */
+
+/* Copyright (C) Acorn Computers Ltd 1994 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "string.h"
+
+#include "toolbox.h"
+#include "window.h"
+
+#include "hyper.h"
+#include "utils.h"
+#include "button.h"
+
+/* remove all the buttons that we have created on the viewer's window */
+
+int buttons_clear(Viewer *v)
+{
+    HotSpot *button = v->buttons,*next;
+
+    while (button) {
+      next = button->next;
+      window_remove_gadget(0,v->window,button->id);
+      free(button);
+      button = next;
+    }
+    v->buttons = NULL;
+    return SUCCESS;
+}
+
+int do_button(Viewer *v,char *cmd)
+{
+    Gadget g,*gorig;
+    HotSpot *button;
+    void *desc;
+    int size,component = 0;
+
+    /* add this to the chain */
+
+    button = malloc(sizeof(HotSpot));
+    if (!button) return FAILED;
+
+    button->next = v->buttons;
+    v->buttons   = button;
+
+    /* we get the basic button gadget from a prototype in the resource file */
+
+    while (*cmd < '0') cmd++;
+    if (*cmd > '9') {
+       /* use alternate prototype */
+       component = *cmd - 'A';
+       cmd++;
+    }
+
+    if (toolbox_template_lookup(0,"Prototypes",&desc)) return FAILED;
+    if (window_extract_gadget_info(0,desc,component,(void *) &gorig,&size)) return FAILED;
+    memcpy(&g,gorig,size);
+
+    /* HCL syntax is 'button {TYPE} <xmin> <ymin> <xmax> <ymax> <name>' */
+
+    sscanf(cmd," %d %d %d %d",&(g.hdr.box.xmin),&(g.hdr.box.ymin),
+                        &(g.hdr.box.xmax),&(g.hdr.box.ymax));
+
+    button->box = g.hdr.box;
+
+    /* need to alter button's bounding box to take account of scale */
+
+    g.hdr.box.xmin = (g.hdr.box.xmin * v->trfm[0][0]) >> 16;
+    g.hdr.box.xmax = (g.hdr.box.xmax * v->trfm[0][0]) >> 16;
+
+    g.hdr.box.ymin = (g.hdr.box.ymin * v->trfm[1][1]) >> 16;
+    g.hdr.box.ymax = (g.hdr.box.ymax * v->trfm[1][1]) >> 16;
+
+    /* get the name, ie. where the hot spot jumps to */
+
+    while (*cmd < 'A') cmd++;
+    button->command = cmd;
+
+    /* get the toolbox to allocate the id */
+    g.hdr.component_id = -1;
+
+    if(window_add_gadget(0,v->window,&g,&(button->id))) {
+      v->buttons = button->next;
+      free (button);
+      return FAILED;
+    }
+
+    return SUCCESS;
+}
+
+

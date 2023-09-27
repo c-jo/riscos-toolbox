@@ -1,0 +1,130 @@
+/* Copyright (C) Acorn Computers Ltd 1994 */
+
+/*
+ * view.c
+ *
+ * create a new view onto a stack
+ */
+
+/* include standard C definitions */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "drawfile.h"
+
+/* include event lib declarations */
+
+#include "event.h"
+#include "wimplib.h"
+
+/* include toolbox lib declarations */
+
+#include "toolbox.h"
+#include "window.h"
+#include "gadgets.h"
+
+/* include application definitions */
+
+#include "hyper.h"
+#include "button.h"
+#include "draw.h"
+#include "handler.h"
+#include "events.h"
+#include "utils.h"
+#include "comps.h"
+#include "commands.h"
+#include "view.h"
+
+extern Viewer *views;
+
+extern CCTRL VIEW;
+
+
+/*
+ * new_viewer is called with an HCL filename. It creates a block of memory
+ * to maintain this view, including references to the draw files used and
+ * actions for button presses. We store the address of the structure on the
+ * window using the Toolbox Client Handle system. This makes it easy to
+ * process mouse clicks and Redraw events.
+ */
+
+extern char * view_name;
+extern int default_scale;
+
+Viewer *new_viewer(char *file)
+{
+     Viewer *new = calloc(sizeof(Viewer)+strlen(file)+1,1);
+     Transform tt = TRFM;
+
+     if (!new) return NULL;
+
+     /* set up a default name */
+     new->name = "New stack";
+     new->filename = (char *) (new+1);
+     new->control = &VIEW;
+     new->flags = ViewerFlag_StatusLine;
+
+     strcpy(new->filename,file);
+
+     memcpy(new->trfm , tt, sizeof(tt));
+
+     if (toolbox_create_object(0,view_name,&(new->window))) {
+        free(new);
+        return NULL;
+     }
+
+     window_get_tool_bars(Window_InternalBottomLeftToolbar,new->window,&(new->status),0,0,0);
+     window_get_extent(0,new->window,&new->extent);
+
+     window_get_wimp_handle(0,new->window,&(new->wimpw));
+
+     apply_scale(new,default_scale);
+     toolbox_show_object(0,new->window,Toolbox_ShowObject_Default,0,0,0);
+
+     toolbox_set_client_handle(0,new->status, new);
+     toolbox_set_client_handle(0,new->window, new);
+
+     command_file_load(new,file);
+
+     command_parse(new,NULL);
+
+     /* update the number of views that we know about - this allows us
+      * to build the icon bar menu */
+
+     if (views) new->next = views;
+        else new->next = NULL;
+     views = new;
+
+     /* register its redraw handler */
+
+     event_register_wimp_handler(new->window,Wimp_ERedrawWindow,redraw_window,new);
+
+     /* and the clearup handler */
+
+     event_register_wimp_handler(new->window,Wimp_ECloseWindow,hide_viewer,new);
+
+     /* register back/forward/home handlers */
+
+     event_register_toolbox_handler(new->window,-1,misc_handler,new);
+
+     /* hot spots */
+
+     event_register_wimp_handler(new->window,Wimp_EMouseClick,click_viewer,new);
+
+     return new;
+
+}
+
+/* remove all the handlers on a window that were added when it was created */
+
+void view_remove_handlers(Viewer *view)
+{
+     event_deregister_wimp_handler(view->window,Wimp_ERedrawWindow,redraw_window,view);
+     event_deregister_wimp_handler(view->window,Wimp_ECloseWindow,hide_viewer,view);
+     event_deregister_wimp_handler(view->window,Wimp_EMouseClick,click_viewer,view);
+
+     event_deregister_toolbox_handler(view->window,-1,misc_handler,view);
+
+}

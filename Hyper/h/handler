@@ -1,0 +1,17 @@
+/*
+ * handler.h
+ *
+ */
+
+extern ToolboxEventHandler      tbquit_handler;
+extern ToolboxEventHandler      print_card;
+extern ToolboxEventHandler      toggle_status;
+extern ToolboxEventHandler      menu_setup;
+extern ToolboxEventHandler      search_handler;
+extern ToolboxEventHandler      misc_handler;
+extern ToolboxEventHandler      proginfo_show;
+
+extern WimpEventHandler         hide_viewer;
+extern WimpEventHandler         click_viewer;
+extern WimpMessageHandler       quit_handler;
+
