@@ -19,7 +19,7 @@ class Window(Object):
     InvisibleCaret = -2
 
     InternalBottomLeftToolbar = 1<<0
-    InternaTopLeftToolbar = 1<<1
+    InternalTopLeftToolbar = 1<<1
     ExternalBottomLeftToolbar = 1<<2
     ExternalTopLeftToolbar = 1<<3
 
