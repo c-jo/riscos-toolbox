@@ -42,18 +42,11 @@ class Button(Gadget):
     @validation.setter
     def validation(self, validation):
         return self._miscop_set_text(Button.SetValidation, validation)
-
-    @property
-    def font(self):
-        return swi.swi('Toolbox_ObjectMiscOp','0III',
-            self.window.id, Button.GetFont)
-
-    @font.setter
-    def fond(self, font):
-        font, width, height = font
-        swi.swi('Toolbox_ObjectMiscOp','0IIIsII',
-            self.window.id, Button.SetFont,
-            self.id, font, int(width*16), int(height*16))
+    
+    def set_font(self, font, width, height):
+        swi.swi('Toolbox_ObjectMiscOp','0iIisii',
+                self.window.id, Button.SetFont,
+                self.id, font, int(width*16), int(height*16))
 
 class ButtonDefinition(GadgetDefinition):
     _fields_ = [
