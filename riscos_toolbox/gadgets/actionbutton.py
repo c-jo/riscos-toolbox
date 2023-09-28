@@ -38,8 +38,8 @@ class ActionButton(Gadget):
         return self._miscop_get_int(133)
 
     @click_show.setter
-    def click_show(self, cs):
-        return self._miscop_get_int(132, cs)
+    def click_show(self, cs): 
+        self._miscop_set_int(132, cs)
 
 class ActionButtonSelectedEvent(ToolboxEvent):
     event_id = ActionButton.Selected
