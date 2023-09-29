@@ -15,7 +15,6 @@ class Button(Gadget):
     SetValidation  = _type + 4
     GetValidation  = _type + 5
     SetFont        = _type + 6
-    GetFont        = _type + 7
 
     @property
     def icon_flags(self):
