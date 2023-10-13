@@ -45,12 +45,15 @@ class Button(Gadget):
 
     @property
     def font(self):
-        return swi.swi('Toolbox_ObjectMiscOp','0III',
-            self.window.id, Button.GetFont)
+        raise RuntimeError("Get font for button is not implemented.")
 
     @font.setter
-    def fond(self, font):
-        font, width, height = font
+    def font(self, font):
+        if len(font) == 2:
+            font, size = font
+            height = width = size
+        else:
+            font, width, height = font
         swi.swi('Toolbox_ObjectMiscOp','0IIIsII',
             self.window.id, Button.SetFont,
             self.id, font, int(width*16), int(height*16))
