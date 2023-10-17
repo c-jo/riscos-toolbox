@@ -1,7 +1,0 @@
-/*
- * view.h
- *
- */
-
-extern Viewer *new_viewer(char *file);
-extern void view_remove_handlers(Viewer *view);

@@ -1,7 +1,0 @@
-/*
- * button.h
- */
-
-int button_check(Viewer *v,ComponentId b);
-int buttons_clear(Viewer *v);
-int do_button(Viewer *v,char *cmd);

@@ -1,6 +1,0 @@
-/*
- * menus.h
- */
-
-extern ToolboxEventHandler      build_views;
-extern ToolboxEventHandler      alter_views;
