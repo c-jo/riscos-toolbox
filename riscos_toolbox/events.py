@@ -187,7 +187,6 @@ class UserMessage(Event, ctypes.Structure):
                     self.sender, None, size, reply_callback)
 
     def acknowledge(self):
-        """Acknowedge this message."""
         self.your_ref = self.my_ref
         return swi.swi('Wimp_SendMessage', 'IIII;..i',
                        Wimp.UserMessageAcknowledge,
@@ -343,20 +342,42 @@ def wimp_handler(reason, component=None):
         return _set_handler(reason, component, handler, _wimp_handlers)
     return decorator
 
-def reply_handler(message_class):
-    _reply_messages.add(message_class.event_id)
+def reply_handler(message_s):
+    _message_map = {} # message number -> class or None
+
+    def _map_data(code_or_class):
+        if isinstance(code_or_class, int):
+           return code_or_class, None
+        elif issubclass(code_or_class, UserMessage):
+           return code_or_class.event_id, code_or_class
+        else:
+            raise RuntimeError("Must be int or UserMessage")
+
+    if isinstance(message_s, Iterable):
+        for m in message_s:
+           code, klass = _map_data(m)
+           _message_map[code] = klass
+    else:
+        code, klass = _map_data(message_s)
+        _message_map[code] = klass
+
+    _reply_messages.update(set(_message_map.keys()))
+
     def decorator(handler):
-        @wraps(handler)
-        def wrapper(self, code, data, *args):
+        @wraps((handler,_message_map))
+        def wrapper(self, data, *args):
+            message = None
+            code = None
             if data is not None:
-                message = ctypes.cast(data, ctypes.POINTER(message_class)).contents
-                if message.code != message_class.event_id:
-                    raise RuntimeError(
-                        "Wrong message type - got {} expected {}".
-                        format(message.code, message_class.event_id))
-            else:
-                message = None
+                message = ctypes.cast(
+                              data, ctypes.POINTER(UserMessage)).contents
+
+                code = message.code
+                if code in _message_map:
+                    message = ctypes.cast(
+                              data, ctypes.POINTER(_message_map[code])).contents
             return handler(self, code, message, *args)
+            return h
         return wrapper
     return decorator
 
@@ -378,10 +399,6 @@ def toolbox_dispatch(event_code, application, id_block, poll_block):
              break
 
 def message_dispatch(code, application, id_block, poll_block):
-    print("message_dispatch",code.__class__)
-#    my_ref   = header[2]
-#    your_ref = header[3]
-#    code     = header[4]
     if code.your_ref in _reply_callbacks:
         r = _reply_callbacks[code.your_ref](poll_block)
         del _reply_callbacks[code.your_ref]
@@ -389,7 +406,7 @@ def message_dispatch(code, application, id_block, poll_block):
             return
 
     if code.reason == Wimp.UserMessageAcknowledge and code.my_ref in _reply_callbacks:
-        r = _reply_callbacks[code.my_ref](code, poll_block)
+        r = _reply_callbacks[code.my_ref](poll_block)
         del _reply_callbacks[code.my_ref]
         if r is not False:
             return
@@ -408,5 +425,5 @@ def null_polls():
 
 def null_poll():
     for ref in list(_reply_callbacks.keys()):
-       _reply_callbacks[ref](None, None)
+       _reply_callbacks[ref](None)
        del _reply_callbacks[ref]

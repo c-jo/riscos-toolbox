@@ -78,7 +78,7 @@ class Gadget:
                            self.window.id,op,self.id)
         buffer = swi.block((buf_size+3)//4)
         swi.swi('Toolbox_ObjectMiscOp', '0iIibI',
-                self.window.id, op,self.id, buffer, buf_size)
+                           self.window.id, op,self.id, buffer, buf_size)
         return buffer.nullstring()
 
 class GadgetDefinition(ctypes.Structure):

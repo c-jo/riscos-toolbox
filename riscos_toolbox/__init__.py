@@ -120,6 +120,7 @@ def run(application):
 
         except Exception as e:
             report_exception(e)
+            print(traceback.format_exc())
 
 def quit():
      global _quit

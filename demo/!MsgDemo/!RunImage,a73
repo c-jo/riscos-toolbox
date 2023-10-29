@@ -44,11 +44,8 @@ class MsgDemo(Application):
     @message_handler(HelloMessage)
     def reset_request(self, code, id_block, message):
         if code is not None:
-            print("Hello",message.name, code, code.reason)
             if code.recorded:
                 message.acknowledge()
-        else:
-            print("Hello <None>")
 
     @message_handler(AddRequestMessage)
     def add_request(self, code, id_block, message):
@@ -62,46 +59,44 @@ class MsgDemo(Application):
 
     @toolbox_handler(IconbarClickedEvent)
     def iconbar_clicked(self, event, id_block, poll_block):
-        #arq = AddRequestMessage()
-        #arq.a = 1
-        #arq.b = 2
-        #arq.broadcast(recorded=False,
-        #              reply_callback=lambda m:self._add_reply(m, arq.a, arq.b))
+        arq = AddRequestMessage()
+        arq.a = 1
+        arq.b = 2
+        arq.broadcast(recorded=False,
+                      reply_callback=lambda m:self._add_reply(m, arq.a, arq.b))
 
-        #none = NoMessage()
-        #none.broadcast(recorded=False,
-        #              reply_callback=lambda m:self._no_reply(m))
+        none = NoMessage()
+        none.broadcast(recorded=False,
+                      reply_callback=lambda m:self._no_reply(m, False))
 
-        #none = NoMessage()
-        #none.broadcast(recorded=True,
-        #              reply_callback=lambda m:self._no_reply(m))
+        none = NoMessage()
+        none.broadcast(recorded=True,
+                      reply_callback=lambda m:self._no_reply(m, True))
 
         hello = HelloMessage()
         hello.name = b"World"
         hello.broadcast(recorded=True,
-                      reply_callback=lambda c,m:self._hello_reply(c,m))
+                      reply_callback=lambda m:self._hello_reply(m))
 
     @reply_handler(AddResultMessage)
     def _add_reply(self, code, message, a, b):
-        if message is None:
-            swi.swi("Wimp_ReportError","sI","FFFFDidn't get a reply?", 1)
+        if message:
+            if message.q != a + b:
+                swi.swi("Wimp_ReportError","sI","FFFFWrong reply.", 1)
         else:
-            swi.swi("Wimp_ReportError","sI",f"FFFFAdd reply: {a} + {b} = {message.q}", 1)
+            swi.swi("Wimp_ReportError","sI","FFFFDidn't get a reply?", 1)
 
     @reply_handler(NoMessage)
-    def _no_reply(self, code, message):
-        if message is not None:
-            swi.swi("Wimp_ReportError","sI","FFFFGot  a reply?", 1)
-        else:
-            swi.swi("Wimp_ReportError","sI",f"FFFFCallback called for no reply.", 1)
+    def _no_reply(self, code, message, recorded):
+        if recorded and message is None:
+            swi.swi("Wimp_ReportError","sI","FFFFNo bounce.", 1)
+        if not recorded and message is not None:
+            swi.swi("Wimp_ReportError","sI","FFFFGot a reply?", 1)
 
     @reply_handler(HelloMessage)
     def _hello_reply(self, code, message):
         if code is not None:
-            print("hello_reply",code,code.reason,message)
-            swi.swi("Wimp_ReportError","sI","FFFFGot a reply?", 1)
-        else:
-            swi.swi("Wimp_ReportError","sI",f"FFFFNo reply?", 1)
+            swi.swi("Wimp_ReportError","sI","FFFFMessage bounced", 1)
 
 if __name__ == "__main__":
     app = MsgDemo()

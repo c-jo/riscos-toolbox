@@ -60,3 +60,5 @@ class ClickedEvent(ToolboxEvent):
     @property
     def adjust(self):
         return self.flags & 0x01 != 0
+
+IconbarClickedEvent = ClickedEvent
