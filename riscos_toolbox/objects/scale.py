@@ -15,15 +15,15 @@ class Scale(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;.I",self.id, 0)
+        return swi.swi("Toolbox_ObjectMiscOp", "0II;.I", self.id, 0)
 
     @property
     def value(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I",self.id, 2)
+        return swi.swi("Toolbox_ObjectMiscOp", "0II;I", self.id, 2)
 
     @value.setter
     def value(self, value):
-        return swi.swi("Toolbox_ObjectMiscOp","0III",self.id, 1, value)
+        return swi.swi("Toolbox_ObjectMiscOp", "0III", self.id, 1, value)
 
     @property
     def title(self):

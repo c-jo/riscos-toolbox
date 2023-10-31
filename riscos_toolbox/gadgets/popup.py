@@ -22,19 +22,19 @@ class PopUp(Gadget):
         return self._miscop_get_int(self.GetMenu)
 
     @menu.setter
-    def menu(self,id):
-        self._miscop_set_int(self.SetMenu,id)
+    def menu(self, id):
+        self._miscop_set_int(self.SetMenu, id)
 
 class PopUpDefinition(GadgetDefinition):
     _gadget_class = PopUp
-    _fields_ = [ ("menu",ctypes.c_char_p) ]
+    _fields_ = [ ("menu", ctypes.c_char_p) ]
 
 class PopUpAboutToBeShownEvent(ToolboxEvent):
     event_id = PopUp.AboutToBeShown
 
     # There's extra fields in the header that aren't in the documentation,
     # but these aren't implemented here.
-    _fields_ = [ ("_menu_id",ctypes.c_int32) ]
+    _fields_ = [ ("_menu_id", ctypes.c_int32) ]
 
     @property
     def menu_id(self):

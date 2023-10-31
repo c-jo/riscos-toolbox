@@ -27,7 +27,7 @@ def file_load(filename):
                      sq_size-20,
                      ctypes.addressof(buffer), size)
 
-    return buffer,size
+    return buffer, size
 
 if __name__ == "__main__":
     print(file_load("underlay"))

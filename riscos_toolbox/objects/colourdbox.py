@@ -15,21 +15,21 @@ class ColourDbox(Object):
 
     @property
     def colour(self):
-        colour = swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 1)
+        colour = swi.swi("Toolbox_ObjectMiscOp", "III;i", 0, self.id, 1)
         return colour if colour > 0 else None
 
     @colour.setter
     def colour(self, colour):
-        swi.swi("Toolbox_ObjectMiscOp","IIIi",
+        swi.swi("Toolbox_ObjectMiscOp", "IIIi",
                 0, self.id, 1, colour if colour else -1)
 
     @property
     def none_available(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;...I", 0,self.id, 3) != 0
+        return swi.swi("Toolbox_ObjectMiscOp", "III;...I", 0, self.id, 3) != 0
 
     @none_available.setter
     def none_available(self, available):
-        swi.swi("Toolbox_ObjectMiscOp","IIII",
+        swi.swi("Toolbox_ObjectMiscOp", "IIII",
                 0, self.id, 2, 1 if available else 0)
 
     @property

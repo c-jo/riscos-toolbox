@@ -11,7 +11,7 @@ class FontDBox(object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
+        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 0)
 
     @property
     def font(self):

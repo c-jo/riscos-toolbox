@@ -60,68 +60,68 @@ class NumberRange(Gadget):
         # ObjectId and ComponentId are signed ints
         # The parent class's _miscop_get_int always passes 0 to flags, so we need
         # to do our own here
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;i',NumberRange.LowerBound,
-                        self.window.id,NumberRange.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', NumberRange.LowerBound,
+                        self.window.id, NumberRange.GetBounds, self.id)
 
     @lower_bound.setter
     def lower_bound(self, value):
-        swi.swi('Toolbox_ObjectMiscOp','Iiiii',NumberRange.LowerBound,self.window.id,
-                NumberRange.SetBounds,self.id,value)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiiii', NumberRange.LowerBound, self.window.id,
+                NumberRange.SetBounds, self.id, value)
 
     @property
     def upper_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;.i',NumberRange.UpperBound,
-                       self.window.id,NumberRange.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i', NumberRange.UpperBound,
+                       self.window.id, NumberRange.GetBounds, self.id)
     # If upper bound is set to lower bound, a divide by zero occurs, so
     # this setter will check for that and set it to one more than lower if this is the case.
     @upper_bound.setter
     def upper_bound(self, value):
         if value == self.lower_bound:
             value += 1
-        swi.swi('Toolbox_ObjectMiscOp','Iiii.i',NumberRange.UpperBound,self.window.id,
-                NumberRange.SetBounds,self.id,value)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiii.i', NumberRange.UpperBound, self.window.id,
+                NumberRange.SetBounds, self.id, value)
 
     @property
     def step_size(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;..i',NumberRange.StepSize,
-                       self.window.id,NumberRange.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;..i', NumberRange.StepSize,
+                       self.window.id, NumberRange.GetBounds, self.id)
 
     @step_size.setter
     def step_size(self, value):
-        swi.swi('Toolbox_ObjectMiscOp','Iiii..i',NumberRange.StepSize,self.window.id,
-                NumberRange.SetBounds,self.id,value)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiii..i', NumberRange.StepSize, self.window.id,
+                NumberRange.SetBounds, self.id, value)
 
     @property
     def precision(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;...i',NumberRange.Precision,
-                       self.window.id,NumberRange.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;...i', NumberRange.Precision,
+                       self.window.id, NumberRange.GetBounds, self.id)
 
     @precision.setter
     def precision(self, value):
-        swi.swi('Toolbox_ObjectMiscOp','Iiii...i',NumberRange.Precision,self.window.id,
-                NumberRange.SetBounds,self.id,value)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiii...i', NumberRange.Precision, self.window.id,
+                NumberRange.SetBounds, self.id, value)
 
     # Components
 
     @property
     def numeric(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;i',NumberRange.NumericalField,
-                       self.window.id,NumberRange.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', NumberRange.NumericalField,
+                       self.window.id, NumberRange.GetComponents, self.id)
 
     @property
     def left_adjuster(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;.i',NumberRange.LeftAdjuster,
-                       self.window.id,NumberRange.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i', NumberRange.LeftAdjuster,
+                       self.window.id, NumberRange.GetComponents, self.id)
 
     @property
     def right_adjuster(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;..i',NumberRange.RightAdjuster,
-                       self.window.id,NumberRange.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;..i', NumberRange.RightAdjuster,
+                       self.window.id, NumberRange.GetComponents, self.id)
 
     @property
     def slider(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;...i',NumberRange.Slider,
-                       self.window.id,NumberRange.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;...i', NumberRange.Slider,
+                       self.window.id, NumberRange.GetComponents, self.id)
 
 
 class NumberRangeDefinition(GadgetDefinition):

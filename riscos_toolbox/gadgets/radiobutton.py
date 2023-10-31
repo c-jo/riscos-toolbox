@@ -31,7 +31,7 @@ class RadioButton(Gadget):
 
     @label.setter
     def label(self, text):
-        self._miscop_set_text(RadioButton.SetLabel,text)
+        self._miscop_set_text(RadioButton.SetLabel, text)
 
     @property
     def event(self):
@@ -39,7 +39,7 @@ class RadioButton(Gadget):
 
     @event.setter
     def event(self, event):
-        self._miscop_set_int(RadioButton.SetEvent,event)
+        self._miscop_set_int(RadioButton.SetEvent, event)
 
     @property
     def state(self):
@@ -47,12 +47,12 @@ class RadioButton(Gadget):
 
     @state.setter
     def state(self, state):
-        self._miscop_set_int(RadioButton.SetState,state)
+        self._miscop_set_int(RadioButton.SetState, state)
 
     # Note: there is no GetFont method for this gadget.
-    def set_font(self,font,width,height):
-        swi.swi('Toolbox_ObjectMiscOp','0iiisII',self.window.id,RadioButton.SetFont,
-                self.id,font,width,height)
+    def set_font(self, font, width, height):
+        swi.swi('Toolbox_ObjectMiscOp', '0iiisII', self.window.id, RadioButton.SetFont,
+                self.id, font, width, height)
 
 
 class RadioButtonDefinition(GadgetDefinition):

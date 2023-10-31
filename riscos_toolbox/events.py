@@ -150,7 +150,7 @@ class EventHandler(object):
                 if classname in handler_map:
                     for component, handler in handler_map[classname].items():
                         if event not in handlers:
-                            handlers[event] = {component:[handler]}
+                            handlers[event] = {component: [handler]}
                         elif component not in handlers[event]:
                             handlers[event][component] = [handler]
                         else:
@@ -176,12 +176,12 @@ class EventHandler(object):
             return poll_block
 
         if component in handlers:
-            for handler,data_class in handlers[component]:
+            for handler, data_class in handlers[component]:
                 if handler(self, event, id_block, _data(data_class, poll_block)) != False:
                     return True
 
         if None in handlers:
-            for handler,data_class in handlers[None]:
+            for handler, data_class in handlers[None]:
                 if handler(self, event, id_block, _data(data_class, poll_block)) != False:
                     return True
 
@@ -203,7 +203,7 @@ _message_handlers = {}
 
 def _set_handler(code, component, handler, handlers):
     if '.' in handler.__qualname__:
-        cls = handler.__qualname__.rsplit('.',1)[0]
+        cls = handler.__qualname__.rsplit('.', 1)[0]
     else:
         cls = None
 
@@ -222,7 +222,7 @@ def _set_handler(code, component, handler, handlers):
             else:
                 handlers[code][cls] = { component: (handler, event_type) }
         else:
-            handlers[code] = {cls:{ component: (handler, event_type) } }
+            handlers[code] = {cls: { component: (handler, event_type) } }
 
     if isinstance(code, Iterable):
         for code in code:
@@ -251,7 +251,7 @@ def wimp_handler(reason, component=None):
 # This is the list of objects to try to handle the event, in order.
 def _get_spaa(application, id_block):
         from .base import get_object
-        return list(filter(lambda o:o is not None,
+        return list(filter(lambda o: o is not None,
             map( get_object,
                  set( [ id_block.self.id,
                         id_block.parent.id,

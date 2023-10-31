@@ -5,7 +5,7 @@ from ..events import ToolboxEvent, AboutToBeShownEvent
 import datetime
 import swi
 
-_ro_epoch = datetime.datetime(1900,1,1,0,0,0,0,datetime.timezone.utc)
+_ro_epoch = datetime.datetime(1900, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
 
 class FileInfo(Object):
     class_id = 0x82ac0
@@ -14,24 +14,24 @@ class FileInfo(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
+        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 0)
 
     @property
     def modified(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 2) != 0
+        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 2) != 0
 
     @modified.setter
     def modified(self, modified):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 1,
+        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 1,
                 1 if modified else 0)
 
     @property
     def file_type(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 4)
+        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 4)
 
     @file_type.setter
     def file_type(self, file_type):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 3, file_type)
+        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 3, file_type)
 
     @property
     def file_name(self):
@@ -46,11 +46,11 @@ class FileInfo(Object):
 
     @property
     def file_size(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8)
+        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 8)
 
     @file_type.setter
     def file_size(self, file_size):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 7, file_size)
+        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 7, file_size)
 
     @property
     def date(self):

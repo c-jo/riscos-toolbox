@@ -43,22 +43,22 @@ class Menu(Object):
 
         @property
         def tick(self):
-            return swi.swi('Toolbox_ObjectMiscOp','0II;I',
+            return swi.swi('Toolbox_ObjectMiscOp', '0II;I',
                            self.menu.id, 1, self.id) != 0
 
         @tick.setter
         def tick(self, val):
-            swi.swi('Toolbox_ObjectMiscOp','0IIII',
+            swi.swi('Toolbox_ObjectMiscOp', '0IIII',
                     self.menu.id, 0, self.id, 1 if val else 0)
 
         @property
         def fade(self):
-            return swi.swi('Toolbox_ObjectMiscOp','0II;I',
+            return swi.swi('Toolbox_ObjectMiscOp', '0II;I',
                            self.menu.id, 3, self.id) != 0
 
         @fade.setter
         def fade(self, val):
-            swi.swi('Toolbox_ObjectMiscOp','0IIII',
+            swi.swi('Toolbox_ObjectMiscOp', '0IIII',
                     self.menu.id, 2, self.id, 1 if val else 0)
 
     def __getitem__(self, id):
@@ -66,7 +66,7 @@ class Menu(Object):
 
     def add_at_end(self, component, text,
                    click_show=None, submenu_show=None,
-                   submenu_event=None,click_event=None,
+                   submenu_event=None, click_event=None,
                    help_message=None):
         flags = 0
         details = Menu.MenuTemplateEntry(component)
@@ -77,11 +77,11 @@ class Menu(Object):
         if click_event:
             details.click_event = click_event
 
-        return swi.swi('Toolbox_ObjectMiscOp','IIIiI;I',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IIIiI;I',
                 flags, self.id, 20, -1, ctypes.addressof(details))
 
     def remove(self, component):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 21, component)
+        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 21, component)
 
 class SelectionEvent(ToolboxEvent):
     event_id = Menu.Selection

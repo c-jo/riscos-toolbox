@@ -62,10 +62,10 @@ def report_exception(e):
 
 def initialise(appdir):
     def _handler_block(handlers, add=[]):
-        ids = sorted(list(filter(lambda k:k >= 0,
+        ids = sorted(list(filter(lambda k: k >= 0,
                                 handlers.keys())) + add) + [0]
         block = swi.block(len(ids))
-        for index,id in enumerate(ids):
+        for index, id in enumerate(ids):
             block[index] = id
         return block
 
@@ -73,21 +73,21 @@ def initialise(appdir):
     toolbox_events = _handler_block(events._toolbox_handlers,
                          [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
-    wimp_ver,task_handle,sprite_area = \
-        swi.swi('Toolbox_Initialise','0IbbsbI;III',
+    wimp_ver, task_handle, sprite_area = \
+        swi.swi('Toolbox_Initialise', '0IbbsbI;III',
                 560, wimp_messages, toolbox_events,
                appdir, _msgtrans_block, ctypes.addressof(_id_block))
 
 def msgtrans_lookup(token, *args, bufsize=256):
     args = args[:4]
     buffer = swi.block(int((bufsize+3)/4))
-    swi.swi("MessageTrans_Lookup","bsbi"+("s"*len(args)),
-            _msgtrans_block, token, buffer,bufsize, *args)
+    swi.swi("MessageTrans_Lookup", "bsbi"+("s"*len(args)),
+            _msgtrans_block, token, buffer, bufsize, *args)
     return buffer.ctrlstring()
 
 def extract_gadget_info_from_template(self, template, gadget):
     blk = swi.swi("Toolbox_TemplateLookUp", "0s;I", template)
-    data,size = swi.swi("Window_ExtraxtGadgetInfo","iii;II",
+    data, size = swi.swi("Window_ExtraxtGadgetInfo", "iii;II",
                         0, self.id, gadget)
 
 def run(application):
@@ -95,8 +95,8 @@ def run(application):
     global _quit
 
     while not _quit:
-        reason,sender = swi.swi(
-            'Wimp_Poll','II;I.I',
+        reason, sender = swi.swi(
+            'Wimp_Poll', 'II;I.I',
             0b1, ctypes.addressof(poll_buffer))
 
         try:

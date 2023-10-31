@@ -36,13 +36,13 @@ class Window(Object):
         return self._miscop_get_unsigned(0)
 
     def add_gadget(self, gadget):
-        gadget_id = swi.swi("Toolbox_ObjectMiscOp","IiIi;I",
+        gadget_id = swi.swi("Toolbox_ObjectMiscOp", "IiIi;I",
                      0, self.id, 1, ctypes.addressof(gadget))
         self.components[gadget_id] = \
             Gadget.create(gadget.type, self, gadget_id)
 
     def remove_gadget(self, gadget):
-        swi.swi("Toolbox_ObjectMiscOp","IiIi",
+        swi.swi("Toolbox_ObjectMiscOp", "IiIi",
                 0, self.id, 2, gadget.id)
         del(self.components[gadget.id])
 
@@ -85,7 +85,7 @@ class Window(Object):
     def force_redraw(self, bbox=None):
         if bbox is None:
             bbox = self.extent
-        swi.swi('Toolbox_ObjectMiscOp','IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
                 0, self.id, 17, ctypes.addressof(bbox))
 
 class AboutToBeShownEvent(ToolboxEvent):

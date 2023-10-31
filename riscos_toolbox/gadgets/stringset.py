@@ -41,56 +41,56 @@ class StringSet(Gadget):
         return self._miscop_get_text(StringSet.GetSelected)
 
     @selected.setter
-    def selected(self,selection):
-        self._miscop_set_text(StringSet.SetSelected,selection)
+    def selected(self, selection):
+        self._miscop_set_text(StringSet.SetSelected, selection)
 
     @property
     def index(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;i',StringSet.IndexedSelection,
-                       self.window.id,StringSet.GetSelected,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', StringSet.IndexedSelection,
+                       self.window.id, StringSet.GetSelected, self.id)
 
     @index.setter
-    def index(self,index):
-        swi.swi('Toolbox_ObjectMiscOp','IiiiI',StringSet.IndexedSelection,
-                self.window.id,StringSet.SetSelected,self.id,index)
+    def index(self, index):
+        swi.swi('Toolbox_ObjectMiscOp', 'IiiiI', StringSet.IndexedSelection,
+                self.window.id, StringSet.SetSelected, self.id, index)
 
     # Here are some read-only properties for the components making up the StringSet,
     # which have been split out from GetComponents
     @property
     def alphanumeric_field(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;i',StringSet.ReturnAlphaNumericField,
-                       self.window.id,StringSet.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', StringSet.ReturnAlphaNumericField,
+                       self.window.id, StringSet.GetComponents, self.id)
 
     @property
     def popup_menu(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;.i',StringSet.ReturnPopUpMenu,
-                       self.window.id,StringSet.GetComponents,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i', StringSet.ReturnPopUpMenu,
+                       self.window.id, StringSet.GetComponents, self.id)
 
-    def set_available(self,items):
-        self._miscop_set_text(StringSet.SetAvailable,items)
+    def set_available(self, items):
+        self._miscop_set_text(StringSet.SetAvailable, items)
 
-    def set_allowable(self,allowable):
-        self._miscop_set_text(StringSet.SetAllowable,allowable)
+    def set_allowable(self, allowable):
+        self._miscop_set_text(StringSet.SetAllowable, allowable)
 
-    def set_font(self,name,width,height):
-        swi.swi('Toolbox_ObjectMiscOp','0iiisII',self.window.id,StringSet.SetFont,
-                self.id,name,width,height)
+    def set_font(self, name, width, height):
+        swi.swi('Toolbox_ObjectMiscOp', '0iiisII', self.window.id, StringSet.SetFont,
+                self.id, name, width, height)
 
 class StringSetDefinition(GadgetDefinition):
     _gadget_class = StringSet
-    _fields_ = [ ("string_set",ctypes.c_char_p),
-                 ("title",ctypes.c_char_p),
-                 ("initial_selected_string",ctypes.c_char_p),
-                 ("max_selected_string_len",ctypes.c_int32),
-                 ("allowable",ctypes.c_char_p),
-                 ("max_allowable_len",ctypes.c_int32),
-                 ("before",ctypes.c_int32),
-                 ("after",ctypes.c_int32) ]
+    _fields_ = [ ("string_set", ctypes.c_char_p),
+                 ("title", ctypes.c_char_p),
+                 ("initial_selected_string", ctypes.c_char_p),
+                 ("max_selected_string_len", ctypes.c_int32),
+                 ("allowable", ctypes.c_char_p),
+                 ("max_allowable_len", ctypes.c_int32),
+                 ("before", ctypes.c_int32),
+                 ("after", ctypes.c_int32) ]
 
 class StringSetValueChangedEvent(ToolboxEvent):
     event_id = StringSet.ValueChanged
 
-    _fields_ = [ ("_new_string",ctypes.c_char * 212) ]
+    _fields_ = [ ("_new_string", ctypes.c_char * 212) ]
 
     @property
     def new_string(self):

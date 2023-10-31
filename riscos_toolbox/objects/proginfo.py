@@ -18,7 +18,7 @@ class ProgInfo(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I", self.id, 0)
+        return swi.swi("Toolbox_ObjectMiscOp", "0II;I", self.id, 0)
 
     @property
     def version(self):
@@ -38,7 +38,7 @@ class ProgInfo(Object):
 
     @licence_type.setter
     def license_type(self, licence_type):
-        return swi.swi("Toolbox_ObjectMiscOp","0III", self.id, 3, licence_type)
+        return swi.swi("Toolbox_ObjectMiscOp", "0III", self.id, 3, licence_type)
 
     @property
     def title(self):
@@ -64,7 +64,7 @@ class ProgInfo(Object):
 
     @property
     def web_event(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I", self.id, 10)
+        return swi.swi("Toolbox_ObjectMiscOp", "0II;I", self.id, 10)
 
     @web_event.setter
     def web_event(self, web_event):

@@ -9,28 +9,28 @@ class ScrollList(Gadget):
 
     @property
     def state(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0iIi;I",
+        return swi.swi("Toolbox_ObjectMiscOp", "0iIi;I",
                        self.window.id, 16410, self.id)
 
     @state.setter
     def state(self, state):
-        swi.swi("Toolbox_ObjectMiscOp","0iIiI",
+        swi.swi("Toolbox_ObjectMiscOp", "0iIiI",
                 self.window.id, 16411, self.id, state)
 
     def add_item(self, text, index):
-        swi.swi('Toolbox_ObjectMiscOp','0IIIs00I',
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIs00I',
                 self.window.id, 16412, self.id, text, index)
 
     def delete_items(self, start, end):
-        swi.swi('Toolbox_ObjectMiscOp','0IIIII',
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIII',
                 self.window.id, 16413, self.id, start, end)
 
     def get_selected(self, offset=-1):
-        return swi.swi('Toolbox_ObjectMiscOp','0IIIi;i',
+        return swi.swi('Toolbox_ObjectMiscOp', '0IIIi;i',
                         self.window.id, 16416, self.id, offset)
 
     def make_visible(self, index):
-        swi.swi('Toolbox_ObjectMiscOp','0III',
+        swi.swi('Toolbox_ObjectMiscOp', '0III',
                 self.window.id, 16417, self.id, index)
 
     @property

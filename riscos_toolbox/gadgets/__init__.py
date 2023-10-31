@@ -32,12 +32,12 @@ class Gadget:
     @property
     def flags(self):
         """Gets the gadgets flags."""
-        return swi.swi('Toolbox_ObjectMiscOp','0III;I',self.window.id,64,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.window.id, 64, self.id)
 
     @flags.setter
     def flags(self, flags):
         """Sets the gadgets flags."""
-        swi.swi('Toolbox_ObjectMiscOp','0IIII',self.window.id,65,self.id,flags)
+        swi.swi('Toolbox_ObjectMiscOp', '0IIII', self.window.id, 65, self.id, flags)
 
     def get_flag(self, flag):
         """Gets one gadget flag."""
@@ -75,10 +75,10 @@ class Gadget:
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
            a suitably-sized buffer, read the string and return it."""
         buf_size = swi.swi('Toolbox_ObjectMiscOp', '0III00;.....I',
-                           self.window.id,op,self.id)
+                           self.window.id, op, self.id)
         buffer = swi.block((buf_size+3)//4)
         swi.swi('Toolbox_ObjectMiscOp', '0iIibI',
-                self.window.id, op,self.id, buffer, buf_size)
+                self.window.id, op, self.id, buffer, buf_size)
         return buffer.nullstring()
 
 class GadgetDefinition(ctypes.Structure):
@@ -96,4 +96,4 @@ class GadgetDefinition(ctypes.Structure):
         self.type  = type
         self.box = box
         self.component_id = component_id
-        self.help_message,self.max_help = encode_and_len(help_message,max_help)
+        self.help_message, self.max_help = encode_and_len(help_message, max_help)

@@ -20,7 +20,7 @@ def create_object(template, klass=None, args=None):
     if klass:
         if args is None:
             args = []
-        _objects[id] = klass(id,template,*args)
+        _objects[id] = klass(id, template, *args)
     else:
         obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
         _objects[id] = Object.create(obj_class, template, id)
@@ -46,11 +46,11 @@ class Object(EventHandler):
 
     @staticmethod
     def create(class_id, name, id):
-        if (class_id,name) in Object._classes:
-            return Object._classes[(class_id,name)](id,name)
-        if (class_id,None) in Object._classes:
-            return Object._classes[(class_id,None)](id,name)
-        return Object(id,name)
+        if (class_id, name) in Object._classes:
+            return Object._classes[(class_id, name)](id, name)
+        if (class_id, None) in Object._classes:
+            return Object._classes[(class_id, None)](id, name)
+        return Object(id, name)
 
     def show(self, menu_semantics=False, submenu_semantics=False,
                    type=0, parent=None):
@@ -65,11 +65,11 @@ class Object(EventHandler):
         else:
             parent_obj = parent_comp = 0
 
-        swi.swi('Toolbox_ShowObject','III0II',
-                flags,self.id,type,parent_obj, parent_comp)
+        swi.swi('Toolbox_ShowObject', 'III0II',
+                flags, self.id, type, parent_obj, parent_comp)
 
     def hide(self):
-        swi.swi('Toolbox_HideObject','0I',self.id)
+        swi.swi('Toolbox_HideObject', '0I', self.id)
 
     @property
     def parent(self):
@@ -86,7 +86,7 @@ class Object(EventHandler):
             else:
                 comp = Component(comp_id)
 
-        return namedtuple('parent', ('object', 'component'))(obj,comp)
+        return namedtuple('parent', ('object', 'component'))(obj, comp)
 
     def _miscop_get_value(self, op, regs):
         return swi.swi("Toolbox_ObjectMiscOp", "III;"+regs, 0, self.id, op)

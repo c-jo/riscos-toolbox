@@ -19,12 +19,12 @@ class Button(Gadget):
 
     @property
     def icon_flags(self):
-        return swi.swi('Toolbox_ObjectMiscOp','0III;I',
+        return swi.swi('Toolbox_ObjectMiscOp', '0III;I',
                         self.window.id, Button.GetFlags, self.id)
 
     @icon_flags.setter
     def icon_flags(self, flags):
-        swi.swi('Toolbox_ObjectMiscOp','0III0I',
+        swi.swi('Toolbox_ObjectMiscOp', '0III0I',
                  self.window.id, Button.SetFlags, self.id, flags)
 
     @property
@@ -54,7 +54,7 @@ class Button(Gadget):
             height = width = size
         else:
             font, width, height = font
-        swi.swi('Toolbox_ObjectMiscOp','0IIIsII',
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIsII',
             self.window.id, Button.SetFont,
             self.id, font, int(width*16), int(height*16))
 

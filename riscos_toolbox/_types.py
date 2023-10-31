@@ -49,4 +49,4 @@ class BBox(ctypes.Structure):
             format(self.min.x, self.min.y, self.max.x, self.max.y)
 
     def zero():
-        return BBox(0,0,0,0)
+        return BBox(0, 0, 0, 0)
