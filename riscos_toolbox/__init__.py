@@ -8,7 +8,8 @@ import struct
 from collections import namedtuple
 
 from ._types import *
-from .base import Object, _objects, get_object, create_object, find_objects, _application
+from .base import Object, _objects, get_object, create_object, delete_object,\
+                  find_objects, _application
 from .events import *
 
 class Wimp:
@@ -119,7 +120,7 @@ def run(application):
 
                 if event_code == Toolbox.ObjectDeleted:
                     if _id_block.self.id in _objects:
-                        del(_objects[id_block.self.id])
+                        del(_objects[_id_block.self.id])
                     continue
 
                 toolbox_dispatch(event_code, application, _id_block, poll_block)
