@@ -8,6 +8,7 @@ from collections import namedtuple
 from ..base import Object
 from ..events import ToolboxEvent
 
+
 class PrintDbox(Object):
     class_id = 0x82b00
 
@@ -23,71 +24,66 @@ class PrintDbox(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;i", 0, self.id, 0)
+        return self._miscop_get_unsigned(0)
 
     @property
     def page_range(self):
         return PrintDbox.PageRange(swi.swi(
-            "Toolbox_ObjectMiscOp", "III;II", 0, self.id, 2))
+            'Toolbox_ObjectMiscOp', 'III;ii', 0, self.id, 2))
 
     @page_range.setter
     def page_range(self, page_range):
-        swi.swi("Toolbox_ObjectMiscOp", "IIIII",
+        swi.swi('Toolbox_ObjectMiscOp', 'IIIii',
                 0, self.id, 1, page_range.Start, page_range.End)
 
     @property
     def copies(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 4)
+        return self._miscop_get_signed(4)
 
     @copies.setter
     def copies(self, copies):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 3, copies)
+        self._miscop_set_copied(3, copies)
 
     @property
     def scale(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 6)
+        return self._miscop_get_signed(6)
 
     @scale.setter
     def scale(self, scale):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 5, scale)
+        self._miscop_set_copied(5, scale)
 
     @property
     def orientation(self):
-        if swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 8) == 0:
+        if self._miscop_get_unsigned(8) == 0:
             return PrintDbox.Orientation.Upright
         else:
             return PrintDbox.Orientation.Sideways
 
-
     @orientation.setter
     def orientation(self, orientation):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII",
-                0, self.id, 7,
-                0 if orientation == PrintDbox.Orientation.Upright else 1)
+        self._miscop_set_unsigned(
+            7, 0 if orientation == PrintDbox.Orientation.Upright else 1)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 9)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 9, buf, buf_size)
-        return buf.nullstring()
+        self._miscop_get_string(9)
 
     @property
     def draft(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;...I", 0, self.id, 11) != 0
+        return self._miscop_get_unsigned(11) != 0
 
     @draft.setter
     def draft(self, draft):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII",
-                0, self.id, 10, 1 if draft else 0)
+        self._miscop_set_unsigned(10, 1 if draft else 0)
 
     @property
     def page_limit(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 13)
+        return self._miscop_get_unsigned(13)
 
     @page_limit.setter
     def page_limit(self, limit):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 12, limit)
+        self._miscop_set_unsigned(12, limit)
+
 
 class PrintEvent(ToolboxEvent):
     event_id = PrintDbox.Print
@@ -96,8 +92,8 @@ class PrintEvent(ToolboxEvent):
         ("start_page", ctypes.c_int32),
         ("finish_page", ctypes.c_int32),
         ("copies", ctypes.c_int32),
-        ("scale_factor", ctypes.c_int32)
-        ]
+        ("scale_factor", ctypes.c_int32),
+    ]
 
     @property
     def sideways(self):

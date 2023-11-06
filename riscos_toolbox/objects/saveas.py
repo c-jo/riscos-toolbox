@@ -4,6 +4,7 @@ from ..events import ToolboxEvent
 import swi
 import ctypes
 
+
 class SaveAs(Object):
     class_id = 0x82bc0
 
@@ -64,21 +65,28 @@ class SaveAs(Object):
         swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
                 1 if saved else 0, self.id, 12, filename)
 
+
 class SaveToFileEvent(ToolboxEvent):
     event_id = SaveAs.SaveToFile
-    _fields_ = [ ("wimp_message_no", ctypes.c_int32),
-                 ("filename", ctypes.c_char*208) ]
+    _fields_ = [
+        ("wimp_message_no", ctypes.c_int32),
+        ("filename", ctypes.c_char * 208),
+    ]
 
     @property
     def selection(self):
-        return True if (self.flags & 1<<0) else False
+        return True if (self.flags & (1 << 0)) else False
+
 
 class FillBufferEvent(ToolboxEvent):
     event_id = SaveAs.FillBuffer
-    _fields_ = [ ("size", ctypes.c_uint32),
-                 ("address", ctypes.c_void_p),
-                 ("no_bytes", ctypes.c_uint32) ]
+    _fields_ = [
+        ("size", ctypes.c_uint32),
+        ("address", ctypes.c_void_p),
+        ("no_bytes", ctypes.c_uint32),
+    ]
+
 
 class SaveCompletedEvent(ToolboxEvent):
     event_id = SaveAs.SaveCompleted
-    _fields_ = [ ("filename", ctypes.c_char*212) ]
+    _fields_ = [("filename", ctypes.c_char * 212)]

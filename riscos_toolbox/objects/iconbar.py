@@ -3,6 +3,7 @@
 from ..base import Object
 from ..events import ToolboxEvent
 
+
 class Iconbar(Object):
     class_id = 0x82900
     # Events
@@ -46,9 +47,12 @@ class Iconbar(Object):
     def sprite(self):
         return self._miscop_get_string(12)
 
-    @text.setter
+    @sprite.setter
     def sprite(self, name):
         self._miscop_set_string(11, name)
+
+# Iconbar Events
+
 
 class IconbarClickedEvent(ToolboxEvent):
     event_id = Iconbar.Clicked
@@ -60,5 +64,6 @@ class IconbarClickedEvent(ToolboxEvent):
     @property
     def adjust(self):
         return self.flags & 0x01 != 0
+
 
 ClickedEvent = IconbarClickedEvent

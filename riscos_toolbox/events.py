@@ -47,6 +47,7 @@ from . import BBox, Point
 #     }
 # }
 
+
 class Event(object):
     event_id = None
 
@@ -56,7 +57,8 @@ class Event(object):
            version here will setup a ctypes Structure derived class."""
         if issubclass(cls, ctypes.Structure):
             if len(poll_block) < ctypes.sizeof(cls):
-                raise RuntimeError("not enough data for "+cls.__name__)
+                raise RuntimeError(
+                    "not enough data for {}".format(cls.__name__))
             obj = cls()
             dst = ctypes.cast(
                 ctypes.pointer(obj), ctypes.POINTER(ctypes.c_byte))
@@ -65,15 +67,18 @@ class Event(object):
             return obj
 
         else:
-            raise RuntimeError("from_block not implemented for "+cls.__name__)
+            raise RuntimeError(
+                "from_block not implemented for {}".format(cls.__name__))
+
 
 class ToolboxEvent(Event, ctypes.Structure):
-    _fields_ = [ \
+    _fields_ = [
         ("size", ctypes.c_uint32),
         ("reference_number", ctypes.c_int32),
         ("event_code", ctypes.c_uint32),
         ("flags", ctypes.c_uint32)
     ]
+
 
 class AboutToBeShownEvent(ToolboxEvent):
     ShowType_Default = 0
@@ -82,7 +87,7 @@ class AboutToBeShownEvent(ToolboxEvent):
     ShowType_Centre = 3
     ShowType_AtPointer = 4
 
-    _fields_ = [ \
+    _fields_ = [
         ("show_type", ctypes.c_uint32),
         ("_visible_area", BBox),
         ("_scroll", Point),
@@ -129,8 +134,9 @@ class AboutToBeShownEvent(ToolboxEvent):
         return self.get_if(self._alignment_flags,
                            AboutToBeShownEvent.ShowType_FullSpec)
 
+
 class UserMessage(Event, ctypes.Structure):
-    _fields_ = [ \
+    _fields_ = [
         ("size", ctypes.c_uint32),
         ("sender", ctypes.c_uint32),
         ("my_ref", ctypes.c_uint32),
@@ -138,11 +144,14 @@ class UserMessage(Event, ctypes.Structure):
         ("code", ctypes.c_uint32),
     ]
 
+
 class EventHandler(object):
     """Base class for things that can handle events."""
+
     def __init__(self):
-        self.toolbox_handlers = {} # event: component: [(handler, data-class)..]
-        self.wimp_handlers    = {}
+        # event: component: [(handler, data-class)..]
+        self.toolbox_handlers = {}
+        self.wimp_handlers = {}
         self.message_handlers = {}
 
         def _build_handlers(registry, handlers, classname):
@@ -159,9 +168,12 @@ class EventHandler(object):
         for klass in inspect.getmro(self.__class__):
             classname = klass.__qualname__
 
-            _build_handlers(_toolbox_handlers, self.toolbox_handlers, classname)
-            _build_handlers(_wimp_handlers,    self.wimp_handlers,    classname)
-            _build_handlers(_message_handlers, self.message_handlers, classname)
+            _build_handlers(_toolbox_handlers,
+                            self.toolbox_handlers, classname)
+            _build_handlers(_wimp_handlers,
+                            self.wimp_handlers,    classname)
+            _build_handlers(_message_handlers,
+                            self.message_handlers, classname)
 
     def _dispatch(self, handlers, event, id_block, poll_block):
         if event not in handlers:
@@ -197,9 +209,11 @@ class EventHandler(object):
         return self._dispatch(self.message_handlers,
                               event, id_block, poll_block)
 
+
 _toolbox_handlers = {}
-_wimp_handlers    = {}
+_wimp_handlers = {}
 _message_handlers = {}
+
 
 def _set_handler(code, component, handler, handlers):
     if '.' in handler.__qualname__:
@@ -220,9 +234,9 @@ def _set_handler(code, component, handler, handlers):
             if cls in handlers[code]:
                 handlers[code][cls][component] = handler
             else:
-                handlers[code][cls] = { component: (handler, event_type) }
+                handlers[code][cls] = {component: (handler, event_type)}
         else:
-            handlers[code] = {cls: { component: (handler, event_type) } }
+            handlers[code] = {cls: {component: (handler, event_type)}}
 
     if isinstance(code, Iterable):
         for code in code:
@@ -232,15 +246,18 @@ def _set_handler(code, component, handler, handlers):
 
     return handler
 
+
 def toolbox_handler(event, component=None):
     def decorator(handler):
         return _set_handler(event, component, handler, _toolbox_handlers)
     return decorator
 
+
 def message_handler(message, component=None):
     def decorator(handler):
         return _set_handler(message, component, handler, _message_handlers)
     return decorator
+
 
 def wimp_handler(reason, component=None):
     def decorator(handler):
@@ -249,27 +266,36 @@ def wimp_handler(reason, component=None):
 
 # List of self, parent, ancestor and application objects (if they exist)
 # This is the list of objects to try to handle the event, in order.
+
+
 def _get_spaa(application, id_block):
-        from .base import get_object
-        return list(filter(lambda o: o is not None,
-            map( get_object,
-                 set( [ id_block.self.id,
-                        id_block.parent.id,
-                        id_block.ancestor.id,
-                    ] )
-                ) ) ) + ([application] if application else [])
+    from .base import get_object
+    return list(
+        filter(lambda o: o is not None,
+               map(get_object,
+                   set([
+                       id_block.self.id,
+                       id_block.parent.id,
+                       id_block.ancestor.id,
+                   ])
+                   )
+               )
+    ) + ([application] if application else [])
+
 
 def toolbox_dispatch(event_code, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
-         if obj.toolbox_dispatch(event_code, id_block, poll_block):
-             break
+        if obj.toolbox_dispatch(event_code, id_block, poll_block):
+            break
+
 
 def message_dispatch(message, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
-         if obj.message_dispatch(message, id_block, poll_block):
-             break
+        if obj.message_dispatch(message, id_block, poll_block):
+            break
+
 
 def wimp_dispatch(reason, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
-         if obj.wimp_dispatch(reason, id_block, poll_block):
-             break
+        if obj.wimp_dispatch(reason, id_block, poll_block):
+            break

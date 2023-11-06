@@ -3,6 +3,7 @@ from . import initialise, run
 
 _application = None
 
+
 class Application(EventHandler):
     def __init__(self, appdir):
         super().__init__()

@@ -6,17 +6,20 @@ import swi
 _objects = {}
 _application = None
 
+
 def get_object(id):
     if id in _objects:
         return _objects[id]
     else:
         return None
 
+
 def find_objects(template):
     return [obj for obj in _objects.values() if obj.template == template]
 
+
 def create_object(template, klass=None, args=None):
-    id = swi.swi('Toolbox_CreateObject', '0s;i', template)
+    id = swi.swi('Toolbox_CreateObject', '0s;I', template)
     if klass:
         if args is None:
             args = []
@@ -26,14 +29,22 @@ def create_object(template, klass=None, args=None):
         _objects[id] = Object.create(obj_class, template, id)
     return _objects[id]
 
+
+def delete_object(object):
+    swi.swi('Toolbox_DeleteObject', '0I', object.id)
+    if object.id in _objects:
+        del _objects[id]
+
+
 class Component:
-   def __init__(self, id):
-       self.id = id
+    def __init__(self, id):
+        self.id = id
+
 
 class Object(EventHandler):
     class_id = None
     template = None
-    _classes = {} # (Class ID,Template Name) -> Class
+    _classes = {}  # (Class ID,Template Name) -> Class
 
     def __init__(self, id, template):
         super().__init__()
@@ -52,8 +63,9 @@ class Object(EventHandler):
             return Object._classes[(class_id, None)](id, name)
         return Object(id, name)
 
-    def show(self, menu_semantics=False, submenu_semantics=False,
-                   type=0, parent=None):
+    def show(self,
+             menu_semantics=False, submenu_semantics=False,
+             type=0, parent=None):
         flags = 0
         if menu_semantics:
             flags |= 1
@@ -73,12 +85,12 @@ class Object(EventHandler):
 
     @property
     def parent(self):
-        id, comp_id = swi.swi('Toolbox_GetParent', '0I;Ii', self.id)
+        id, comp_id = swi.swi('Toolbox_GetParent', '0I;II', self.id)
         if id in _objects:
             obj = _objects[id]
         else:
             obj = Object(id)
-        if comp_id == -1:
+        if comp_id == 0xffffffff:
             comp = None
         else:
             if comp_id in obj.components:
@@ -89,10 +101,10 @@ class Object(EventHandler):
         return namedtuple('parent', ('object', 'component'))(obj, comp)
 
     def _miscop_get_value(self, op, regs):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;"+regs, 0, self.id, op)
+        return swi.swi("Toolbox_ObjectMiscOp", "III;" + regs, 0, self.id, op)
 
     def _miscop_set_value(self, op, regs, *value):
-        swi.swi("Toolbox_ObjectMiscOp", "III"+regs, 0, self.id, op, *value)
+        swi.swi("Toolbox_ObjectMiscOp", "III" + regs, 0, self.id, op, *value)
 
     def _miscop_get_signed(self, op):
         """Use Toolbox_ObjectMiscOp to get a signed integer."""
@@ -115,10 +127,10 @@ class Object(EventHandler):
            a suitably-sized buffer, read the string and return it."""
         buf_size = swi.swi('Toolbox_ObjectMiscOp', 'III00;....I',
                            0, self.id, op)
-        buf = swi.block((buf_size+3)/4)
+        buf = swi.block((buf_size + 3) // 4)
         swi.swi('Toolbox_ObjectMiscOp', 'IIIbI', 0, self.id, op, buf, buf_size)
         return buf.nullstring()
 
     def _miscop_set_string(self, op, string):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi("Toolbox_ObjectMiscOp", "0iIs", 0, self.id, op, string)
+        swi.swi("Toolbox_ObjectMiscOp", "IIIs", 0, self.id, op, string)

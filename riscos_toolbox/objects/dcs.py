@@ -1,7 +1,8 @@
 """RISC OS Toolbox - DCS"""
 
 from ..base import Object
-import swi
+from ..events import AboutToBeShownEvent, ToolboxEvent
+
 
 class DCS(Object):
     class_id = 0x82a80
@@ -13,26 +14,41 @@ class DCS(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, 0)
+        return self._miscop_get_signed(0)
 
     @property
     def message(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 2, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(2)
 
     @message.setter
-    def message(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
+    def message(self, message):
+        self._miscop_set_string(1, message)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 4)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 4, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(4)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, title)
+        self._miscop_set_string(3, title)
+
+
+# DCS events
+class DCSAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = DCS.AboutToBeShown
+
+
+class DCSDiscardEvent(ToolboxEvent):
+    event_id = DCS.Discard
+
+
+class DCSSaveEvent(ToolboxEvent):
+    event_id = DCS.Save
+
+
+class DCSDialogueCompletedEvent(ToolboxEvent):
+    event_id = DCS.DialogueCompleted
+
+
+class DCSCancelEvent(ToolboxEvent):
+    event_id = DCS.Cancel

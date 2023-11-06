@@ -4,6 +4,7 @@ from ..events import ToolboxEvent
 import ctypes
 import swi
 
+
 class Menu(Object):
     class_id = 0x828c0
 
@@ -13,16 +14,18 @@ class Menu(Object):
     Selection      = class_id + 3
 
     class MenuTemplateEntry(ctypes.Structure):
-        _fields_ = [ ("flags", ctypes.c_uint32),
-                     ("component", ctypes.c_uint32),
-                     ("text", ctypes.c_char_p),
-                     ("max_text", ctypes.c_uint32),
-                     ("click_show", ctypes.c_char_p),
-                     ("submenu_show", ctypes.c_char_p),
-                     ("submenu_event", ctypes.c_uint32),
-                     ("click_event", ctypes.c_uint32),
-                     ("help_message", ctypes.c_char_p),
-                     ("max_help", ctypes.c_uint32) ]
+        _fields_ = [
+            ("flags", ctypes.c_uint32),
+            ("component", ctypes.c_uint32),
+            ("text", ctypes.c_char_p),
+            ("max_text", ctypes.c_uint32),
+            ("click_show", ctypes.c_char_p),
+            ("submenu_show", ctypes.c_char_p),
+            ("submenu_event", ctypes.c_uint32),
+            ("click_event", ctypes.c_uint32),
+            ("help_message", ctypes.c_char_p),
+            ("max_help", ctypes.c_uint32),
+        ]
 
         def __init__(self, component):
             self.flags = 0
@@ -73,15 +76,17 @@ class Menu(Object):
         text_buffer = ctypes.create_string_buffer(text.encode("latin-1"))
 
         details.text = ctypes.addressof(text_buffer)
-        details.max_text = len(details.text)+1
+        details.max_text = len(details.text) + 1
         if click_event:
             details.click_event = click_event
 
         return swi.swi('Toolbox_ObjectMiscOp', 'IIIiI;I',
-                flags, self.id, 20, -1, ctypes.addressof(details))
+                       flags, self.id, 20, -1, ctypes.addressof(details))
 
     def remove(self, component):
         swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 21, component)
 
+
+# Menu Events
 class SelectionEvent(ToolboxEvent):
     event_id = Menu.Selection

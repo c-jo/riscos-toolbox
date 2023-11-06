@@ -4,8 +4,9 @@ import swi
 import ctypes
 from riscos_toolbox.gadgets import Gadget, GadgetDefinition
 
+
 class TextArea(Gadget):
-    _type = 0x4018 # from TextArea_Base
+    _type = 0x4018  # from TextArea_Base
 
     # Methods
     GetState          = _type + 0
@@ -44,7 +45,7 @@ class TextArea(Gadget):
 
     @text.setter
     def text(self, text):
-        self._miscop_set_text(TextArea.SetText, text)
+        self._miscop_set_string(TextArea.SetText, text)
 
     # GetSelection and SetSelection work siimilarly to StringSet's, but the flags are
     # backwards, meaning bit 0 set is return string and bit 0 clear is return text.
@@ -72,7 +73,7 @@ class TextArea(Gadget):
     def selection(self):
         bufsize = swi.swi('Toolbox_ObjectMiscOp', '1iii0;.....I', self.window.id,
                           TextArea.GetSelection, self.id)
-        buf = swi.block((bufsize+3)//4)
+        buf = swi.block((bufsize + 3) // 4)
         swi.swi('Toolbox_ObjectMiscOp', '1iiibi', self.window.id, TextArea.GetSelection,
                 self.id, buf, bufsize)
         return buf.nullstring()
@@ -122,8 +123,10 @@ class TextArea(Gadget):
 
 class TextAreaDefinition(GadgetDefinition):
     _gadget_class = TextArea
-    _fields_ = [ ("type", ctypes.c_int32),
-                 ("event", ctypes.c_int32),
-                 ("text", ctypes.c_char_p),
-                 ("foreground", ctypes.c_uint32),
-                 ("background", ctypes.c_uint32) ]
+    _fields_ = [
+        ("type", ctypes.c_int32),
+        ("event", ctypes.c_int32),
+        ("text", ctypes.c_char_p),
+        ("foreground", ctypes.c_uint32),
+        ("background", ctypes.c_uint32),
+    ]

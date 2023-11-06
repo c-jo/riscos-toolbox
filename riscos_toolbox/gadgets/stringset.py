@@ -5,6 +5,7 @@ import swi
 from riscos_toolbox.gadgets import Gadget, GadgetDefinition
 from riscos_toolbox.events import ToolboxEvent
 
+
 class StringSet(Gadget):
     _type = 896
 
@@ -17,8 +18,8 @@ class StringSet(Gadget):
     SetFont       = _type + 7
 
     # Events
-    ValueChanged   = 0x8288E # Window SWI chunk base + 14
-    AboutToBeShown = 0x8288F # Window SWI chunk base + 15
+    ValueChanged   = 0x8288E  # Window_SWIChunkBase (0x82880) + 14
+    AboutToBeShown = 0x8288F  # Window_SWIChunkBase (0x82880) + 15
 
     # Flags
     GenerateUserValueChanged = 0x00000001
@@ -42,16 +43,16 @@ class StringSet(Gadget):
 
     @selected.setter
     def selected(self, selection):
-        self._miscop_set_text(StringSet.SetSelected, selection)
+        self._miscop_set_string(StringSet.SetSelected, selection)
 
     @property
     def index(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', StringSet.IndexedSelection,
+        return swi.swi('Toolbox_ObjectMiscOp', 'IIII;i', StringSet.IndexedSelection,
                        self.window.id, StringSet.GetSelected, self.id)
 
     @index.setter
     def index(self, index):
-        swi.swi('Toolbox_ObjectMiscOp', 'IiiiI', StringSet.IndexedSelection,
+        swi.swi('Toolbox_ObjectMiscOp', 'IIIIi', StringSet.IndexedSelection,
                 self.window.id, StringSet.SetSelected, self.id, index)
 
     # Here are some read-only properties for the components making up the StringSet,
@@ -67,36 +68,38 @@ class StringSet(Gadget):
                        self.window.id, StringSet.GetComponents, self.id)
 
     def set_available(self, items):
-        self._miscop_set_text(StringSet.SetAvailable, items)
+        self._miscop_set_string(StringSet.SetAvailable, items)
 
     def set_allowable(self, allowable):
-        self._miscop_set_text(StringSet.SetAllowable, allowable)
+        self._miscop_set_string(StringSet.SetAllowable, allowable)
 
-    def set_font(self, name, width, height):
-        swi.swi('Toolbox_ObjectMiscOp', '0iiisII', self.window.id, StringSet.SetFont,
-                self.id, name, width, height)
+    def set_font(self, *args, **kwargs):
+        self._miscop_set_font(StringSet.SetFont, *args, **kwargs)
+
 
 class StringSetDefinition(GadgetDefinition):
     _gadget_class = StringSet
-    _fields_ = [ ("string_set", ctypes.c_char_p),
-                 ("title", ctypes.c_char_p),
-                 ("initial_selected_string", ctypes.c_char_p),
-                 ("max_selected_string_len", ctypes.c_int32),
-                 ("allowable", ctypes.c_char_p),
-                 ("max_allowable_len", ctypes.c_int32),
-                 ("before", ctypes.c_int32),
-                 ("after", ctypes.c_int32) ]
+    _fields_ = [
+        ("string_set", ctypes.c_char_p),
+        ("title", ctypes.c_char_p),
+        ("initial_selected_string", ctypes.c_char_p),
+        ("max_selected_string_len", ctypes.c_int32),
+        ("allowable", ctypes.c_char_p),
+        ("max_allowable_len", ctypes.c_int32),
+        ("before", ctypes.c_int32),
+        ("after", ctypes.c_int32)
+    ]
+
 
 class StringSetValueChangedEvent(ToolboxEvent):
     event_id = StringSet.ValueChanged
 
-    _fields_ = [ ("_new_string", ctypes.c_char * 212) ]
+    _fields_ = [("_new_string", ctypes.c_char * 212)]
 
     @property
     def new_string(self):
-        return self._new_string.decode("latin-1")
+        return self._new_string.decode('latin-1')
+
 
 class StringSetAboutToBeShownEvent(ToolboxEvent):
     event_id = StringSet.AboutToBeShown
-
-    # No fields
