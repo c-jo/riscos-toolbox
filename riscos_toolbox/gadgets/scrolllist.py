@@ -31,7 +31,7 @@ class ScrollList(Gadget):
                        self.window.id, 16416, self.id, offset)
 
     def make_visible(self, index):
-        swi.swi('Toolbox_ObjectMiscOp', '0III',
+        swi.swi('Toolbox_ObjectMiscOp', '0IIIi',
                 self.window.id, 16417, self.id, index)
 
     @property

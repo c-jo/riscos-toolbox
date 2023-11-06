@@ -46,20 +46,15 @@ class ActionButton(Gadget):
 
     @property
     def click_show(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIII;II',
-                       0, self.window.id, ActionButton.GetClickShow, self.id)
+        return self._miscop_get_unsigned(ActionButton.GetClickShow)
 
     @click_show.setter
-    def click_show(self, cs):
-        object_id, flags = cs
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIIII',
-                0, self.window.id, ActionButton.SetClickShow, self.id,
-                object_id, flags)
-
+    def click_show(self, click_show): 
+        self._miscop_set_unsigned(ActionButton.SetClickShow, click_show)
+      
     # Methods
     def set_font(self, *args, **kwargs):
         self._miscop_set_font(ActionButton.SetFont, *args, **kwargs)
-
 
 class ActionButtonSelectedEvent(ToolboxEvent):
     event_id = ActionButton.Selected

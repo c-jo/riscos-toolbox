@@ -52,8 +52,6 @@ class Iconbar(Object):
         self._miscop_set_string(11, name)
 
 # Iconbar Events
-
-
 class IconbarClickedEvent(ToolboxEvent):
     event_id = Iconbar.Clicked
 
@@ -65,5 +63,5 @@ class IconbarClickedEvent(ToolboxEvent):
     def adjust(self):
         return self.flags & 0x01 != 0
 
-
+# For compatability with 1.0.2 and below 
 ClickedEvent = IconbarClickedEvent

@@ -28,6 +28,11 @@ def create_object(template, klass=None, args=None):
         obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
         _objects[id] = Object.create(obj_class, template, id)
     return _objects[id]
+    
+# When this is called, Toolbox_ObjectDeleted should be raised by the Toolbox 
+# and the polling loop should remove the ref to the Python object as well.
+def delete_object(id, recursive=True):
+    swi.swi('Toolbox_DeleteObject', 'Ii', int(not recursive), id)
 
 
 def delete_object(object):
@@ -133,4 +138,4 @@ class Object(EventHandler):
 
     def _miscop_set_string(self, op, string):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi("Toolbox_ObjectMiscOp", "IIIs", 0, self.id, op, string)
+        swi.swi("Toolbox_ObjectMiscOp", "0iIs", 0, self.id, op, string)
