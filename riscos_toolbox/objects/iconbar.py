@@ -50,7 +50,7 @@ class Iconbar(Object):
     def sprite(self, name):
         self._miscop_set_string(11, name)
 
-class ClickedEvent(ToolboxEvent):
+class IconbarClickedEvent(ToolboxEvent):
     event_id = Iconbar.Clicked
 
     @property
@@ -60,3 +60,5 @@ class ClickedEvent(ToolboxEvent):
     @property
     def adjust(self):
         return self.flags & 0x01 != 0
+
+ClickedEvent = IconbarClickedEvent

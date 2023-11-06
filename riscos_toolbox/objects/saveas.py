@@ -52,7 +52,7 @@ class SaveAs(Object):
     def selection_available(self, available):
         swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 9, available)
 
-    def set_data_addresss(self, address, size, sel_addr, sel_size):
+    def set_data_address(self, address, size, sel_addr, sel_size):
         swi.swi('Toolbox_ObjectMiscOp', '0IIIIII', self.id, 10,
                 address, size, sel_addr, sel_size)
 
