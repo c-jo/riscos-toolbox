@@ -28,15 +28,10 @@ def create_object(template, klass=None, args=None):
         obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
         _objects[id] = Object.create(obj_class, template, id)
     return _objects[id]
-    
-# When this is called, Toolbox_ObjectDeleted should be raised by the Toolbox 
-# and the polling loop should remove the ref to the Python object as well.
-def delete_object(id, recursive=True):
-    swi.swi('Toolbox_DeleteObject', 'Ii', int(not recursive), id)
 
 
-def delete_object(object):
-    swi.swi('Toolbox_DeleteObject', '0I', object.id)
+def delete_object(object, recursive=True):
+    swi.swi('Toolbox_DeleteObject', 'II', 1 if recursive else 0, object.id)
     if object.id in _objects:
         del _objects[id]
 

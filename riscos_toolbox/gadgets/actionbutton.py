@@ -3,8 +3,6 @@
 from . import Gadget
 from ..events import ToolboxEvent
 
-import swi
-
 
 class ActionButton(Gadget):
     _type = 128
@@ -49,12 +47,13 @@ class ActionButton(Gadget):
         return self._miscop_get_unsigned(ActionButton.GetClickShow)
 
     @click_show.setter
-    def click_show(self, click_show): 
+    def click_show(self, click_show):
         self._miscop_set_unsigned(ActionButton.SetClickShow, click_show)
-      
+
     # Methods
     def set_font(self, *args, **kwargs):
         self._miscop_set_font(ActionButton.SetFont, *args, **kwargs)
+
 
 class ActionButtonSelectedEvent(ToolboxEvent):
     event_id = ActionButton.Selected

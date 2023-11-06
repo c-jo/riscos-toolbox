@@ -171,7 +171,7 @@ class EventHandler(object):
             _build_handlers(_toolbox_handlers,
                             self.toolbox_handlers, classname)
             _build_handlers(_wimp_handlers,
-                            self.wimp_handlers,    classname)
+                            self.wimp_handlers, classname)
             _build_handlers(_message_handlers,
                             self.message_handlers, classname)
 
@@ -189,12 +189,12 @@ class EventHandler(object):
 
         if component in handlers:
             for handler, data_class in handlers[component]:
-                if handler(self, event, id_block, _data(data_class, poll_block)) != False:
+                if handler(self, event, id_block, _data(data_class, poll_block)) is not False:
                     return True
 
         if None in handlers:
             for handler, data_class in handlers[None]:
-                if handler(self, event, id_block, _data(data_class, poll_block)) != False:
+                if handler(self, event, id_block, _data(data_class, poll_block)) is not False:
                     return True
 
     def toolbox_dispatch(self, event, id_block, poll_block):

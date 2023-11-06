@@ -12,7 +12,8 @@ class ProgInfo(Object):
     DialogueCompleted = class_id + 1
     LaunchWebPage     = class_id + 2
 
-    LicenceType = IntEnum("LicenceType",
+    LicenceType = IntEnum(
+        "LicenceType",
         "PublicDomain SingleUser SingleMachine Site Network Authority".split(),
         start=0)
 

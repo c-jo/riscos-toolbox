@@ -114,7 +114,7 @@ def run(application):
             'Wimp_Poll', 'II;I.I',
             0b1, ctypes.addressof(poll_buffer))
 
-        if True: #try:
+        try:
             poll_block = bytes(poll_buffer)
             if reason == Wimp.ToolboxEvent:
                 size, reference, event_code, flags = \
@@ -147,8 +147,8 @@ def run(application):
             else:
                 wimp_dispatch(reason, application, _id_block, poll_block)
 
-        #except Exception as e:
-        #    report_exception(e)
+        except Exception as e:
+            report_exception(e)
 
 
 def quit():
