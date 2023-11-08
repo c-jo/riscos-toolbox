@@ -5,9 +5,10 @@ import ctypes
 import traceback
 import struct
 
+
 from ._types import IDBlock, BBox, Point
 from .base import Object, _objects, get_object, create_object, delete_object, find_objects, _application
-from .events import toolbox_dispatch, message_dispatch, wimp_dispatch
+from .events import toolbox_dispatch, message_dispatch, wimp_dispatch, events
 
 
 class Wimp:
@@ -94,15 +95,9 @@ def initialise(appdir):
 def msgtrans_lookup(token, *args, bufsize=256):
     args = args[:4]
     buffer = swi.block((bufsize + 3) // 4)
-    swi.swi('MessageTrans_Lookup', 'bsbi'+('s' * len(args)),
+    swi.swi('MessageTrans_Lookup', 'bsbi' + ('s' * len(args)),
             _msgtrans_block, token, buffer, bufsize, *args)
     return buffer.ctrlstring()
-
-
-def extract_gadget_info_from_template(self, template, gadget):
-    blk = swi.swi('Toolbox_TemplateLookUp', '0s;I', template)
-    data, size = swi.swi('Window_ExtraxtGadgetInfo', 'III;II',
-                         0, self.id, gadget)
 
 
 def run(application):
