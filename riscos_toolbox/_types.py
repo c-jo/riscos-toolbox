@@ -2,29 +2,27 @@
 
 import ctypes
 
-ObjectID = ctypes.c_int32
-ComponentID = ctypes.c_int32
+ObjectID = ctypes.c_uint32
+ComponentID = ctypes.c_uint32
+
+
+class ToolboxID(ctypes.Structure):
+    _fields_ = [("id", ObjectID), ("component", ComponentID)]
+
+    def __init__(self):
+        self.id = 0xffffffff
+        self.component = 0
+
+    def __repr__(self):
+        return "{:x}/{:x}".format(self.id, self.component)
 
 
 class IDBlock(ctypes.Structure):
-    class Level(ctypes.Structure):
-        _fields_ = [("id", ObjectID), ("component", ComponentID)]
-
-        def __init__(self):
-            self.id = -1
-            self.component = 0
-
-        def __repr__(self):
-            return "{:x}/{}".format(self.id, self.component)
-
     _fields_ = [
-        ('ancestor', Level),
-        ('parent', Level),
-        ('self', Level),
+        ('ancestor', ToolboxID),
+        ('parent', ToolboxID),
+        ('self', ToolboxID),
     ]
-
-    def __init__(self):
-        pass
 
     def __repr__(self):
         return "Acestor: {} Parent: {} Self: {}".format(self.ancestor, self.parent, self.self)

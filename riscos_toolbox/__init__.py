@@ -6,9 +6,9 @@ import traceback
 import struct
 
 
-from ._types import IDBlock, BBox, Point
-from .base import Object, _objects, get_object, create_object, delete_object, find_objects, _application
-from .events import toolbox_dispatch, message_dispatch, wimp_dispatch, events
+from ._types import *
+from .base import *
+from .events import *
 
 
 class Wimp:
