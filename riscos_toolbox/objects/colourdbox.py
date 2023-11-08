@@ -19,7 +19,6 @@ ColourModel = Enum("ColourModel", ["RGB", "CMYK", "HSV"], start=0)
 
 class ColourDbox(Object):
     class_id = 0x829c0
-
     # Methods
     GetWimpHandle     = 0
     GetDialogueHandle = 1
@@ -29,7 +28,6 @@ class ColourDbox(Object):
     GetColourModel    = 5
     SetNoneAvailable  = 6
     GetNoneAvailable  = 7
-
     # Events
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
@@ -106,7 +104,7 @@ class ColourDboxDialogueCompletedEvent(ToolboxEvent):
 
 class ColourDboxColourSelectedEvent(ToolboxEvent):
     event_id = ColourDbox.ColourSelected
-    _fields_ = [("_colour_data", ctypes.c_int32 * 53)]
+    _fields_ = [("_colour_data", ctypes.c_int32 * 4)]
 
     @property
     def model(self):

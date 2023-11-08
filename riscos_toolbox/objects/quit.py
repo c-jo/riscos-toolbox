@@ -31,8 +31,6 @@ class Quit(Object):
     def title(self, title):
         self._miscop_set_string(3, title)
 
-# Quit events
-
 
 class QuitAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = Quit.AboutToBeShown

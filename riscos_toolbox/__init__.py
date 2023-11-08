@@ -133,7 +133,7 @@ def run(application):
 
                 if event_code == Toolbox.ObjectDeleted:
                     if _id_block.self.id in _objects:
-                        del(_objects[_id_block.self.id])
+                        del _objects[_id_block.self.id]
                     continue
 
                 toolbox_dispatch(event_code, application, _id_block, poll_block)

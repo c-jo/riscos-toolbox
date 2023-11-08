@@ -1,17 +1,55 @@
 from ..base import Object
-from ..events import ToolboxEvent
+from ..events import ToolboxEvent, AboutToBeShownEvent
+from .. import Point
 
+from collections import namedtuple
 import ctypes
 import swi
 
 
+ClickShow = namedtuple("ClickShow", "object_id transient")
+
+
 class Menu(Object):
     class_id = 0x828c0
-
+    # Methods
+    SetTick             = 0
+    GetTick             = 1
+    SetFade             = 2
+    GetFade             = 3
+    SetEntryText        = 4
+    GetEntryText        = 5
+    SetEntrySprite      = 6
+    GetEntrySprite      = 7
+    SetSubMenuShow      = 8
+    GetSubMenuShow      = 9
+    SetSubMenuEvent     = 10
+    GetSubMenuEvent     = 11
+    SetClickShow        = 12
+    GetClickShow        = 13
+    SetClickEvent       = 14
+    GetClickEvent       = 15
+    SetHelpMessage      = 16
+    GetHelpMessage      = 17
+    SetEntryHelpMessage = 18
+    GetEntryHelpMessage = 19
+    AddEntry            = 20
+    RemoveEntry         = 21
+    GetHeight           = 22
+    GetWidth            = 23
+    SetTitle            = 24
+    GetTitle            = 25
+    # Events
     AboutToBeShown = class_id + 0
     HasBeenHidden  = class_id + 1
     SubMenu        = class_id + 2
     Selection      = class_id + 3
+    # Constants
+    AddEntryBefore      = 0x00000001
+    AddEntryAtBeginning = -1
+    AddEntryAtEnd       = -2
+    GenerateShowEvent = 0x00000001
+    GenerateHideEvent = 0x00000002
 
     class MenuTemplateEntry(ctypes.Structure):
         _fields_ = [
@@ -40,53 +78,190 @@ class Menu(Object):
             self.max_help = 0
 
     class Entry:
+        Ticked = 0x00000001
+        DottedLine = 0x00000002
+        Faded = 0x00000100
+        IsSprite = 0x00000200
+        SubMenu = 0x00000400
+        GenerateSubMenuEvent = 0x00000800
+        ClickShowTransient = 0x00001000
+
         def __init__(self, menu, id):
             self.menu = menu
             self.id = id
 
+        def _miscop_get_signed(self, op):
+            return swi.swi('Toolbox_ObjectMiscOp', '0III;i',
+                           self.menu.id, op, self.id)
+
+        def _miscop_set_signed(self, op, value):
+            return swi.swi('Toolbox_ObjectMiscOp', '0IIIi',
+                           self.menu.id, op, value)
+
+        def _miscop_get_unsigned(self, op):
+            return swi.swi('Toolbox_ObjectMiscOp', '0III;I',
+                           self.menu.id, op, self.id)
+
+        def _miscop_set_unsigned(self, op, value):
+            return swi.swi('Toolbox_ObjectMiscOp', '0IIII',
+                           self.menu.id, op, value)
+
+        def _miscop_get_string(self, op):
+            buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IIII00;.....I',
+                               0, self.menu.id, op, self.id)
+            buf = swi.block((buf_size + 3) // 4)
+            swi.swi('Toolbox_ObjectMiscOp', 'IIIIbI',
+                    0, self.menu.id, op, self.id, buf, buf_size)
+            return buf.nullstring()
+
         @property
         def tick(self):
-            return swi.swi('Toolbox_ObjectMiscOp', '0II;I',
-                           self.menu.id, 1, self.id) != 0
+            return self._miscop_get_state(self, Menu.GetTick) != 0
 
         @tick.setter
-        def tick(self, val):
-            swi.swi('Toolbox_ObjectMiscOp', '0IIII',
-                    self.menu.id, 0, self.id, 1 if val else 0)
+        def tick(self, tick):
+            self._miscop_set_state(self, Menu.SetTick, 1 if tick else 0)
 
         @property
         def fade(self):
-            return swi.swi('Toolbox_ObjectMiscOp', '0II;I',
-                           self.menu.id, 3, self.id) != 0
+            return self._miscop_get_state(self, Menu.GetFade) != 0
 
         @fade.setter
-        def fade(self, val):
-            swi.swi('Toolbox_ObjectMiscOp', '0IIII',
-                    self.menu.id, 2, self.id, 1 if val else 0)
+        def fade(self, fade):
+            self._miscop_set_state(self, Menu.SetFade, 1 if fade else 0)
+
+        @property
+        def text(self):
+            return self._miscop_get_string(self, Menu.GetEntryText)
+
+        @text.setter
+        def text(self, text):
+            self._miscop_set_string(self, Menu.SetEntryText, text)
+
+        @property
+        def sprite(self):
+            return self._miscop_get_string(self, Menu.GetEntrySprite)
+
+        @sprite.setter
+        def sprite(self, sprite):
+            self._miscop_set_string(self, Menu.SetEntrySprite, sprite)
+
+        @property
+        def submenu_show(self):
+            return self._miscop_get_unsigned(self, Menu.GetSubMenuShow)
+
+        @submenu_show.setter
+        def submenu_show(self, submenu_show):
+            return self._miscop_set_unsigned(self, Menu.SetSubMenuShow, submenu_show)
+
+        @property
+        def submenu_event(self):
+            return self._miscop_get_unsigned(self, Menu.GetSubMenuEvent)
+
+        @submenu_event.setter
+        def submenu_event(self, submenu_event):
+            return self._miscop_set_signed(self, Menu.SetSubMenuShow, submenu_event)
+
+        @property
+        def click_show(self):
+            object_id, flags = swi.swi('Toolbox_ObjectMiscOp', '0III;II',
+                                       self.menu.id, Menu.GetClickShownu, self.id)
+            return ClickShow(object_id, flags & Menu.Entry.ClickShowTransient != 0)
+
+        @click_show.setter
+        def click_show(self, click_show):
+            if isinstance(click_show, int):
+                click_show = ClickShow(click_show, False)
+            swi.swi('Toolbox_ObjectMiscOp', '0IIIII',
+                    self.menu.id, Menu.SetClickShownu, self.id, click_show.object_id,
+                    Menu.Entry.ClickShowTransient if click_show.transient else 0)
+
+        @property
+        def click_event(self):
+            return self._miscop_get_unsigned(self, Menu.GetClickEvent)
+
+        @click_event.setter
+        def click_event(self, click_event):
+            self._miscop_set_signed(self, Menu.SetClickEvent, click_event)
+
+        @property
+        def help_message(self):
+            return self._miscop_get_string(self, Menu.GetEntryHelpMessage)
+
+        @help_message.setter
+        def help_message(self, help_message):
+            self._miscop_set_string(self, Menu.SetEntryHelpMessage, help_message)
 
     def __getitem__(self, id):
         return Menu.Entry(self, id)
 
-    def add_at_end(self, component, text,
-                   click_show=None, submenu_show=None,
-                   submenu_event=None, click_event=None,
-                   help_message=None):
-        flags = 0
+    @property
+    def help_message(self):
+        return self._miscop_get_string(self, Menu.GetHelpMessage)
+
+    @help_message.setter
+    def help_message(self, help_message):
+        self._miscop_set_string(self, Menu.SetHelpMessage, help_message)
+
+    def _add(self,
+             flags, where, component, text,
+             click_show=None, submenu_show=None,
+             submenu_event=None, click_event=None,
+             help_message=None):
         details = Menu.MenuTemplateEntry(component)
         text_buffer = ctypes.create_string_buffer(text.encode("latin-1"))
-
         details.text = ctypes.addressof(text_buffer)
         details.max_text = len(details.text) + 1
         if click_event:
             details.click_event = click_event
 
         return swi.swi('Toolbox_ObjectMiscOp', 'IIIiI;I',
-                       flags, self.id, 20, -1, ctypes.addressof(details))
+                       flags, self.id, Menu.AddEntry, where, ctypes.addressof(details))
+
+    def add_at_end(self, *args, **kwargs):
+        self._add(0, Menu.AddEntryAtEnd, *args, **kwargs)
+
+    def add_at_beginning(self, *args, **kwargs):
+        self._add(0, Menu.AddEntryAtBeginning, *args, **kwargs)
+
+    def add_before(self, before, *args, **kwargs):
+        self._add(Menu.AddEntryBefore, before, *args, **kwargs)
+
+    def add_ater(self, after, *args, **kwargs):
+        self._add(0, after, *args, **kwargs)
 
     def remove(self, component):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, 21, component)
+        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, Menu.RemoveEntry, component)
+
+    @property
+    def height(self):
+        return self._miscop_get_signed(Menu.GetHeight)
+
+    @property
+    def width(self):
+        return self._miscop_get_signed(Menu.GetWidth)
+
+    @property
+    def title(self):
+        return self._miscop_get_string(Menu.GetTitle)
+
+    @title.setter
+    def title(self, title):
+        self._miscop_set_string(Menu.SetTitle, title)
 
 
-# Menu Events
+class MenuAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = Menu.AboutToBeShown
+
+
+class MenuHasBeenHiddenEvent(ToolboxEvent):
+    event_id = Menu.HasBeenHidden
+
+
+class MenuSubMenuEvent(ToolboxEvent):
+    event_id = Menu.SubMenu
+    _fields_ = [("pos", Point)]
+
+
 class SelectionEvent(ToolboxEvent):
     event_id = Menu.Selection

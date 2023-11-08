@@ -7,46 +7,69 @@ import swi
 
 class FontDbox(object):
     class_id = 0x82a00
+    # Methods
+    GetWindowId  = 0
+    SetFont      = 1
+    GetFont      = 2
+    SetSize      = 3
+    GetSize      = 4
+    SetTryString = 5
+    GetTryString = 6
+    SetTitle     = 7
+    GetTitle     = 8
+    # Events
     AboutToBeShown    = class_id + 0
     ApplyFont         = class_id + 1
     DialogueCompleted = class_id + 2
+    # Constants
+    SetSize_Height = 1
+    SetSize_Aspect = 2
 
     @property
     def window_id(self):
-        return self._miscop_get_signed(0)
+        return self._miscop_get_signed(FontDbox.GetWindowId)
 
     @property
     def font(self):
-        return self._miscop_get_string(2)
+        return self._miscop_get_string(FontDbox.GetFont)
 
     @font.setter
-    def font(self, title):
-        self._miscop_set_string(1, title)
+    def font(self, font):
+        self._miscop_set_string(FontDbox.SetFont, font)
 
     @property
     def size(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0II;ii', self.id, 4)
+        return swi.swi('Toolbox_ObjectMiscOp', '0II;i.', self.id, FontDbox.GetSize)
 
     @size.setter
-    def size(self, height, ratio):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIii',
-                self.id, 3, height, ratio)
+    def size(self, size):
+        swi.swi('Toolbox_ObjectMiscOp', 'IIIi0',
+                FontDbox.SetSize_Height, self.id, FontDbox.SetSize, size)
+
+    @property
+    def aspect(self):
+        return swi.swi('Toolbox_ObjectMiscOp', '0II;.i', self.id, FontDbox.GetSize)
+
+    @aspect.setter
+    def aspect(self, aspect):
+        swi.swi('Toolbox_ObjectMiscOp', 'III0i',
+                FontDbox.SetSize_Aspect, self.id, FontDbox.SetSize, aspect)
 
     @property
     def try_string(self):
-        return self._miscop_get_string(6)
+        return self._miscop_get_string(FontDbox.GetTryString)
 
     @try_string.setter
     def try_string(self, try_string):
-        self._miscop_set_string(5, try_string)
+        self._miscop_set_string(FontDbox.SetTryString, try_string)
 
     @property
     def title(self):
-        return self._miscop_get_string(8)
+        return self._miscop_get_string(FontDbox.GetTitle)
 
     @title.setter
     def title(self, title):
-        self._miscop_get_string(7, title)
+        self._miscop_get_string(FontDbox.SetTitle, title)
 
 
 # FontDbox Events
