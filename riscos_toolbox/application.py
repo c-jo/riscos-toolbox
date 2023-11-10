@@ -13,10 +13,10 @@ class Application(EventHandler):
         initialise(appdir)
 
     def set_poll_flag(self, flag):
-        self.poll_flags = poll_flags | flag
+        self.poll_flags = self.poll_flags | flag
 
     def clear_poll_flag(self, flag):
-        self.poll_flags = poll_flags & ~flag
+        self.poll_flags = self.poll_flags & ~flag
 
     def run(self):
         run(self)

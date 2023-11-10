@@ -248,6 +248,7 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
 class Hyper(DataOpenMixin, Application):
     def __init__(self):
         super().__init__('<Hyper$Dir>')
+        self.set_poll_flag(Wimp.Poll.KeyPressedMask)
 
     @toolbox_handler(Quit.Quit)
     def quit(self, event, id_block, poll_block):
