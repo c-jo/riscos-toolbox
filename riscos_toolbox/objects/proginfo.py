@@ -1,12 +1,25 @@
 """RISC OS Toolbox - ProgInfo"""
 
 from ..base import Object
+from ..events import AboutToBeShownEvent, ToolboxEvent
 from enum import IntEnum
-import swi
+
 
 class ProgInfo(Object):
     class_id = 0x82b40
-
+    # Methods
+    GetWindowId = 0
+    SetVersion = 1
+    GetVersion = 2
+    SetLicenceType = 3
+    GetLicenceType = 4
+    SetTitle = 5
+    GetTitle = 6
+    SetUri = 7
+    GetUri = 8
+    SetWebEvent = 9
+    GetWebEvent = 10
+    # Events
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
     LaunchWebPage     = class_id + 2
@@ -18,54 +31,56 @@ class ProgInfo(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I", self.id, 0)
+        return self._miscop_get_unsigned(ProgInfo.GetWindowId)
 
     @property
     def version(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 5, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(ProgInfo.GetVersion)
 
     @version.setter
     def version(self, version):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs', self.id, 1, version)
+        self._miscop_set_string(ProgInfo.SetVersion, version)
 
     @property
     def licence_type(self):
-        return ProgInfo.LicenceType(
-                   swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.id, 4))
+        return ProgInfo.LicenceType(self._miscop_get_unsigned(ProgInfo.GetLicenceType))
 
     @licence_type.setter
     def license_type(self, licence_type):
-        return swi.swi("Toolbox_ObjectMiscOp","0III", self.id, 3, licence_type)
+        self._miscop_set_signed(ProgInfo.SetLicenceType, licence_type)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 6)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 5, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(ProgInfo.GetTitle)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 5, title)
+        self._miscop_set_string(ProgInfo.SetTitle, title)
 
     @property
     def uri(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 8)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 8, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(ProgInfo.GetUri)
 
     @uri.setter
-    def uri(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 7, title)
+    def uri(self, uri):
+        self._miscop_set_string(ProgInfo.SetUri, uri)
 
     @property
     def web_event(self):
-        return swi.swi("Toolbox_ObjectMiscOp","0II;I", self.id, 10)
+        return self._miscop_get_unsigned(ProgInfo.GetWebEvent)
 
     @web_event.setter
     def web_event(self, web_event):
-        swi.swi('Toolbox_ObjectMiscOp', '0III', self.id, 9, web_event)
+        self._miscop_set_unsigned(ProgInfo.SetWebEvent, web_event)
+
+
+class ProgInfoAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = ProgInfo.AboutToBeShown
+
+
+class ProgInfoDialogueCompletedEvent(ToolboxEvent):
+    event_id = ProgInfo.DialogueCompleted
+
+
+class ProgInfoLaunchWebPageEvent(ToolboxEvent):
+    event_id = ProgInfo.LaunchWebPage

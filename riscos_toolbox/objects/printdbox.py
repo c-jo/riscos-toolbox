@@ -6,103 +6,142 @@ from enum import Enum
 from collections import namedtuple
 
 from ..base import Object
-from ..events import ToolboxEvent
+from ..events import ToolboxEvent, AboutToBeShownEvent
+
+Orientation = Enum("Orientation", ["Sideways", "Upright"])
+PageRange = namedtuple("PageRange", ["Start", "End"])
+
 
 class PrintDbox(Object):
     class_id = 0x82b00
-
+    # Methods
+    GetWindowId    = 0
+    SetPageRange   = 1
+    GetPageRange   = 2
+    SetCopies      = 3
+    GetCopies      = 4
+    SetScale       = 5
+    GetScale       = 6
+    SetOrientation = 7
+    GetOrientation = 8
+    GetTitle       = 9
+    SetDraft       = 10
+    GetDraft       = 11
+    # Events
     AboutToBeShown      = class_id + 0
     DialogueCompleted   = class_id + 1
     SetupAboutToBeShown = class_id + 2
     Save                = class_id + 3
     Setup               = class_id + 4
     Print               = class_id + 5
-
-    Orientation = Enum("Orientation", ["Sideways", "Upright"])
-    PageRange   = namedtuple("PageRange", ["Start", "End"])
+    # Constants
+    PrintSave_Sideways = 0x00000001
+    PrintSave_Draft    = 0x00000002
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;i", 0,self.id, 0)
+        return self._miscop_get_unsigned(PrintDbox.GetWindowId)
 
     @property
     def page_range(self):
-        return PrintDbox.PageRange(swi.swi(
-            "Toolbox_ObjectMiscOp","III;II", 0, self.id, 2))
+        return PageRange(swi.swi(
+            'Toolbox_ObjectMiscOp', 'III;ii', 0, self.id, PrintDbox.GetPageRange))
 
     @page_range.setter
     def page_range(self, page_range):
-        swi.swi("Toolbox_ObjectMiscOp","IIIII",
-                0, self.id, 1, page_range.Start, page_range.End)
+        swi.swi('Toolbox_ObjectMiscOp', 'IIIii',
+                0, self.id, PrintDbox.SetPageRange, page_range.Start, page_range.End)
 
     @property
     def copies(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 4)
+        return self._miscop_get_signed(PrintDbox.GetCopies)
 
     @copies.setter
     def copies(self, copies):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 3, copies)
+        self._miscop_set_copied(PrintDbox.SetCopies, copies)
 
     @property
     def scale(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 6)
+        return self._miscop_get_signed(PrintDbox.GetScale)
 
     @scale.setter
     def scale(self, scale):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 5, scale)
+        self._miscop_set_copied(PrintDbox.SetScale, scale)
 
     @property
     def orientation(self):
-        if swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 8) == 0:
-            return PrintDbox.Orientation.Upright
-        else:
-            return PrintDbox.Orientation.Sideways
-
+        return Orientation.Upright if self._miscop_get_unsigned(PrintDbox.GetOrientation) == 0 else Orientation.Sideways
 
     @orientation.setter
     def orientation(self, orientation):
-        swi.swi("Toolbox_ObjectMiscOp","IIII",
-                0, self.id, 7,
-                0 if orientation == PrintDbox.Orientation.Upright else 1)
+        self._miscop_set_unsigned(
+            PrintDbox.SetOrientation, 0 if orientation == Orientation.Upright else 1)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 9)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 9, buf, buf_size)
-        return buf.nullstring()
+        self._miscop_get_string(PrintDbox.GetTitle)
 
     @property
     def draft(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;...I", 0,self.id, 11) != 0
+        return self._miscop_get_unsigned(PrintDbox.GetDraft) != 0
 
     @draft.setter
     def draft(self, draft):
-        swi.swi("Toolbox_ObjectMiscOp","IIII",
-                0, self.id, 10, 1 if draft else 0)
+        self._miscop_set_unsigned(PrintDbox.SetDraft, 1 if draft else 0)
+
+
+class PrintDboxAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = PrintDbox.AboutToBeShown
+
+
+class PrintDboxDialogueCompletedEvent(ToolboxEvent):
+    event_id = PrintDbox.DialogueCompleted
+
+
+class PrintDboxSetupAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = PrintDbox.SetupAboutToBeShown
+
+
+class PrintDboxSaveEvent(ToolboxEvent):
+    event_id = PrintDbox.Save
+    _field_ = [
+        ("start_page", ctypes.c_int32),
+        ("finish_page", ctypes.c_int32),
+        ("copies", ctypes.c_int32),
+        ("scale_factor", ctypes.c_int32),
+    ]
 
     @property
-    def page_limit(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 13)
+    def sideways(self):
+        return self.flags & PrintDbox.PrintSave_Sideways != 0
 
-    @page_limit.setter
-    def page_limit(self, limit):
-        swi.swi("Toolbox_ObjectMiscOp","IIII", 0, self.id, 12, limit)
+    @property
+    def draft(self):
+        return self.flags & PrintDbox.PrintSave_Draft != 0
 
-class PrintEvent(ToolboxEvent):
+
+class PrintDboxSetUpEvent(ToolboxEvent):
+    event_id = PrintDbox.Setup
+
+
+class PrintDboxPrintEvent(ToolboxEvent):
     event_id = PrintDbox.Print
 
     _fields_ = [
         ("start_page", ctypes.c_int32),
         ("finish_page", ctypes.c_int32),
         ("copies", ctypes.c_int32),
-        ("scale_factor", ctypes.c_int32)
-        ]
+        ("scale_factor", ctypes.c_int32),
+    ]
 
     @property
     def sideways(self):
-        return self.flags & 0x01 != 0
+        return self.flags & PrintDbox.PrintSave_Sideways != 0
 
     @property
     def draft(self):
-        return self.flags & 0x02 != 0
+        return self.flags & PrintDbox.PrintSave_Draft != 0
+
+
+# For compatability with 1.0.2 and below
+PrintEvent = PrintDboxPrintEvent

@@ -5,10 +5,11 @@ import ctypes
 from riscos_toolbox.gadgets import Gadget, GadgetDefinition
 from riscos_toolbox.events import ToolboxEvent
 
+
 class Slider(Gadget):
     _type = 576
 
-    ## Methods
+    # Methods
     SetValue  = _type + 0
     GetValue  = _type + 1
     SetBounds = _type + 2
@@ -17,7 +18,7 @@ class Slider(Gadget):
     GetColour = _type + 5
 
     # Events
-    ValueChanged = 0x82886 # Window SWI Chunk Base (0x82880) + 6
+    ValueChanged = 0x82886  # Window_SWIChunkBase (0x82880) + 6
 
     # Flags
     GenerateValueChangedEndOfDrag  = 0x00000001
@@ -46,58 +47,62 @@ class Slider(Gadget):
     # Bounds have been split into separate properties - this seemed the most logical way
     @property
     def lower_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;i',
-                       Slider.LowerBound,self.window.id,Slider.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i',
+                       Slider.LowerBound, self.window.id, Slider.GetBounds, self.id)
 
     @lower_bound.setter
     def lower_bound(self, lower):
-        swi.swi('Toolbox_ObjectMiscOp','Iiiii',Slider.LowerBound,
-                self.window.id,Slider.SetBounds,self.id,lower)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiiii', Slider.LowerBound,
+                self.window.id, Slider.SetBounds, self.id, lower)
 
     @property
     def upper_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;.i',
-                       Slider.UpperBound,self.window.id,Slider.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i',
+                       Slider.UpperBound, self.window.id, Slider.GetBounds, self.id)
 
     @upper_bound.setter
     def upper_bound(self, upper):
-        swi.swi('Toolbox_ObjectMiscOp','Iiii.i',Slider.UpperBound,
-                self.window.id,Slider.SetBounds,self.id,upper)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiii.i', Slider.UpperBound,
+                self.window.id, Slider.SetBounds, self.id, upper)
 
     @property
     def step_size(self):
-        return swi.swi('Toolbox_ObjectMiscOp','Iiii;..i',
-                       Slider.StepSize,self.window.id,Slider.GetBounds,self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;..i',
+                       Slider.StepSize, self.window.id, Slider.GetBounds, self.id)
 
     @step_size.setter
     def step_size(self, step):
-        swi.swi('Toolbox_ObjectMiscOp','Iiii..i',Slider.StepSize,
-                self.window.id,Slider.SetBounds,self.id,step)
+        swi.swi('Toolbox_ObjectMiscOp', 'Iiii..i', Slider.StepSize,
+                self.window.id, Slider.SetBounds, self.id, step)
 
     # returns a tuple (fg, bg)
     @property
     def colour(self):
-        return swi.swi('Toolbox_ObjectMiscOp','0iii;ii',self.window.id,Slider.GetColour,
+        return swi.swi('Toolbox_ObjectMiscOp', '0iii;ii', self.window.id, Slider.GetColour,
                        self.id)
 
     # takes a tuple (fg, bg)
     @colour.setter
     def colour(self, colours):
         fg, bg = colours
-        swi.swi('Toolbox_ObjectMiscOp','0iiiii',self.window.id,Slider.SetColour,
-                self.id,fg,bg)
+        swi.swi('Toolbox_ObjectMiscOp', '0iiiii', self.window.id, Slider.SetColour,
+                self.id, fg, bg)
+
 
 class SliderDefinition(GadgetDefinition):
     _gadget_class = Slider
-    _fields_ = [ ("lower_bound", ctypes.c_int32),
-                 ("upper_bound", ctypes.c_int32),
-                 ("step_size", ctypes.c_int32),
-                 ("initial_value", ctypes.c_int32) ]
+    _fields_ = [
+        ('lower_bound', ctypes.c_int32),
+        ('upper_bound', ctypes.c_int32),
+        ('step_size', ctypes.c_int32),
+        ('initial_value', ctypes.c_int32)
+    ]
+
 
 class SliderValueChangedEvent(ToolboxEvent):
     event_id = Slider.ValueChanged
 
-    _fields_ = [ ("_new_value", ctypes.c_int32) ]
+    _fields_ = [('_new_value', ctypes.c_int32)]
 
     # Event Constants
     EndOfDrag  = 1
@@ -106,4 +111,3 @@ class SliderValueChangedEvent(ToolboxEvent):
     @property
     def new_value(self):
         return self._new_value
-

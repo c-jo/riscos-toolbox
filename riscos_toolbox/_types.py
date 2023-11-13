@@ -2,32 +2,34 @@
 
 import ctypes
 
-ObjectID = ctypes.c_int32
-ComponentID = ctypes.c_int32
+ObjectID = ctypes.c_uint32
+ComponentID = ctypes.c_uint32
 
-class IDBlock(ctypes.Structure):
-    class Level(ctypes.Structure):
-        _fields_ = [ ("id", ObjectID), ("component", ComponentID) ]
 
-        def __init__(self):
-            self.id = -1
-            self.component = 0
-
-        def __repr__(self):
-            return "{:x}/{}".format(self.id, self.component)
-
-    _fields_ = [ ("ancestor", Level),
-                 ("parent",   Level),
-                 ("self",     Level) ]
+class ToolboxID(ctypes.Structure):
+    _fields_ = [("id", ObjectID), ("component", ComponentID)]
 
     def __init__(self):
-        pass
+        self.id = 0xffffffff
+        self.component = 0
+
+    def __repr__(self):
+        return "{:x}/{:x}".format(self.id, self.component)
+
+
+class IDBlock(ctypes.Structure):
+    _fields_ = [
+        ('ancestor', ToolboxID),
+        ('parent', ToolboxID),
+        ('self', ToolboxID),
+    ]
 
     def __repr__(self):
         return "Acestor: {} Parent: {} Self: {}".format(self.ancestor, self.parent, self.self)
 
+
 class Point(ctypes.Structure):
-    _fields_ = [ ("x", ctypes.c_int), ("y", ctypes.c_int) ]
+    _fields_ = [('x', ctypes.c_int), ('y', ctypes.c_int)]
 
     def __init__(self, x, y):
         self.x, self.y = x, y
@@ -35,8 +37,9 @@ class Point(ctypes.Structure):
     def __repr__(self):
         return "({},{})".format(self.x, self.y)
 
+
 class BBox(ctypes.Structure):
-    _fields_ = [ ("min", Point ), ("max", Point) ]
+    _fields_ = [('min', Point), ('max', Point)]
 
     def __init__(self, min_x, min_y, max_x, max_y):
         self.min.x = min_x
@@ -49,4 +52,4 @@ class BBox(ctypes.Structure):
             format(self.min.x, self.min.y, self.max.x, self.max.y)
 
     def zero():
-        return BBox(0,0,0,0)
+        return BBox(0, 0, 0, 0)
