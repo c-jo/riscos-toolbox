@@ -61,12 +61,9 @@ def throwback_traceback(e):
         stack = reversed(traceback.extract_tb(tb))
         swi.swi("DDEUtils_ThrowbackStart", "s", task_name())
         frame = next(stack)
-        print(dir(e))
         swi.swi("DDEUtils_ThrowbackSend", "i.siis",
                 1, frame.filename, frame.lineno, 1, str(e))
         for frame in stack:
-            print(frame)
-            print(frame.filename, frame.lineno)
             swi.swi("DDEUtils_ThrowbackSend", "i.siis",
                     2, frame.filename, frame.lineno, 0, "called from here")
         swi.swi("DDEUtils_ThrowbackEnd", "")
@@ -77,6 +74,7 @@ def throwback_traceback(e):
 def report_exception(e, throwback):
     error_block = swi.block(64)
     error_block[0] = 0
+    # Write the error to the block at offset 4
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
     if throwback:
         sel = swi.swi('Wimp_ReportError', 'bIs00s;.I',
@@ -85,10 +83,8 @@ def report_exception(e, throwback):
     else:
         sel = swi.swi('Wimp_ReportError', 'bIs000;.I',
                       error_block, 0b000100000011, task_name())
-
     if sel == 2:
-        global _quit
-        _quit = True
+        sys.exit(1)
     if sel == 3 and throwback:
         throwback_traceback(e)
 
@@ -144,8 +140,6 @@ def run(application):
 
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
-
-                    #print("auto-create {} {}".format(name, obj_class))
                     _objects[_id_block.self.id] = \
                          Object.create(obj_class, name, _id_block.self.id)
                     continue
