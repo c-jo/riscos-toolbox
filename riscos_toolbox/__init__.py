@@ -44,22 +44,54 @@ _quit           = False
 _id_block       = IDBlock()
 _msgtrans_block = swi.block(4)
 
-def report_exception(e):
+
+def task_name():
+    try:
+        name_len = swi.swi('Toolbox_GetSysInfo', 'I0;..I', 0)
+        name_block = swi.block((name_len + 3) // 4)
+        swi.swi('Toolbox_GetSysInfo', "Ib", 0, name_block)
+        return name_block.nullstring()
+    except Exception:
+        return "Python Application"
+
+
+def throwback_traceback(e):
+    try:
+        type, value, tb = sys.exc_info()
+        stack = reversed(traceback.extract_tb(tb))
+        swi.swi("DDEUtils_ThrowbackStart", "s", task_name())
+        frame = next(stack)
+        print(dir(e))
+        swi.swi("DDEUtils_ThrowbackSend", "i.siis",
+                1, frame.filename, frame.lineno, 1, str(e))
+        for frame in stack:
+            print(frame)
+            print(frame.filename, frame.lineno)
+            swi.swi("DDEUtils_ThrowbackSend", "i.siis",
+                    2, frame.filename, frame.lineno, 0, "called from here")
+        swi.swi("DDEUtils_ThrowbackEnd", "")
+    except Exception as e:
+        report_exception(e, throwback=False)
+
+
+def report_exception(e, throwback):
     error_block = swi.block(64)
     error_block[0] = 0
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
-    try:
-        name_len = swi.swi("Toolbox_GetSysInfo", "I0;..I", 0)
-        name_block = swi.block((name_len+3)//4)
-        swi.swi("Toolbox_GetSysInfo", "Ib", 0, name_block)
-        task_name = name_block.nullstring()
-    except:
-        task_name = "Python Application"
+    if throwback:
+        sel = swi.swi('Wimp_ReportError', 'bIs00s;.I',
+                      error_block, 0b000100000011, task_name(),
+                      "Throwback")
+    else:
+        sel = swi.swi('Wimp_ReportError', 'bIs000;.I',
+                      error_block, 0b000100000011, task_name())
 
-    if swi.swi("Wimp_ReportError", "bIs000;.I",
-                   error_block, 0b000100000011, task_name) == 2:
+    if sel == 2:
         global _quit
         _quit = True
+    if sel == 3 and throwback:
+        throwback_traceback(e)
+
 
 def initialise(appdir):
     def _handler_block(handlers, add=[]):
@@ -136,7 +168,7 @@ def run(application):
                 wimp_dispatch(reason, application, _id_block, poll_block)
 
         except Exception as e:
-            report_exception(e)
+            report_exception(e, application.throwback)
 
 def quit():
      global _quit
