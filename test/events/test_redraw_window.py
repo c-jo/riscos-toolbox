@@ -11,7 +11,7 @@ class RedrawWindow(unittest.TestCase):
 
     def test_from_block(self):
         rw = redraw_window.RedrawWindow.from_poll_block(
-            struct.pack("i",42)
+            struct.pack("i", 42)
         )
         assert(rw.event_id == 1)
         assert(rw.window_handle == 42)

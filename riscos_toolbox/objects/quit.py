@@ -1,7 +1,8 @@
 """RISC OS Toolbox - Quit"""
 
 from ..base import Object
-import swi
+from ..events import AboutToBeShownEvent, ToolboxEvent
+
 
 class Quit(Object):
     class_id = 0x82a90
@@ -29,3 +30,19 @@ class Quit(Object):
     @title.setter
     def title(self, title):
         self._miscop_set_string(3, title)
+
+
+class QuitAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = Quit.AboutToBeShown
+
+
+class QuitQuitEvent(ToolboxEvent):
+    event_id = Quit.Quit
+
+
+class QuitDialogueCompletedEvent(ToolboxEvent):
+    event_id = Quit.DialogueCompleted
+
+
+class QuitCancelEvent(ToolboxEvent):
+    event_id = Quit.Cancel
