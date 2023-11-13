@@ -90,6 +90,7 @@ def report_exception(e, throwback):
     if sel == 3 and throwback:
         throwback_traceback(e)
 
+
 def initialise(appdir):
     def _handler_block(handlers, add=[]):
         ids = sorted(
@@ -134,13 +135,11 @@ def run(application):
         try:
             poll_block = bytes(poll_buffer)
             if reason == Wimp.ToolboxEvent:
-                size, reference, event_code, flags = \
-                    struct.unpack("IIII", poll_block[0:16])
+                size, reference, event_code, flags = struct.unpack("IIII", poll_block[0:16])
 
                 if event_code == Toolbox.ObjectAutoCreated:
-                    name =''.join([chr(c) for c in \
-                        iter(lambda i=iter(poll_block[0x10:]): next(i), 0)])
-
+                    name = ''.join([chr(c) for c in iter(
+                        lambda i=iter(poll_block[0x10:]): next(i), 0)])
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
                     _objects[_id_block.self.id] = Object.create(
