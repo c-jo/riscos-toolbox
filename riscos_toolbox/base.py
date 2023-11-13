@@ -131,6 +131,6 @@ class Object(EventHandler):
         swi.swi('Toolbox_ObjectMiscOp', 'IIIbI', 0, self.id, op, buf, buf_size)
         return buf.nullstring()
 
-    def _miscop_set_string(self, op, string):
+    def _miscop_set_string(self, op, value):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi("Toolbox_ObjectMiscOp", "0iIs", 0, self.id, op, string)
+        swi.swi("Toolbox_ObjectMiscOp", "IIIs", 0, self.id, op, value)

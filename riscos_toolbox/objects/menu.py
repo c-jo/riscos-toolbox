@@ -96,7 +96,7 @@ class Menu(Object):
 
         def _miscop_set_signed(self, op, value):
             return swi.swi('Toolbox_ObjectMiscOp', '0IIIi',
-                           self.menu.id, op, value)
+                           self.menu.id, op, self.id, value)
 
         def _miscop_get_unsigned(self, op):
             return swi.swi('Toolbox_ObjectMiscOp', '0III;I',
@@ -104,7 +104,7 @@ class Menu(Object):
 
         def _miscop_set_unsigned(self, op, value):
             return swi.swi('Toolbox_ObjectMiscOp', '0IIII',
-                           self.menu.id, op, value)
+                           self.menu.id, op, self.id, value)
 
         def _miscop_get_string(self, op):
             buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IIII00;.....I',
@@ -116,51 +116,51 @@ class Menu(Object):
 
         @property
         def tick(self):
-            return self._miscop_get_state(self, Menu.GetTick) != 0
+            return self._miscop_get_unsigned(Menu.GetTick) != 0
 
         @tick.setter
         def tick(self, tick):
-            self._miscop_set_state(self, Menu.SetTick, 1 if tick else 0)
+            self._miscop_set_unsigned(Menu.SetTick, 1 if tick else 0)
 
         @property
         def fade(self):
-            return self._miscop_get_state(self, Menu.GetFade) != 0
+            return self._miscop_get_unsigned(Menu.GetFade) != 0
 
         @fade.setter
         def fade(self, fade):
-            self._miscop_set_state(self, Menu.SetFade, 1 if fade else 0)
+            self._miscop_set_unsigned(Menu.SetFade, 1 if fade else 0)
 
         @property
         def text(self):
-            return self._miscop_get_string(self, Menu.GetEntryText)
+            return self._miscop_get_string(Menu.GetEntryText)
 
         @text.setter
         def text(self, text):
-            self._miscop_set_string(self, Menu.SetEntryText, text)
+            self._miscop_set_string(Menu.SetEntryText, text)
 
         @property
         def sprite(self):
-            return self._miscop_get_string(self, Menu.GetEntrySprite)
+            return self._miscop_get_string(Menu.GetEntrySprite)
 
         @sprite.setter
         def sprite(self, sprite):
-            self._miscop_set_string(self, Menu.SetEntrySprite, sprite)
+            self._miscop_set_string(Menu.SetEntrySprite, sprite)
 
         @property
         def submenu_show(self):
-            return self._miscop_get_unsigned(self, Menu.GetSubMenuShow)
+            return self._miscop_get_unsigned(Menu.GetSubMenuShow)
 
         @submenu_show.setter
         def submenu_show(self, submenu_show):
-            return self._miscop_set_unsigned(self, Menu.SetSubMenuShow, submenu_show)
+            return self._miscop_set_unsigned(Menu.SetSubMenuShow, submenu_show)
 
         @property
         def submenu_event(self):
-            return self._miscop_get_unsigned(self, Menu.GetSubMenuEvent)
+            return self._miscop_get_unsigned(Menu.GetSubMenuEvent)
 
         @submenu_event.setter
         def submenu_event(self, submenu_event):
-            return self._miscop_set_signed(self, Menu.SetSubMenuShow, submenu_event)
+            return self._miscop_set_signed(Menu.SetSubMenuShow, submenu_event)
 
         @property
         def click_show(self):

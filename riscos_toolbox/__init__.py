@@ -4,10 +4,10 @@ import swi
 import ctypes
 import traceback
 import struct
-
+import sys
 
 from ._types import *
-from .base import *
+from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
 
 

@@ -1,6 +1,6 @@
 from ..events import message_handler
 from ..user_messages.data_transfer import DataOpenMessage
-from .. import Messages
+from ..user_messages.data_transfer import Messages
 
 import ctypes
 import swi
