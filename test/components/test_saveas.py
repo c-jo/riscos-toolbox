@@ -24,9 +24,9 @@ class SwiMock:
         if self._pos >= len(self._expect):
             raise RuntimeError("Unexpected SWI call")
 
-        (exp,ret) = self._expect[self._pos]
+        (exp, ret) = self._expect[self._pos]
 
-        def argmatch(a,b):
+        def argmatch(a, b):
             if len(a) != len(b):
                 return False
 
@@ -36,7 +36,7 @@ class SwiMock:
 
             return True
 
-        if not argmatch(exp,args):
+        if not argmatch(exp, args):
             raise RuntimeError("SWI call mismatch: got {} exp {}".format(args, exp)) 
 
         self._pos += 1

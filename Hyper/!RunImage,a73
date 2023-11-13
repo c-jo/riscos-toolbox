@@ -100,17 +100,17 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
 
     def clear(self):
         for id in self.buttons.keys():
-            swi.swi("Toolbox_ObjectMiscOp", "0IiI;i", self.id, 2, id)
+            swi.swi("Toolbox_ObjectMiscOp", "0III", self.id, 2, id)
         self.buttons.clear()
         self.layers.clear()
 
     def add_button(self, defn, target):
-        comp_id = swi.swi("Toolbox_ObjectMiscOp", "0IiI;i",
+        comp_id = swi.swi("Toolbox_ObjectMiscOp", "0III;i",
                           self.id, 1, ctypes.addressof(defn))
         self.buttons[comp_id] = target
 
     def set_status(self, status):
-        swi.swi("Toolbox_ObjectMiscOp", "0iIis",
+        swi.swi("Toolbox_ObjectMiscOp", "0IIIs",
             self.get_toolbar_id(Window.InternalBottomLeftToolbar),
             Button.SetValue, StatusButton, status)
 

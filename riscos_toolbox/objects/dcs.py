@@ -1,10 +1,18 @@
 """RISC OS Toolbox - DCS"""
 
 from ..base import Object
-import swi
+from ..events import AboutToBeShownEvent, ToolboxEvent
+
 
 class DCS(Object):
     class_id = 0x82a80
+    # Methods
+    GetWindowId = 0
+    SetMessage = 1
+    GetMessage = 2
+    SetTitle = 3
+    GetTitle = 4
+    # Events
     AboutToBeShown    = class_id + 0
     Discard           = class_id + 1
     Save              = class_id + 2
@@ -13,26 +21,41 @@ class DCS(Object):
 
     @property
     def window_id(self):
-        return swi.swi("Toolbox_ObjectMiscOp","III;I", 0, self.id, 0)
+        return self._miscop_get_signed(DCS.GetWindowId)
 
     @property
     def message(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 2)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 2, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(DCS.GetMessage)
 
     @message.setter
-    def message(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 1, title)
+    def message(self, message):
+        self._miscop_set_string(DCS.SetMessage, message)
 
     @property
     def title(self):
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', '0II00;....I', self.id, 4)
-        buf = swi.block((buf_size+3)/4)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIbI', self.id, 4, buf, buf_size)
-        return buf.nullstring()
+        return self._miscop_get_string(DCS.GetTitle)
 
     @title.setter
     def title(self, title):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIs;I', self.id, 3, title)
+        self._miscop_set_string(DCS.SetTitle, title)
+
+
+# DCS events
+class DCSAboutToBeShownEvent(AboutToBeShownEvent):
+    event_id = DCS.AboutToBeShown
+
+
+class DCSDiscardEvent(ToolboxEvent):
+    event_id = DCS.Discard
+
+
+class DCSSaveEvent(ToolboxEvent):
+    event_id = DCS.Save
+
+
+class DCSDialogueCompletedEvent(ToolboxEvent):
+    event_id = DCS.DialogueCompleted
+
+
+class DCSCancelEvent(ToolboxEvent):
+    event_id = DCS.Cancel

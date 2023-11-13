@@ -1,10 +1,11 @@
 from ..base import get_object
 from ..events import toolbox_handler
 
-from ..objects.saveas import *
+from ..objects.saveas import SaveAsSaveToFileEvent, SaveAsSaveCompletedEvent
+
 
 class SaveAsMixin:
-    @toolbox_handler(SaveToFileEvent)
+    @toolbox_handler(SaveAsSaveToFileEvent)
     def _save_to_file(self, event_code, id_block, event):
         saved = self.save_to_file(event.filename)
         if saved:
@@ -14,7 +15,7 @@ class SaveAsMixin:
     def save_to_file(self, filename):
         return None
 
-    @toolbox_handler(SaveCompletedEvent)
+    @toolbox_handler(SaveAsSaveCompletedEvent)
     def _save_completed(self, event_code, id_block, event):
         self.save_completed(event.filename)
 
