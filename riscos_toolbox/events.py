@@ -1,7 +1,7 @@
 """RISC OS Toolbox library: events"""
 
 from collections.abc import Iterable
-from functools import partial, wraps
+from functools import wraps
 import ctypes
 import inspect
 import swi
@@ -174,13 +174,13 @@ class UserMessage(Event, ctypes.Structure):
         """Sendds the message to a task, window or iconbar icon."""
         self.your_ref = 0
         if task:
-           handle, icon = task, 0
+            handle, icon = task, 0
         elif window:
-           handle, icon = window, 0
+            handle, icon = window, 0
         elif iconbar:
-           handle, icon = -2, iconbar
+            handle, icon = -2, iconbar
         else:
-           handle, icon = 0, 0 # Broadcast
+            handle, icon = 0, 0  # Broadcast
 
         self._send(Wimp.UserMessageRecorded if recorded else Wimp.UserMessage,
                    handle, icon, reply_callback)
@@ -202,8 +202,6 @@ class UserMessage(Event, ctypes.Structure):
     def _send(self, reason, target, icon, size, reply_callback):
         self.size = size or ctypes.sizeof(self)
         self.code = self.__class__.event_id
-        # sender and my_ref are filled in by Wimp_SendMessage
-        #print("_send",self,reason,target,icon,self.size,self.code,reply_callback)
         handle = swi.swi('Wimp_SendMessage', 'IIII;..i',
                          reason, ctypes.addressof(self),
                          target or 0, icon or 0)
@@ -211,6 +209,7 @@ class UserMessage(Event, ctypes.Structure):
             _reply_callbacks[self.my_ref] = reply_callback
 
         return handle if target != 0 else None
+
 
 # Contains info about a message - the data from the header, plus the wimp
 # reason it was delivered with. If used like an 'int' will give the message
@@ -297,9 +296,10 @@ class EventHandler(object):
 
     def message_dispatch(self, code, id_block, poll_block):
         return self._dispatch(self.message_handlers,
-                              event, id_block, poll_block)
+                              code, id_block, poll_block)
 
 
+# Handlers
 _toolbox_handlers = {}
 _wimp_handlers = {}
 _message_handlers = {}
@@ -308,6 +308,7 @@ _message_handlers = {}
 _reply_messages  = set()
 # Map of message reply calbacks [ref->MessageReplyCallback]
 _reply_callbacks = {}
+
 
 def _set_handler(code, component, handler, handlers):
     if '.' in handler.__qualname__:
@@ -358,21 +359,22 @@ def wimp_handler(reason, component=None):
         return _set_handler(reason, component, handler, _wimp_handlers)
     return decorator
 
+
 def reply_handler(message_s):
-    _message_map = {} # message number -> class or None
+    _message_map = {}  # message number -> class or None
 
     def _map_data(code_or_class):
         if isinstance(code_or_class, int):
-           return code_or_class, None
+            return code_or_class, None
         elif issubclass(code_or_class, UserMessage):
-           return code_or_class.event_id, code_or_class
+            return code_or_class.event_id, code_or_class
         else:
             raise RuntimeError("Must be int or UserMessage")
 
     if isinstance(message_s, Iterable):
         for m in message_s:
-           code, klass = _map_data(m)
-           _message_map[code] = klass
+            code, klass = _map_data(m)
+            _message_map[code] = klass
     else:
         code, klass = _map_data(message_s)
         _message_map[code] = klass
@@ -380,27 +382,27 @@ def reply_handler(message_s):
     _reply_messages.update(set(_message_map.keys()))
 
     def decorator(handler):
-        @wraps((handler,_message_map))
+        @wraps((handler, _message_map))
         def wrapper(self, data, *args):
             message = None
             code = None
             if data is not None:
                 message = ctypes.cast(
-                              data, ctypes.POINTER(UserMessage)).contents
+                    data, ctypes.POINTER(UserMessage)
+                ).contents
 
                 code = message.code
                 if code in _message_map:
                     message = ctypes.cast(
-                              data, ctypes.POINTER(_message_map[code])).contents
+                        data, ctypes.POINTER(_message_map[code])
+                    ).contents
             return handler(self, code, message, *args)
-            return h
         return wrapper
     return decorator
 
+
 # List of self, parent, ancestor and application objects (if they exist)
 # This is the list of objects to try to handle the event, in order.
-
-
 def _get_spaa(application, id_block):
     from .base import get_object
     return list(
@@ -436,18 +438,21 @@ def message_dispatch(code, application, id_block, poll_block):
             return
 
     for obj in _get_spaa(application, id_block):
-         if obj.message_dispatch(code, id_block, poll_block):
-             break
+        if obj.message_dispatch(code, id_block, poll_block):
+            break
+
 
 def wimp_dispatch(reason, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
-         if obj.wimp_dispatch(reason, id_block, poll_block):
-             break
+        if obj.wimp_dispatch(reason, id_block, poll_block):
+            break
+
 
 def null_polls():
     return len(_reply_callbacks) > 0
 
+
 def null_poll():
     for ref in list(_reply_callbacks.keys()):
-       _reply_callbacks[ref](None)
-       del _reply_callbacks[ref]
+        _reply_callbacks[ref](None)
+        del _reply_callbacks[ref]

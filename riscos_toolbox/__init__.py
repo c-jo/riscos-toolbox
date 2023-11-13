@@ -4,7 +4,6 @@ import swi
 import ctypes
 import traceback
 import struct
-import sys
 
 from ._types import *
 from ._const import *
@@ -76,8 +75,8 @@ def run(application):
     while not _quit:
         mask = 0 if events.null_polls() else 0b1
 
-        reason,sender = swi.swi(
-            'Wimp_Poll','II;I.I',
+        reason, sender = swi.swi(
+            'Wimp_Poll', 'II;I.I',
             mask, ctypes.addressof(poll_buffer))
 
         try:
@@ -105,10 +104,10 @@ def run(application):
                 toolbox_dispatch(event_code, application, _id_block, poll_block)
 
             elif reason in [
-                    Wimp.UserMessage,
-                    Wimp.UserMessageRecorded,
-                    Wimp.UserMessageAcknowledge
-                ]:
+                Wimp.UserMessage,
+                Wimp.UserMessageRecorded,
+                Wimp.UserMessageAcknowledge
+            ]:
                 message = MessageInfo.create(
                     reason, *struct.unpack("IIIII", poll_block[0:20]))
 
