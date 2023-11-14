@@ -6,10 +6,9 @@ import traceback
 import struct
 
 from ._types import *
-from ._const import *
+from ._consts import *
 from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
-from ._consts import Wimp, Toolbox, Messages
 
 
 _quit = False
@@ -100,9 +99,9 @@ def run(application):
     while not _quit:
         flags = application.poll_flags
         if events.null_polls():
-              flags = flags & ~Wimp.Poll.NullMask
-        reason,sender = swi.swi(
-            'Wimp_Poll','II;I.I', flags,
+            flags = flags & ~Wimp.Poll.NullMask
+        reason, sender = swi.swi(
+            'Wimp_Poll', 'II;I.I', flags,
             ctypes.addressof(poll_buffer))
 
         try:
