@@ -37,15 +37,38 @@ def task_name():
         return "Python Application"
 
 
-def report_exception(e):
+def throwback_traceback(e):
+    try:
+        type, value, tb = sys.exc_info()
+        stack = reversed(traceback.extract_tb(tb))
+        swi.swi("DDEUtils_ThrowbackStart", "s", task_name())
+        frame = next(stack)
+        swi.swi("DDEUtils_ThrowbackSend", "i.siis",
+                1, frame.filename, frame.lineno, 1, str(e))
+        for frame in stack:
+            swi.swi("DDEUtils_ThrowbackSend", "i.siis",
+                    2, frame.filename, frame.lineno, 0, "called from here")
+        swi.swi("DDEUtils_ThrowbackEnd", "")
+    except Exception as e:
+        report_exception(e, throwback=False)
+
+
+def report_exception(e, throwback):
     error_block = swi.block(64)
     error_block[0] = 0
+    # Write the error to the block at offset 4
     error_block.padstring(str(e).encode('latin-1')[:250], b'\0', 4)
-
-    if swi.swi('Wimp_ReportError', 'bIs000;.I',
-               error_block, 0b000100000011, task_name()) == 2:
-        global _quit
-        _quit = True
+    if throwback:
+        sel = swi.swi('Wimp_ReportError', 'bIs00s;.I',
+                      error_block, 0b000100000011, task_name(),
+                      "Throwback")
+    else:
+        sel = swi.swi('Wimp_ReportError', 'bIs000;.I',
+                      error_block, 0b000100000011, task_name())
+    if sel == 2:
+        sys.exit(1)
+    if sel == 3 and throwback:
+        throwback_traceback(e)
 
 
 def initialise(appdir):
@@ -93,16 +116,13 @@ def run(application):
         try:
             poll_block = bytes(poll_buffer)
             if reason == Wimp.ToolboxEvent:
-                size, reference, event_code, flags = \
-                    struct.unpack("IIII", poll_block[0:16])
+                size, reference, event_code, flags = struct.unpack("IIII", poll_block[0:16])
 
                 if event_code == Toolbox.ObjectAutoCreated:
-                    name =''.join([chr(c) for c in \
-                        iter(lambda i=iter(poll_block[0x10:]): next(i), 0)])
-
+                    name = ''.join([chr(c) for c in iter(
+                        lambda i=iter(poll_block[0x10:]): next(i), 0)])
                     obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
                                         _id_block.self.id)
-
                     _objects[_id_block.self.id] = Object.create(
                         obj_class, name, _id_block.self.id)
                     continue
@@ -124,7 +144,7 @@ def run(application):
                 wimp_dispatch(reason, application, _id_block, poll_block)
 
         except Exception as e:
-            report_exception(e)
+            report_exception(e, application.throwback)
 
 
 def quit():

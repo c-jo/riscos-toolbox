@@ -27,10 +27,10 @@ def _make_poll_flags(events):
 
 
 class Application(EventHandler):
-    def __init__(self, appdir, poll_flags=None):
+    def __init__(self, appdir, poll_flags=None, throwback=True):
         super().__init__()
+        self.throwback = throwback
         global _application
-        _application = self
         if poll_flags is not None:
             self.poll_flags = poll_flags
         else:

@@ -18,7 +18,7 @@ class Messages:
 class DataTransferMessage(UserMessage):
     _fields_ = [
         ("destination_window", ctypes.c_int32),
-        ("estination_icon", ctypes.c_int32),
+        ("destination_icon", ctypes.c_int32),
         ("destination_position", Point),
         ("estimated_size", ctypes.c_int32),
         ("file_type", ctypes.c_int32),
@@ -42,7 +42,7 @@ class DataLoadAckMessage(DataTransferMessage):
     event_id = Messages.DataLoadAck
 
 
-class DataSavedkMessage(UserMessage):
+class DataSavedMessage(UserMessage):
     event_id = Messages.DataSaved
 
 
@@ -52,7 +52,7 @@ class DataOpenMessage(UserMessage):
     _fields_ = [
         ("window_handle", ctypes.c_int32),
         ("spare", ctypes.c_int32),
-        ("pposition", Point),
+        ("position", Point),
         ("zero", ctypes.c_int32),
         ("file_type", ctypes.c_int32),
         ("_path_name", ctypes.c_char * 212),
