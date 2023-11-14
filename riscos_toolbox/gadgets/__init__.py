@@ -98,7 +98,7 @@ class Gadget(Component):
 
     def _miscop_set_font(self, op, name, width=None, height=None, size=None):
         """Use Toolbox_ObjectMiscOp to set a font. Specify the font name and
-           height and width or size (in points). Specifing height, with and size
+           height and width or size (in points). Specifying height, with and size
            will result in size value being ignored. If font name is None, the
            system font will be used."""
         if width is None and height is None and size:
