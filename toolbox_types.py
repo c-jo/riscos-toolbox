@@ -2,6 +2,7 @@
 Python constants.
 """
 
+
 class ActionbuttonConstants(object):
 
     # .Bits
@@ -22,7 +23,6 @@ class ActionbuttonConstants(object):
     Class_ActionButton = 128
 
 
-
 class AdjusterConstants(object):
 
     # .Bits
@@ -36,7 +36,6 @@ class AdjusterConstants(object):
     Class_Adjuster = 768
 
 
-
 class ButtonConstants(object):
 
     # .Bits
@@ -45,7 +44,6 @@ class ButtonConstants(object):
 
     # Toolbox_Class
     Class_Button = 960
-
 
 
 class ColourdboxConstants(object):
@@ -77,7 +75,6 @@ class ColourdboxConstants(object):
     Class_ColourDbox = 534976
 
 
-
 class ColourmenuConstants(object):
 
     # .Bits
@@ -104,7 +101,6 @@ class ColourmenuConstants(object):
     Class_ColourMenu = 534912
 
 
-
 class DcsConstants(object):
 
     # .Bits
@@ -128,7 +124,6 @@ class DcsConstants(object):
 
     # Toolbox_Class
     Class_DCS = 535168
-
 
 
 class DdeutilsConstants(object):
@@ -157,7 +152,6 @@ class DdeutilsConstants(object):
     DDEUtils_ThrowbackProcessing = 0
 
 
-
 class DisplayfieldConstants(object):
 
     # Gadget_Flags
@@ -166,7 +160,6 @@ class DisplayfieldConstants(object):
 
     # Toolbox_Class
     Class_DisplayField = 448
-
 
 
 class DraganobjectConstants(object):
@@ -188,7 +181,6 @@ class DraganobjectConstants(object):
     DragAnObject_NoDither = (1<<8)
     DragAnObject_CallFunction = (1<<16)
     DragAnObject_FunctionSVC = (1<<17)
-
 
 
 class DraggableConstants(object):
@@ -218,7 +210,6 @@ class DraggableConstants(object):
 
     # Toolbox_Class
     Class_Draggable = 640
-
 
 
 class FileinfoConstants(object):
@@ -251,7 +242,6 @@ class FileinfoConstants(object):
 
     # Toolbox_Class
     Class_FileInfo = 535232
-
 
 
 class FontdboxConstants(object):
@@ -302,7 +292,6 @@ class FontdboxConstants(object):
     Class_FontDbox = 535040
 
 
-
 class FontmenuConstants(object):
 
     # .Bits
@@ -323,7 +312,6 @@ class FontmenuConstants(object):
 
     # Toolbox_Class
     Class_FontMenu = 535104
-
 
 
 class FrontendConstants(object):
@@ -364,7 +352,6 @@ class GadgetConstants(object):
     Gadget_Faded = (1<<31)
 
 
-
 class IconbarConstants(object):
 
     # .Bits
@@ -401,12 +388,10 @@ class IconbarConstants(object):
     Class_Iconbar = 534784
 
 
-
 class KeyboardshortcutConstants(object):
 
     # KeyboardShortcut_Flags
     KeyboardShortcut_ShowAsMenu = (1<<0)
-
 
 
 class LabelConstants(object):
@@ -420,7 +405,6 @@ class LabelConstants(object):
     Class_Label = 320
 
 
-
 class LabelledboxConstants(object):
 
     # Gadget_Flags
@@ -429,7 +413,6 @@ class LabelledboxConstants(object):
 
     # Toolbox_Class
     Class_LabelledBox = 256
-
 
 
 class MenuConstants(object):
@@ -480,7 +463,6 @@ class MenuConstants(object):
     Class_Menu = 534720
 
 
-
 class NumberrangeConstants(object):
 
     # .Bits
@@ -516,7 +498,6 @@ class NumberrangeConstants(object):
     Class_NumberRange = 832
 
 
-
 class OptionbuttonConstants(object):
 
     # .Bits
@@ -526,7 +507,6 @@ class OptionbuttonConstants(object):
 
     # Toolbox_Class
     Class_OptionButton = 192
-
 
 
 class PopupConstants(object):
@@ -539,7 +519,6 @@ class PopupConstants(object):
 
     # Toolbox_Class
     PopUp_Class = 704
-
 
 
 class PrintdboxConstants(object):
@@ -595,7 +574,6 @@ class PrintdboxConstants(object):
     PrintDbox_Percent = 137035792
 
 
-
 class ProginfoConstants(object):
 
     # .Bits
@@ -637,7 +615,6 @@ class ProginfoConstants(object):
     Class_ProgInfo = 535360
 
 
-
 class QuitConstants(object):
 
     # .Bits
@@ -659,7 +636,6 @@ class QuitConstants(object):
     Class_Quit = 535184
 
 
-
 class RadiobuttonConstants(object):
 
     # .Bits
@@ -674,7 +650,6 @@ class RadiobuttonConstants(object):
 
     # Toolbox_Class
     Class_RadioButton = 384
-
 
 
 class SaveasConstants(object):
@@ -720,7 +695,6 @@ class SaveasConstants(object):
     Class_SaveAs = 535488
 
 
-
 class ScaleConstants(object):
 
     # .Bits
@@ -758,7 +732,6 @@ class ScaleConstants(object):
     Class_Scale = 535552
 
 
-
 class SliderConstants(object):
 
     # .Bits
@@ -789,7 +762,6 @@ class SliderConstants(object):
     Class_Slider = 576
 
 
-
 class StringsetConstants(object):
 
     # .Bits
@@ -815,7 +787,6 @@ class StringsetConstants(object):
 
     # Toolbox_Class
     StringSet_Class = 896
-
 
 
 class ToolboxConstants(object):
@@ -893,7 +864,6 @@ class ToolboxConstants(object):
     Toolbox_ShowAsSubMenu = (1<<1)
 
 
-
 class WindowConstants(object):
 
     # .Bits
@@ -938,7 +908,6 @@ class WindowConstants(object):
     Window_ToolBarETL = (1<<3)
 
 
-
 class WindowsupportexternalConstants(object):
 
     # .Int
@@ -951,7 +920,6 @@ class WindowsupportexternalConstants(object):
     WindowSupportExternal_HandlerPostAdd = 12
     WindowSupportExternal_HandlerRemove = 2
     WindowSupportExternal_HandlerSetFocus = 10
-
 
 
 class WritablefieldConstants(object):
@@ -967,6 +935,3 @@ class WritablefieldConstants(object):
 
     # Toolbox_Class
     Class_WritableField = 512
-
-
-

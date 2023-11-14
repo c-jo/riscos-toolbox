@@ -25,7 +25,7 @@ class IDBlock(ctypes.Structure):
     ]
 
     def __repr__(self):
-        return "Acestor: {} Parent: {} Self: {}".format(self.ancestor, self.parent, self.self)
+        return "Ancestor: {} Parent: {} Self: {}".format(self.ancestor, self.parent, self.self)
 
 
 class Point(ctypes.Structure):

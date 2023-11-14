@@ -10,10 +10,12 @@ import riscos_toolbox.objects.saveas
 
 import swi
 
+
 TEST_OBJECT_ID = 0x1001
 TEST_WINDOW_ID = 0x2001
 TEST_TITLE     = "Test Title"
 TEST_NAME      = "Test"
+
 
 class SwiMock:
     def __init__(self):
@@ -37,7 +39,7 @@ class SwiMock:
             return True
 
         if not argmatch(exp, args):
-            raise RuntimeError("SWI call mismatch: got {} exp {}".format(args, exp)) 
+            raise RuntimeError("SWI call mismatch: got {} exp {}".format(args, exp))
 
         self._pos += 1
         return ret
@@ -50,6 +52,7 @@ class SwiMock:
     def completed(self):
         return self._pos == len(self._expect)
 
+
 class MockBlockString:
     def __init__(self, string):
         self.string = string
@@ -60,12 +63,15 @@ class MockBlockString:
     def nullstring(self):
         return self.string
 
+
 def expect_miscop(obj, op, ret):
     return (('Toolbox_ObjectMiscOp', 'III;I', 0, obj, op), ret)
+
 
 def expect_miscop_string(swimock, obj, op, str):
     swimock.expect(('Toolbox_ObjectMiscOp', 'III00;....I', 0, obj, op), len(str))
     swimock.expect(('Toolbox_ObjectMiscOp', 'IIIbI', 0, obj, op, None, len(str)), None)
+
 
 class SaveAs(unittest.TestCase):
 

@@ -14,6 +14,7 @@ id_block.ancestor.component = 0xc0003
 
 calls = []
 
+
 class TestClass01(toolbox.Object):
     def __init__(self, id):
         super().__init__(id, "test")
@@ -21,6 +22,7 @@ class TestClass01(toolbox.Object):
     @toolbox_handler(0xc101)
     def event_c101(self, event, id_block, poll_block):
         calls.append((self.__class__.__name__, self.id, event, id_block, poll_block))
+
 
 class TestClass02(toolbox.Object):
     def __init__(self, id):
@@ -33,6 +35,7 @@ class TestClass02(toolbox.Object):
     def event_c102(self, event, id_block, poll_block):
         calls.append((self.__class__.__name__, self.id, event, id_block, poll_block))
 
+
 class TestClass03(toolbox.Object):
     def __init__(self, id):
         super().__init__(id, "test")
@@ -41,9 +44,11 @@ class TestClass03(toolbox.Object):
     def event_c103(self, event, id_block, poll_block):
         calls.append((self.__class__.__name__, self.id, event, id_block, poll_block))
 
+
 @toolbox_handler(0xff01)
 def test_func(event, id_block, *args):
     calls.append((test_func.__name__, None, event, id_block, args))
+
 
 class ObjectDispatchTest(unittest.TestCase):
     def setUp(self):
