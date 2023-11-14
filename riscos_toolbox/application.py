@@ -1,41 +1,40 @@
 from .events import EventHandler, registered_wimp_events
-from consts import Wimp
+from _consts import Wimp
 from . import initialise, run
+
+
+wimp_event_masks = {
+    Wimp.Null: Wimp.Poll.NullMask,
+    Wimp.RedrawWindow: Wimp.Poll.RedrawWindowRequestMask,
+    Wimp.PointerLeavingWindow: Wimp.Poll.PointerLeavingWindowMask,
+    Wimp.PointerEnteringWindow: Wimp.Poll.PointerEnteringWindowMask,
+    Wimp.MouseClick: Wimp.Poll.MouseClickMask,
+    Wimp.KeyPressed: Wimp.Poll.KeyPressedMask,
+    Wimp.LoseCaret: Wimp.Poll.LoseCaretMask,
+    Wimp.GainCartet: Wimp.Poll.GainCaretMask,
+    Wimp.PollwordNonZero: Wimp.Poll.PollWordNonZeroMask,
+}
 
 _application = None
 
 
 def _make_poll_flags(events):
     flags = 0
-
-    if Wimp.Null not in events:
-        flags |= Wimp.Poll.NullMask
-    if Wimp.RedrawWindow not in events:
-        flags |= Wimp.Poll.RedrawWindowRequestMask
-    if Wimp.PointerLeavingWindow not in events:
-        flags |= Wimp.Poll.PointerLeavingWindowMask
-    if Wimp.PointerEnteringWindow not in events:
-        flags |= Wimp.Poll.PointerEnteringWindowMask
-    if Wimp.MouseClick not in events:
-        flags |= Wimp.Poll.MouseClickMask
-    if Wimp.KeyPressed not in events:
-        flags |= Wimp.Poll.KeyPressedMask
-    if Wimp.LoseCaret not in events:
-        flags |= Wimp.Poll.LoseCaretMask
-    if Wimp.GainCartet not in events:
-        flags |= Wimp.Poll.GainCaretMask
-    if Wimp.PollwordNonZero not in events:
-        flags |= Wimp.Poll.PollWordNonZeroMask
-
+    for (event, mask) in wimp_event_masks.items():
+        if event not in events:
+            flags |= mask
     return flags
 
 
 class Application(EventHandler):
-    def __init__(self, appdir):
+    def __init__(self, appdir, poll_flags=None):
         super().__init__()
         global _application
         _application = self
-        self.poll_flags = _make_poll_flags(registered_wimp_events)
+        if poll_flags is not None:
+            self.poll_flags = poll_flags
+        else:
+            self.poll_flags = _make_poll_flags(registered_wimp_events)
         initialise(appdir)
 
     def set_poll_flag(self, flag):
