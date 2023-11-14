@@ -9,7 +9,7 @@ class Wimp:
     MouseClick = 6
     UserDragBox = 7
     KeyPressed = 8
-    MenySelection = 9
+    MenuSelection = 9
     ScrollRequest = 10
     LoseCaret = 11
     GainCartet = 12

@@ -299,3 +299,7 @@ def wimp_dispatch(reason, application, id_block, poll_block):
     for obj in _get_spaa(application, id_block):
         if obj.wimp_dispatch(reason, id_block, poll_block):
             break
+
+
+def registered_wimp_events():
+    return _wimp_handlers.keys()
