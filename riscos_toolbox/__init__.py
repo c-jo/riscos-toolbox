@@ -9,27 +9,7 @@ import sys
 from ._types import *
 from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
-
-
-class Wimp:
-    Null = 0
-    RedrawWindow = 1
-    OpenWindow = 2
-    CloseWindow = 3
-    PointerLeavingWindow = 4
-    PointerEnteringWindow = 5
-    MouseClick = 6
-    UserDragBox = 7
-    KeyPressed = 8
-    MenySelection = 9
-    ScrollRequest = 10
-    LoseCaret = 11
-    GainCartet = 12
-    PollwordNonZero = 13
-    UserMessage = 17
-    UserMessageRecorded = 18
-    UserMessageAcknowledge = 19
-    ToolboxEvent = 0x200
+from ._consts import Wimp
 
 
 class Toolbox:
@@ -128,9 +108,10 @@ def run(application):
     global _quit
 
     while not _quit:
-        reason, sender = swi.swi(
-            'Wimp_Poll', 'II;I.I',
-            0b1, ctypes.addressof(poll_buffer))
+        reason,sender = swi.swi(
+            'Wimp_Poll','II;I.I',
+            application.poll_flags,
+            ctypes.addressof(poll_buffer))
 
         try:
             poll_block = bytes(poll_buffer)
