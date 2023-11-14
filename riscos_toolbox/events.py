@@ -456,3 +456,7 @@ def null_poll():
     for ref in list(_reply_callbacks.keys()):
         _reply_callbacks[ref](None)
         del _reply_callbacks[ref]
+
+        
+def registered_wimp_events():
+    return _wimp_handlers.keys()
