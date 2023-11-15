@@ -1,0 +1,5 @@
+If "<Python3$Dir>" = "" Then Error "!Python3 has not been seen."
+Set MsgDemo$Dir <Obey$Dir>
+WimpSlot -min 3M
+Run <Python3$Dir>.bin.python38 <MsgDemo$Dir>.!RunImage
+| > RAM:Log 2>&1

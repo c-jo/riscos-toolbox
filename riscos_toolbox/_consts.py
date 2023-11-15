@@ -1,3 +1,5 @@
+"""RISC OS Toolbox library: constants"""
+
 
 class Wimp:
     Null = 0
@@ -35,3 +37,13 @@ class Wimp:
         PollWord                   = (1 << 22)
         PollWordHighPriority       = (1 << 23)
         SaveFPRegs                 = (1 << 24)
+
+
+class Toolbox:
+    Error             = 0x44ec0
+    ObjectAutoCreated = 0x44ec1
+    ObjectDeleted     = 0x44ec2
+
+
+class Messages:
+    Quit = 0

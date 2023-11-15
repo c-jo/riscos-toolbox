@@ -1,0 +1,103 @@
+import swi
+import sys
+import os
+import ctypes
+
+import riscos_toolbox as toolbox
+from riscos_toolbox import Point, BBox, Wimp
+
+from riscos_toolbox.objects.iconbar import Iconbar, IconbarClickedEvent
+from riscos_toolbox.events import toolbox_handler, message_handler, reply_handler, UserMessage
+from riscos_toolbox.application import Application
+
+Message_Hello      = 0xabcd
+Message_AddRequest = 0xadd0
+Message_AddResult  = 0xadd1
+Message_NoMessage  = 0xdead
+
+class HelloMessage(UserMessage):
+    event_id = Message_Hello
+    _fields_ = [
+        ("name", ctypes.c_char*10),
+    ]
+
+class AddRequestMessage(UserMessage):
+    event_id = Message_AddRequest
+    _fields_ = [
+        ("a", ctypes.c_uint32),
+        ("b", ctypes.c_uint32),
+    ]
+
+class AddResultMessage(UserMessage):
+    event_id = Message_AddResult
+    _fields_ = [
+        ("q", ctypes.c_uint32),
+    ]
+
+class NoMessage(UserMessage):
+    event_id = Message_NoMessage
+
+class MsgDemo(Application):
+    def __init__(self):
+        super().__init__('<MsgDemo$Dir>')
+
+    @message_handler(HelloMessage)
+    def reset_request(self, code, id_block, message):
+        if code is not None:
+            if code.recorded:
+                message.acknowledge()
+
+    @message_handler(AddRequestMessage)
+    def add_request(self, code, id_block, message):
+        arr = AddResultMessage()
+        arr.q = message.a + message.b
+        message.reply(arr)
+
+    @toolbox_handler(0xd1e)
+    def quit(self, event, id_block, poll_block):
+        toolbox.quit()
+
+    @toolbox_handler(IconbarClickedEvent)
+    def iconbar_clicked(self, event, id_block, poll_block):
+        arq = AddRequestMessage()
+        arq.a = 1
+        arq.b = 2
+        arq.broadcast(recorded=False,
+                      reply_callback=lambda m:self._add_reply(m, arq.a, arq.b))
+
+        none = NoMessage()
+        none.broadcast(recorded=False,
+                      reply_callback=lambda m:self._no_reply(m, False))
+
+        none = NoMessage()
+        none.broadcast(recorded=True,
+                      reply_callback=lambda m:self._no_reply(m, True))
+
+        hello = HelloMessage()
+        hello.name = b"World"
+        hello.broadcast(recorded=True,
+                      reply_callback=lambda m:self._hello_reply(m))
+
+    @reply_handler(AddResultMessage)
+    def _add_reply(self, code, message, a, b):
+        if message:
+            if message.q != a + b:
+                swi.swi("Wimp_ReportError","sI","FFFFWrong reply.", 1)
+        else:
+            swi.swi("Wimp_ReportError","sI","FFFFDidn't get a reply?", 1)
+
+    @reply_handler(NoMessage)
+    def _no_reply(self, code, message, recorded):
+        if recorded and message is None:
+            swi.swi("Wimp_ReportError","sI","FFFFNo bounce.", 1)
+        if not recorded and message is not None:
+            swi.swi("Wimp_ReportError","sI","FFFFGot a reply?", 1)
+
+    @reply_handler(HelloMessage)
+    def _hello_reply(self, code, message):
+        if code is not None:
+            swi.swi("Wimp_ReportError","sI","FFFFMessage bounced", 1)
+
+if __name__ == "__main__":
+    app = MsgDemo()
+    app.run()

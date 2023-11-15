@@ -4,22 +4,11 @@ import swi
 import ctypes
 import traceback
 import struct
-import sys
 
 from ._types import *
+from ._consts import *
 from .base import Object, _objects, get_object, create_object, find_objects, _application
 from .events import *
-from ._consts import Wimp
-
-
-class Toolbox:
-    Error             = 0x44ec0
-    ObjectAutoCreated = 0x44ec1
-    ObjectDeleted     = 0x44ec2
-
-
-class Messages:
-    Quit = 0
 
 
 _quit = False
@@ -84,10 +73,10 @@ def initialise(appdir):
             block[index] = id
         return block
 
-    wimp_messages  = _handler_block(events._message_handlers)
-    toolbox_events = _handler_block(
-        events._toolbox_handlers,
-        [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
+    wimp_messages  = _handler_block(events._message_handlers,
+                         list(events._reply_messages))
+    toolbox_events = _handler_block(events._toolbox_handlers,
+                         [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver, task_handle, sprite_area = \
         swi.swi('Toolbox_Initialise', '0IbbsbI;III',
@@ -108,9 +97,11 @@ def run(application):
     global _quit
 
     while not _quit:
+        flags = application.poll_flags
+        if events.null_polls():
+            flags = flags & ~Wimp.Poll.NullMask
         reason, sender = swi.swi(
-            'Wimp_Poll', 'II;I.I',
-            application.poll_flags,
+            'Wimp_Poll', 'II;I.I', flags,
             ctypes.addressof(poll_buffer))
 
         try:
@@ -134,13 +125,22 @@ def run(application):
 
                 toolbox_dispatch(event_code, application, _id_block, poll_block)
 
-            elif reason in (Wimp.UserMessage, Wimp.UserMessageRecorded):
-                message = struct.unpack("I", poll_block[16:20])[0]
+            elif reason in [
+                Wimp.UserMessage,
+                Wimp.UserMessageRecorded,
+                Wimp.UserMessageAcknowledge
+            ]:
+                message = MessageInfo.create(
+                    reason, *struct.unpack("IIIII", poll_block[0:20]))
+
                 if message == Messages.Quit:
                     _quit = True
                     continue
+
                 message_dispatch(message, application, _id_block, poll_block)
             else:
+                if reason == Wimp.Null:
+                    events.null_poll()
                 wimp_dispatch(reason, application, _id_block, poll_block)
 
         except Exception as e:
