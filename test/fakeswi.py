@@ -3,15 +3,19 @@
 def swi(*args):
     pass
 
+
 class block:
     def __init__(self, *args):
         pass
+
+
 import unittest
 
 import fakeswi
 import sys
 
 sys.modules['swi'] = fakeswi
+
 """
 import riscos_toolbox as toolbox
 import riscos_toolbox.objects.saveas
@@ -92,4 +96,3 @@ class SaveAs(unittest.TestCase):
         self.assertEqual(saveas.title, "Test Title")
         self.assertTrue(swimock.completed)
 """
-

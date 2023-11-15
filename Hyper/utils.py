@@ -19,17 +19,17 @@ def file_load(filename):
             size = header[1]
             buffer = (ctypes.c_byte * size)()
 
-            ws_size = swi.swi("Squash_Decompress", "II;I", 8, sq_size-20)
+            ws_size = swi.swi("Squash_Decompress", "II;I", 8, sq_size - 20)
             workspace = (ctypes.c_byte * ws_size)()
 
             swi.swi("Squash_Decompress", "iIIIII", 4,
                     ctypes.addressof(workspace),
-                    ctypes.addressof(squashed)+20,
-                    sq_size-20,
+                    ctypes.addressof(squashed) + 20,
+                    sq_size - 20,
                     ctypes.addressof(buffer), size)
 
     return buffer, size
 
-  
+
 if __name__ == "__main__":
     print(file_load("underlay"))

@@ -108,8 +108,8 @@ def run(application):
     global _quit
 
     while not _quit:
-        reason,sender = swi.swi(
-            'Wimp_Poll','II;I.I',
+        reason, sender = swi.swi(
+            'Wimp_Poll', 'II;I.I',
             application.poll_flags,
             ctypes.addressof(poll_buffer))
 
