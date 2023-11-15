@@ -1,16 +1,40 @@
-import os
-import swi
+"""
+Parser for the HCL file format.
+"""
+
 import ctypes
+import swi
 
 from riscos_toolbox.gadgets import Gadget, GadgetDefinition
 
 from utils import file_load
 
+
 class HCLFile:
     def __init__(self, filename):
         self.filename = filename
+
+        self.command_dispatch = {
+            "search":  None,
+            "load":    self._load,
+            "*":       self._star,
+            "title":   self._title,
+            "button":  self._button,
+            "status":  self._status,
+            "colour":  self._colour,
+            "new":     None, #self._new,
+            "res":     None, #self._res,
+            "overlay": self._overlay,
+            "clear":   self._clear,
+            "refresh": self._refresh,
+            "stack":   None, #self._stack,
+            "sprite":  None,
+            "name":    None,
+            "keyword": None,
+        }
+
         with open(filename, "r") as f:
-            self.lines = list(map(lambda l:l.strip().split(' ',1), f.readlines()))
+            self.lines = list(map(lambda l: l.strip().split(' ',1), f.readlines()))
             self.labels = {None:0}
 
             for line in self.lines:
@@ -49,28 +73,11 @@ class HCLFile:
 
     def _execute(self, viewer, line):
         if len(line) == 2:
-            cmd,args = line
+            cmd, args = line
         else:
-            cmd,args = line[0],None
+            cmd, args = line[0], None
 
-        cmd = {
-         "search":  None,
-         "load":    self._load,
-         "*":       self._star,
-         "title":   self._title,
-         "button":  self._button,
-         "status":  self._status,
-         "colour":  self._colour,
-         "new":     None, #self._new,
-         "res":     None, #self._res,
-         "overlay": self._overlay,
-         "clear":   self._clear,
-         "refresh": self._refresh,
-         "stack":   None, #self._stack,
-         "sprite":  None,
-         "name":    None,
-         "keyword": None,
-        }[line[0]]
+        cmd = self.command_dispatch[line[0]]
 
         if cmd is not None:
             if len(line) > 1:
@@ -95,20 +102,20 @@ class HCLFile:
         pass
 
     def _title(self, viewer, title):
-        viewer. title = title
+        viewer.title = title
 
     def _button(self, viewer, args):
         args = args.split()
         blk = swi.swi("Toolbox_TemplateLookUp", "0s;I", "Prototypes")
-        gadget,size = swi.swi("Window_ExtractGadgetInfo", "0II;II",  blk, 0)
-        buffer = (ctypes.c_byte*size)()
-        ctypes.memmove(ctypes.addressof(buffer), gadget, size)
-        header = ctypes.cast(buffer, ctypes.POINTER(GadgetDefinition)).contents
+        gadget, size = swi.swi("Window_ExtractGadgetInfo", "0II;II", blk, 0)
+        gadget_data = (ctypes.c_byte * size)()
+        ctypes.memmove(ctypes.addressof(gadget_data), gadget, size)
+        header = ctypes.cast(gadget_data, ctypes.POINTER(GadgetDefinition)).contents
         header.component_id = -1
         header.box.min.x, header.box.min.y, \
         header.box.max.x, header.box.max.y = \
-            map(lambda x:int(x)*viewer.scale//100, args[0:4])
-        viewer.add_button(buffer, args[4])
+            map(lambda x: int(x)*viewer.scale//100, args[0:4])
+        viewer.add_button(gadget_data, args[4])
 
     def _colour(self, viewer, colour):
         viewer.colour = int(colour)
