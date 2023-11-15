@@ -1,3 +1,7 @@
+"""
+Reimplementation of the Hyper application, in Python.
+"""
+
 import swi
 import sys
 import os
@@ -23,6 +27,7 @@ from riscos_toolbox.events import toolbox_handler, wimp_handler
 
 from HCLFile import HCLFile
 
+
 HomeButtonEvent      = 0x101
 BackButtonEvent      = 0x103
 NextFindEvent        = 0x150
@@ -43,6 +48,7 @@ StatusButton = 0
 
 _views = {} # View -> Views menu component (or None if not yet added)
 
+
 class IbarMenu(Menu):
     tempate = "IbarMenu"
 
@@ -51,7 +57,7 @@ class IbarMenu(Menu):
         self[IbarMenuShowStack].fade = not bool(_views)
         self[IbarMenuDeleteStack].fade = not bool(_views)
         views_menu = toolbox.find_objects("Views")[0]
-        for view in filter(lambda v:_views[v] is None, _views):
+        for view in filter(lambda v: _views[v] is None, _views):
             _views[view] = views_menu.add_at_end(
                 id(view), view.name,click_event=ViewEvent)
 
@@ -61,12 +67,12 @@ class IbarMenu(Menu):
 
         if id_block.parent.component == IbarMenuShowStack:
             for view in list(filter(
-                    lambda v:_views[v] == id_block.self.component, _views)):
+                    lambda v: _views[v] == id_block.self.component, _views)):
                 view.show()
 
         elif id_block.parent.component == IbarMenuDeleteStack:
             for view in list(filter(
-                    lambda v:_views[v] == id_block.self.component, _views)):
+                    lambda v: _views[v] == id_block.self.component, _views)):
                 view.hide()
                 views_menu.remove(id_block.self.component)
                 del(_views[view])
@@ -128,11 +134,11 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
         tm[2][0] = (visible.min.x          - scroll.x) * 256
         tm[2][1] = (visible.max.y - height - scroll.y) * 256
 
-        swi.swi("Wimp_SetColour","I",0x80+self.colour)
+        swi.swi("Wimp_SetColour", "I", 0x80 + self.colour)
         swi.swi(0x110, "") # CLG
 
-        for layer,size in self.layers:
-            swi.swi("DrawFile_Render","IIIII", 0,
+        for layer, size in self.layers:
+            swi.swi("DrawFile_Render", "IIIII", 0,
                 ctypes.addressof(layer), size,
                 ctypes.addressof(tm),
                 ctypes.addressof(visible))
@@ -141,9 +147,9 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
     def view_menu_show(self, event, id_block, poll_block):
         view_menu = toolbox.get_object(id_block.self.id)
         try:
-            swi.swi("PDriver_Info","")
+            swi.swi("PDriver_Info", "")
             have_pdriver = True
-        except:
+        except Exception:
             have_pdriver = False
         view_menu[ViewMenuPrint].fade = not have_pdriver
         view_menu[ViewMenuStatus].tick = self.show_status
@@ -201,17 +207,17 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
 
     # PrintMixin handlers
     def declare_fonts(self):
-        for layer,size in self.layers:
-            swi.swi("DrawFile_DeclareFonts","III",
+        for layer, size in self.layers:
+            swi.swi("DrawFile_DeclareFonts", "III",
                 0, ctypes.addressof(layer), size)
 
     def give_rectangles(self, page, sideways, scale):
-        palette = (ctypes.c_uint32*20)()
+        palette = (ctypes.c_uint32 * 20)()
         swi.swi("Wimp_ReadPalette", ".II",
             ctypes.addressof(palette), 0x45555254) # True-colour
 
         # Print as much as we can
-        rect = BBox( 0,0, 0xffff, 0xffff )
+        rect = BBox(0, 0, 0xffff, 0xffff)
 
         transform = PrintMixin.Transform()
         transform[0][0] = 1<<16
@@ -219,7 +225,7 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
         transform[1][0] = 0
         transform[1][1] = 1<<16
 
-        origin = Point(0,0)
+        origin = Point(0, 0)
         background = palette[self.colour]
 
         return [(0, rect, transform, origin, background)]
@@ -237,7 +243,7 @@ class Viewer(UserRedrawMixin, PrintMixin, Window):
             transform[0][0] = (scale << 16) // 100
             transform[1][1] = (scale << 16) // 100
 
-        for layer,size in self.layers:
+        for layer, size in self.layers:
             swi.swi("DrawFile_Render","IIIII",
                 0,
                 ctypes.addressof(layer),
@@ -271,6 +277,7 @@ class Hyper(DataOpenMixin, Application):
         viewer.load(filename)
         viewer._display(None)
         _views[viewer] = None
+
 
 if __name__ == "__main__":
     app = Hyper()
