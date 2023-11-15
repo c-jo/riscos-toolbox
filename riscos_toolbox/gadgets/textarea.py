@@ -47,7 +47,7 @@ class TextArea(Gadget):
     def text(self, text):
         self._miscop_set_string(TextArea.SetText, text)
 
-    # GetSelection and SetSelection work siimilarly to StringSet's, but the flags are
+    # GetSelection and SetSelection work in a similar way to StringSet's, but the flags are
     # backwards, meaning bit 0 set is return string and bit 0 clear is return text.
     # These two usages have been split into two properties, selection_points for the indices
     # and selection for the text itself.
@@ -66,7 +66,7 @@ class TextArea(Gadget):
                 self.id, start, end)
 
     # No matter what, this seems to return 1 character past where it should;
-    # This was tested with the C veneer and had the same behavior, so it appears
+    # This was tested with the C veneer and had the same behaviour, so it appears
     # to be a quirk or bug with the Toolbox itself. Otherwise, it is harmless as
     # selecting the whole text causes no problems.
     @property

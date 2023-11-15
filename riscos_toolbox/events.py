@@ -16,7 +16,7 @@ from . import Wimp, BBox, Point
 # To handle a toolbox event, the @toolbox_handler decorator is used on a member of
 # a class derived from riscos_toolbox.  event.EvebtDispatcher, such as .Object
 # or .Application. The decorator can be used to match all components (with
-# @ToolboxEvebt(event)...), one component (@toolbxo_handler(event, component)...)
+# @ToolboxEvent(event)...), one component (@toolbox_handler(event, component)...)
 # or a list of components (@toolbox_handler(event, [comp1,comp2]...)
 #
 # 'event' can either be a class name derived from Event, or an integer number. In
@@ -24,7 +24,7 @@ from . import Wimp, BBox, Point
 # using it's from_block method. In the second, the handler will be called with the
 # raw data from the wimp poll block.
 #
-# When a toolbox event is recieved, the library will try each of the self,
+# When a toolbox event is received, the library will try each of the self,
 # parent and ancestor objects, followed by the application object, to see if
 # it has a suitable handler.
 #
