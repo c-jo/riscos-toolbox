@@ -8,7 +8,7 @@ import ctypes
 
 
 class Colour(object):
-    def Colour(self, blue, green, red):
+    def __init__(self, blue, green, red):
         self.blue = int(blue)
         self.green = int(green)
         self.red = int(red)
