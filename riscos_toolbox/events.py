@@ -303,11 +303,8 @@ class EventHandler(object):
 _toolbox_handlers = {}
 _wimp_handlers = {}
 _message_handlers = {}
-
-# Set of messages that have used with the reply_handler decorator
-_reply_messages  = set()
-# Map of message reply calbacks [ref->MessageReplyCallback]
-_reply_callbacks = {}
+_reply_messages = set()  # @reply_handler messages
+_reply_callbacks = {}  # {ref: MessageReplyCallback}
 
 
 def _set_handler(code, component, handler, handlers):
