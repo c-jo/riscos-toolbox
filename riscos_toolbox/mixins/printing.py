@@ -27,7 +27,7 @@ class PrintMixin:
     def give_rectangles(self, page, sideways, scale):
         """
         Gets the rectangles needed to draw the given page. If sideways is True
-        it should be drawn sidewase, otherwise upright.
+        it should be drawn sideways, otherwise upright.
 
         Returns a list of
         ( id (unsigned int),
