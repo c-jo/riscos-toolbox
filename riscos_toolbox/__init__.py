@@ -1,5 +1,6 @@
 """RISC OS Toolbox library"""
 
+import sys
 import swi
 import ctypes
 import traceback
