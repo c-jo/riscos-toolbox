@@ -89,7 +89,7 @@ class Object(EventHandler):
         if id in _objects:
             obj = _objects[id]
         else:
-            obj = Object(id)
+            obj = Object(id, None)
         if comp_id == 0xffffffff:
             comp = None
         else:
