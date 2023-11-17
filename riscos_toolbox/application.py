@@ -34,7 +34,7 @@ class Application(EventHandler):
         if poll_flags is not None:
             self.poll_flags = poll_flags
         else:
-            self.poll_flags = _make_poll_flags(registered_wimp_events)
+            self.poll_flags = _make_poll_flags(registered_wimp_events())
         initialise(appdir)
 
     def set_poll_flag(self, flag):
