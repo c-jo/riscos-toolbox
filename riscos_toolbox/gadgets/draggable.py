@@ -69,14 +69,14 @@ class DraggableDragStartedEvent(ToolboxEvent):
     event_id = Draggable.DragStarted
 
 
-class _Wimp(ctypes.Struct):
+class _Wimp(ctypes.Structure):
     _fields_ = [
         ('window_handle', ctypes.c_int32),
         ('icon_handle', ctypes.c_int32),
     ]
 
 
-class _Toolbox(ctypes.Struct):
+class _Toolbox(ctypes.Structure):
     _fields_ = [
         ('window_id', ctypes.c_uint32),
         ('component_id', ctypes.c_uint32),
