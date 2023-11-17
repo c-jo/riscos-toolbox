@@ -34,19 +34,19 @@ class OptionButton(Gadget):
 
     @property
     def event(self):
-        return self._miscop_get_int(OptionButton.GetEvent)
+        return self._miscop_get_signed(OptionButton.GetEvent)
 
     @event.setter
     def event(self, event):
-        return self._miscop_set_int(OptionButton.SetEvent, event)
+        return self._miscop_set_signed(OptionButton.SetEvent, event)
 
     @property
     def state(self):
-        return self._miscop_get_int(OptionButton.GetState) != 0
+        return self._miscop_get_signed(OptionButton.GetState) != 0
 
     @state.setter
     def state(self, state):
-        return self._miscop_set_int(OptionButton.SetState, 1 if state else 0)
+        return self._miscop_set_signed(OptionButton.SetState, 1 if state else 0)
 
 
 class OptionButtonDefinition(GadgetDefinition):
