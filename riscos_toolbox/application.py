@@ -1,5 +1,5 @@
 from .events import EventHandler, registered_wimp_events
-from _consts import Wimp
+from ._consts import Wimp
 from . import initialise, run
 
 
