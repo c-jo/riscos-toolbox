@@ -24,7 +24,7 @@ class Gadget(Component):
             _gadgets[cls._type] = cls
 
     def __init__(self, window, id):
-        super().__init(id)
+        super().__init__(id)
         self.window = window
         self.id = id
         window.components[id] = self
