@@ -33,11 +33,11 @@ class TextArea(Gadget):
 
     @property
     def state(self):
-        return self._miscop_get_int(TextArea.GetState)
+        return self._miscop_get_unsigned(TextArea.GetState)
 
     @state.setter
     def state(self, state):
-        self._miscop_set_int(TextArea.SetState, state)
+        self._miscop_set_unsigned(TextArea.SetState, state)
 
     @property
     def text(self):
@@ -91,7 +91,7 @@ class TextArea(Gadget):
 
     @cursor.setter
     def cursor(self, pos):
-        self._miscop_set_int(TextArea.SetCursorPosition, pos)
+        self._miscop_set_unsigned(TextArea.SetCursorPosition, pos)
 
     # This returns a tuple containing (foreground, background)
     @property

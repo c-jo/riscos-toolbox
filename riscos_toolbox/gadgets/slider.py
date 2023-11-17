@@ -38,11 +38,11 @@ class Slider(Gadget):
 
     @property
     def value(self):
-        return self._miscop_get_int(Slider.GetValue)
+        return self._miscop_get_signed(Slider.GetValue)
 
     @value.setter
     def value(self, value):
-        self._miscop_set_int(Slider.SetValue, value)
+        self._miscop_set_signed(Slider.SetValue, value)
 
     # Bounds have been split into separate properties - this seemed the most logical way
     @property

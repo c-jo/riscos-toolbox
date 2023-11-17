@@ -44,11 +44,11 @@ class RadioButton(Gadget):
 
     @property
     def state(self):
-        return self._miscop_get_int(RadioButton.GetState) != 0
+        return self._miscop_get_signed(RadioButton.GetState) != 0
 
     @state.setter
     def state(self, state):
-        self._miscop_set_int(RadioButton.SetState, 1 if state else 0)
+        self._miscop_set_signed(RadioButton.SetState, 1 if state else 0)
 
     # Methods
     def set_font(self, *args, **kwargs):

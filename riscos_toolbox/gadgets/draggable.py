@@ -48,11 +48,11 @@ class Draggable(Gadget):
 
     @property
     def state(self):
-        return self._miscop_get_int(self.GetState) != 0
+        return self._miscop_get_signed(self.GetState) != 0
 
     @state.setter
     def state(self, state):
-        return self._miscop_set_int(Draggable.SetState, 1 if state else 0)
+        return self._miscop_set_signed(Draggable.SetState, 1 if state else 0)
 
 
 class DraggableDefinition(GadgetDefinition):
