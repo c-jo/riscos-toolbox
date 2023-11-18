@@ -15,7 +15,7 @@ class DisplayField(Gadget):
     # Properties
     @property
     def value(self):
-        return self._miscop_get_text(DisplayField.GetValue)
+        return self._miscop_get_string(DisplayField.GetValue)
 
     @value.setter
     def value(self, value):
