@@ -41,7 +41,7 @@ class TextArea(Gadget):
 
     @property
     def text(self):
-        return self._miscop_get_text(TextArea.GetText)
+        return self._miscop_get_string(TextArea.GetText)
 
     @text.setter
     def text(self, text):

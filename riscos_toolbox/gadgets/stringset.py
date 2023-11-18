@@ -39,7 +39,7 @@ class StringSet(Gadget):
     @property
     def selected(self):
         # Thankfully flags=0 means return string, so _miscop_get_text works
-        return self._miscop_get_text(StringSet.GetSelected)
+        return self._miscop_get_string(StringSet.GetSelected)
 
     @selected.setter
     def selected(self, selection):
