@@ -93,7 +93,7 @@ class _Target(ctypes.Union):
 class DraggableDragEndedEvent(ToolboxEvent):
 
     event_id = Draggable.DragEnded
-    _anonyumous_ = ('_target',)
+    _anonymous_ = ('_target',)
     _fields_ = [
         ('_target', _Target),
         ('_x', ctypes.c_int32),
@@ -109,7 +109,7 @@ class DraggableDragEndedEvent(ToolboxEvent):
         return self.wimp.icon_handle
 
     @property
-    def winddow_id(self):
+    def window_id(self):
         return self.toolbox.window_id
 
     @property
