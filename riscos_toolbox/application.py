@@ -31,6 +31,7 @@ class Application(EventHandler):
         super().__init__()
         self.throwback = throwback
         global _application
+        _application = self
         if poll_flags is not None:
             self.poll_flags = poll_flags
         else:
