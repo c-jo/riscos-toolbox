@@ -1,10 +1,12 @@
-"""RISC OS Toolbox - FontDBox"""
+"""RISC OS Toolbox - FontMenu"""
 
-from ..events import AboutToBeShownEvent, ToolboxEvent
 import ctypes
 
+from ..base import Object
+from ..events import AboutToBeShownEvent, ToolboxEvent
 
-class FontMenu(object):
+
+class FontMenu(Object):
     class_id = 0x82a40
     # Methods
     SetFont = 0
