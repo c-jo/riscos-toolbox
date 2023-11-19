@@ -1,10 +1,13 @@
 import unittest
 import sys
+
 import fakeswi
 
-sys.modules['swi'] = fakeswi
-
-import riscos_toolbox as toolbox
+try:
+    import swi
+except ImportError:
+    # Probably running on non-RISC OS system
+    swi = sys.modules['swi']
 
 
 class ToolboxTest(unittest.TestCase):

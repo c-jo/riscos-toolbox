@@ -1,20 +1,29 @@
 # Fake SWI
 
-def swi(*args):
-    pass
+import sys
+import types
 
 
-class block:
-    def __init__(self, *args):
+class SWIModule:
+
+    @classmethod
+    def swi(cls, *args):
         pass
 
+    class block:
+        def __init__(self, *args):
+            pass
 
-import unittest
 
-import fakeswi
-import sys
+mod_fakeswi = types.ModuleType('fakeswi', 'Fake swi python module')
 
-sys.modules['swi'] = fakeswi
+# Poke in the functions and classes into the faked swi module
+for attr_name in dir(SWIModule):
+    if attr_name[0] != '_':
+        # print("Promoting into swi module: {}".format(attr_name))
+        setattr(mod_fakeswi, attr_name, getattr(SWIModule, attr_name))
+
+sys.modules['swi'] = mod_fakeswi
 
 """
 import riscos_toolbox as toolbox
