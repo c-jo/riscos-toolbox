@@ -115,10 +115,10 @@ class Window(Object):
         raise RuntimeError("Adding or removing of keyboard shortcuts is not yet implemented.")
 
     def add_keyboard_shortcuts(self, shortcuts):
-        self.add_remove_keyboard_shortcuts(self, shortcuts, Window.AddKeyboardShortcuts)
+        self.add_remove_keyboard_shortcuts(shortcuts, Window.AddKeyboardShortcuts)
 
     def remove_keyboard_shortcuts(self, shortcuts):
-        self.add_remove_keyboard_shortcuts(self, shortcuts, Window.RemoveKeyboardShortcuts)
+        self.add_remove_keyboard_shortcuts(shortcuts, Window.RemoveKeyboardShortcuts)
 
     @property
     def extent(self):
