@@ -36,7 +36,7 @@ class Scale(Object):
 
     @value.setter
     def value(self, value):
-        self._miscop_set_sunsigned(Scale.SetValue, value)
+        self._miscop_set_unsigned(Scale.SetValue, value)
 
     @property
     def lower_bound(self):
