@@ -19,8 +19,9 @@ class FontDbox(object):
     GetTitle     = 8
     # Events
     AboutToBeShown    = class_id + 0
-    ApplyFont         = class_id + 1
-    DialogueCompleted = class_id + 2
+    DialogueCompleted = class_id + 1
+    ApplyFont         = class_id + 2
+    
     # Constants
     SetSize_Height = 1
     SetSize_Aspect = 2
@@ -76,13 +77,8 @@ class FontDbox(object):
 class FontDboxAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = FontDbox.AboutToBeShown
 
-
 class FontDboxApplyFontEvent(ToolboxEvent):
     event_id = FontDbox.ApplyFont
-
-
-class FontDboxDialogueCompletedEvent(ToolboxEvent):
-    event_id = FontDbox.DialogueCompleted
     _fields_ = [
         ('height', ctypes.c_int32),
         ('aspect', ctypes.c_int32),
@@ -92,3 +88,7 @@ class FontDboxDialogueCompletedEvent(ToolboxEvent):
     @property
     def font(self):
         return self._font.decode('latin-1')
+
+
+class FontDboxDialogueCompletedEvent(ToolboxEvent):
+    event_id = FontDbox.DialogueCompleted
