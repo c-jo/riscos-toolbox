@@ -1,11 +1,12 @@
 """RISC OS Toolbox - FontDbox"""
 
+from ..base import Object
 from ..events import AboutToBeShownEvent, ToolboxEvent
 import ctypes
 import swi
 
 
-class FontDbox(object):
+class FontDbox(Object):
     class_id = 0x82a00
     # Methods
     GetWindowId  = 0
@@ -69,7 +70,7 @@ class FontDbox(object):
 
     @title.setter
     def title(self, title):
-        self._miscop_get_string(FontDbox.SetTitle, title)
+        self._miscop_set_string(FontDbox.SetTitle, title)
 
 
 # FontDbox Events
