@@ -114,6 +114,8 @@ class Menu(Object):
                     0, self.menu.id, op, self.id, buf, buf_size)
             return buf.nullstring()
 
+        # FIXME: _miscop_set_string not implemented
+
         @property
         def tick(self):
             return self._miscop_get_unsigned(Menu.GetTick) != 0
@@ -165,7 +167,7 @@ class Menu(Object):
         @property
         def click_show(self):
             object_id, flags = swi.swi('Toolbox_ObjectMiscOp', '0III;II',
-                                       self.menu.id, Menu.GetClickShownu, self.id)
+                                       self.menu.id, Menu.GetClickShow, self.id)
             return ClickShow(object_id, flags & Menu.Entry.ClickShowTransient != 0)
 
         @click_show.setter
@@ -173,35 +175,35 @@ class Menu(Object):
             if isinstance(click_show, int):
                 click_show = ClickShow(click_show, False)
             swi.swi('Toolbox_ObjectMiscOp', '0IIIII',
-                    self.menu.id, Menu.SetClickShownu, self.id, click_show.object_id,
+                    self.menu.id, Menu.SetClickShow, self.id, click_show.object_id,
                     Menu.Entry.ClickShowTransient if click_show.transient else 0)
 
         @property
         def click_event(self):
-            return self._miscop_get_unsigned(self, Menu.GetClickEvent)
+            return self._miscop_get_unsigned(Menu.GetClickEvent)
 
         @click_event.setter
         def click_event(self, click_event):
-            self._miscop_set_signed(self, Menu.SetClickEvent, click_event)
+            self._miscop_set_signed(Menu.SetClickEvent, click_event)
 
         @property
         def help_message(self):
-            return self._miscop_get_string(self, Menu.GetEntryHelpMessage)
+            return self._miscop_get_string(Menu.GetEntryHelpMessage)
 
         @help_message.setter
         def help_message(self, help_message):
-            self._miscop_set_string(self, Menu.SetEntryHelpMessage, help_message)
+            self._miscop_set_string(Menu.SetEntryHelpMessage, help_message)
 
     def __getitem__(self, id):
         return Menu.Entry(self, id)
 
     @property
     def help_message(self):
-        return self._miscop_get_string(self, Menu.GetHelpMessage)
+        return self._miscop_get_string(Menu.GetHelpMessage)
 
     @help_message.setter
     def help_message(self, help_message):
-        self._miscop_set_string(self, Menu.SetHelpMessage, help_message)
+        self._miscop_set_string(Menu.SetHelpMessage, help_message)
 
     def _add(self,
              flags, where, component, text,
@@ -227,7 +229,7 @@ class Menu(Object):
     def add_before(self, before, *args, **kwargs):
         self._add(Menu.AddEntryBefore, before, *args, **kwargs)
 
-    def add_ater(self, after, *args, **kwargs):
+    def add_after(self, after, *args, **kwargs):
         self._add(0, after, *args, **kwargs)
 
     def remove(self, component):
