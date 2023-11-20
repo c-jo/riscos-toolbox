@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="riscos_toolbox",
-    version="1.0.2",
+    version="1.1.0",
     author="Chris Johns",
     author_email="chris@lessthan3.org.uk",
     description="RISC OS Toolbox library",
@@ -10,7 +10,7 @@ setuptools.setup(
     url="https://github.com/c-jo/riscos-toolbox",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: RISC OS",
