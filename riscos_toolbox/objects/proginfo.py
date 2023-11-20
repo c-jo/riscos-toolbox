@@ -26,8 +26,8 @@ class ProgInfo(Object):
 
     LicenceType = IntEnum(
         "LicenceType",
-        "Unset PublicDomain SingleUser SingleMachine Site Network Authority".split(),
-        start=-1)
+        "PublicDomain SingleUser SingleMachine Site Network Authority".split(),
+        start=0)
 
     @property
     def window_id(self):
@@ -43,7 +43,8 @@ class ProgInfo(Object):
 
     @property
     def licence_type(self):
-        return ProgInfo.LicenceType(self._miscop_get_signed(ProgInfo.GetLicenceType))
+        lt = self._miscop_get_signed(ProgInfo.GetLicenceType)
+        return None if lt == -1 else ProgInfo.LicenceType(lt)
 
     @licence_type.setter
     def licence_type(self, licence_type):
