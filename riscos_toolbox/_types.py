@@ -51,5 +51,6 @@ class BBox(ctypes.Structure):
         return "[{},{} - {},{}]". \
             format(self.min.x, self.min.y, self.max.x, self.max.y)
 
+    @staticmethod
     def zero():
         return BBox(0, 0, 0, 0)
