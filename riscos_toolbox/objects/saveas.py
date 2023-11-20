@@ -133,7 +133,7 @@ class SaveAsSaveCompletedEvent(ToolboxEvent):
 
     @property
     def destination_safe(self):
-        return True if (self.flags & SaveAs.SaveAs_DestinationSafe) else False
+        return True if (self.flags & SaveAs.DestinationSafe) else False
 
 
 # For compatability with 1.0.2 and below
