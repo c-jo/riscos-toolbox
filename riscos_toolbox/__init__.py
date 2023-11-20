@@ -6,9 +6,10 @@ import ctypes
 import traceback
 import struct
 
-from ._types import IDBlock
-from ._consts import Wimp, Toolbox, Messages
-from .base import Object, _objects, get_object, create_object, find_objects, _application
+# These methods and functions are imported for legacy purposes.
+from ._types import *  # noqa
+from ._consts import *  # noqa
+from .base import Object, _objects, get_object, create_object, find_objects, _application  # noqa
 
 import events
 
