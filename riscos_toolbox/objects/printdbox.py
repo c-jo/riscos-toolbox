@@ -58,7 +58,7 @@ class PrintDbox(Object):
 
     @copies.setter
     def copies(self, copies):
-        self._miscop_set_copied(PrintDbox.SetCopies, copies)
+        self._miscop_set_signed(PrintDbox.SetCopies, copies)
 
     @property
     def scale(self):
@@ -66,7 +66,7 @@ class PrintDbox(Object):
 
     @scale.setter
     def scale(self, scale):
-        self._miscop_set_copied(PrintDbox.SetScale, scale)
+        self._miscop_set_signed(PrintDbox.SetScale, scale)
 
     @property
     def orientation(self):
