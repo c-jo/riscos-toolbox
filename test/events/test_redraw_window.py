@@ -1,7 +1,7 @@
-import riscos_toolbox.wimp_events.redraw_window as redraw_window
-
 import unittest
 import struct
+
+import riscos_toolbox.wimp_events.redraw_window as redraw_window
 
 
 class RedrawWindow(unittest.TestCase):

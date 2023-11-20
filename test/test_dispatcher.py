@@ -1,5 +1,4 @@
 import unittest
-import sys
 
 import riscos_toolbox as toolbox
 from riscos_toolbox.events import toolbox_handler
