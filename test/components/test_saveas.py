@@ -1,14 +1,10 @@
+import sys
 import unittest
 
-import fakeswi
-import sys
+import test.fakeswi  # noqa
+swi = sys.modules['swi']
 
-sys.modules['swi'] = fakeswi
-
-import riscos_toolbox as toolbox
-import riscos_toolbox.objects.saveas
-
-import swi
+import riscos_toolbox.objects.saveas  # noqa
 
 
 TEST_OBJECT_ID = 0x1001

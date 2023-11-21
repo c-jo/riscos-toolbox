@@ -6,10 +6,11 @@ import ctypes
 import traceback
 import struct
 
-from ._types import *
-from ._consts import *
-from .base import Object, _objects, get_object, create_object, find_objects, _application
-from .events import *
+# These methods and functions are imported for legacy purposes.
+from ._types import *  # noqa
+from ._consts import *  # noqa
+from .base import Object, _objects, get_object, create_object, find_objects, _application  # noqa
+from .events import *  # noqa
 
 
 _quit = False
@@ -75,9 +76,9 @@ def initialise(appdir):
         return block
 
     wimp_messages  = _handler_block(events._message_handlers,
-                         list(events._reply_messages))
+                                    list(events._reply_messages))
     toolbox_events = _handler_block(events._toolbox_handlers,
-                         [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
+                                    [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver, task_handle, sprite_area = \
         swi.swi('Toolbox_Initialise', '0IbbsbI;III',
@@ -124,25 +125,25 @@ def run(application):
                         del _objects[_id_block.self.id]
                     continue
 
-                toolbox_dispatch(event_code, application, _id_block, poll_block)
+                events.toolbox_dispatch(event_code, application, _id_block, poll_block)
 
             elif reason in [
                 Wimp.UserMessage,
                 Wimp.UserMessageRecorded,
                 Wimp.UserMessageAcknowledge
             ]:
-                message = MessageInfo.create(
+                message = events.MessageInfo.create(
                     reason, *struct.unpack("IIIII", poll_block[0:20]))
 
                 if message == Messages.Quit:
                     _quit = True
                     continue
 
-                message_dispatch(message, application, _id_block, poll_block)
+                events.message_dispatch(message, application, _id_block, poll_block)
             else:
                 if reason == Wimp.Null:
                     events.null_poll()
-                wimp_dispatch(reason, application, _id_block, poll_block)
+                events.wimp_dispatch(reason, application, _id_block, poll_block)
 
         except Exception as e:
             report_exception(e, application.throwback)

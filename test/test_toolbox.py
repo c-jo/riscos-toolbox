@@ -1,10 +1,8 @@
 import unittest
 import sys
-import fakeswi
 
-sys.modules['swi'] = fakeswi
-
-import riscos_toolbox as toolbox
+import test.fakeswi  # noqa
+swi = sys.modules['swi']
 
 
 class ToolboxTest(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
-import sys
 
+import test.fakeswi
 import riscos_toolbox as toolbox
 from riscos_toolbox.events import toolbox_handler
 

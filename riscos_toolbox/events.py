@@ -6,7 +6,9 @@ import ctypes
 import inspect
 import swi
 
-from . import Wimp, BBox, Point
+from ._consts import Wimp
+from ._types import BBox, Point
+
 
 # Handlers
 # --------
