@@ -1,10 +1,11 @@
+from .._consts import Messages
 from ..events import UserMessage
 from .. import Point
 
 import ctypes
 
 
-class Messages:
+class DataTransferMessages(Messages):
     DataSave = 1
     DataSaveAck = 2
     DataLoad = 3

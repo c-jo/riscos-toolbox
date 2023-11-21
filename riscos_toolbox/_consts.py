@@ -47,3 +47,8 @@ class Toolbox:
 
 class Messages:
     Quit = 0
+
+    def __init_subclass__(subclass):
+        for k in filter(lambda k: not k.startswith('_'),
+                        subclass.__dict__.keys()):
+            setattr(Messages, k, subclass.__dict__[k])
