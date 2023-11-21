@@ -22,7 +22,7 @@ class FontDbox(Object):
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
     ApplyFont         = class_id + 2
-    
+
     # Constants
     SetSize_Height = 1
     SetSize_Aspect = 2
@@ -77,6 +77,7 @@ class FontDbox(Object):
 # FontDbox Events
 class FontDboxAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = FontDbox.AboutToBeShown
+
 
 class FontDboxApplyFontEvent(ToolboxEvent):
     event_id = FontDbox.ApplyFont
