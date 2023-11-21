@@ -1,13 +1,8 @@
 import unittest
 import sys
 
-import fakeswi
-
-try:
-    import swi
-except ImportError:
-    # Probably running on non-RISC OS system
-    swi = sys.modules['swi']
+import test.fakeswi  # noqa
+swi = sys.modules['swi']
 
 
 class ToolboxTest(unittest.TestCase):

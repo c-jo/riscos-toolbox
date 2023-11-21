@@ -1,16 +1,10 @@
 import sys
 import unittest
 
-import fakeswi
+import test.fakeswi  # noqa
+swi = sys.modules['swi']
 
-try:
-    import swi
-except ImportError:
-    # Probably running on non-RISC OS system
-    swi = sys.modules['swi']
-
-import riscos_toolbox as toolbox
-import riscos_toolbox.objects.saveas
+import riscos_toolbox.objects.saveas  # noqa
 
 
 TEST_OBJECT_ID = 0x1001

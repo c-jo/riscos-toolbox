@@ -10,8 +10,7 @@ import struct
 from ._types import *  # noqa
 from ._consts import *  # noqa
 from .base import Object, _objects, get_object, create_object, find_objects, _application  # noqa
-
-import events
+from .events import *  # noqa
 
 
 _quit = False

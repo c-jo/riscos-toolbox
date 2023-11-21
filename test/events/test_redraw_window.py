@@ -1,6 +1,7 @@
 import unittest
 import struct
 
+import test.fakeswi
 import riscos_toolbox.wimp_events.redraw_window as redraw_window
 
 
