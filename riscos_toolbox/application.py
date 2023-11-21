@@ -11,7 +11,7 @@ wimp_event_masks = {
     Wimp.MouseClick: Wimp.Poll.MouseClickMask,
     Wimp.KeyPressed: Wimp.Poll.KeyPressedMask,
     Wimp.LoseCaret: Wimp.Poll.LoseCaretMask,
-    Wimp.GainCartet: Wimp.Poll.GainCaretMask,
+    Wimp.GainCaret: Wimp.Poll.GainCaretMask,
     Wimp.PollwordNonZero: Wimp.Poll.PollWordNonZeroMask,
 }
 

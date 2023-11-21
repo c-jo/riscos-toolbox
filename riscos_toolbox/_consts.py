@@ -14,7 +14,7 @@ class Wimp:
     MenuSelection = 9
     ScrollRequest = 10
     LoseCaret = 11
-    GainCartet = 12
+    GainCaret = 12
     PollwordNonZero = 13
     UserMessage = 17
     UserMessageRecorded = 18
