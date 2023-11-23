@@ -47,46 +47,46 @@ class Slider(Gadget):
     # Bounds have been split into separate properties - this seemed the most logical way
     @property
     def lower_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;i',
                        Slider.LowerBound, self.window.id, Slider.GetBounds, self.id)
 
     @lower_bound.setter
     def lower_bound(self, lower):
-        swi.swi('Toolbox_ObjectMiscOp', 'Iiiii', Slider.LowerBound,
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIii', Slider.LowerBound,
                 self.window.id, Slider.SetBounds, self.id, lower)
 
     @property
     def upper_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;.i',
                        Slider.UpperBound, self.window.id, Slider.GetBounds, self.id)
 
     @upper_bound.setter
     def upper_bound(self, upper):
-        swi.swi('Toolbox_ObjectMiscOp', 'Iiii.i', Slider.UpperBound,
-                self.window.id, Slider.SetBounds, self.id, upper)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi.i',
+                Slider.UpperBound, self.window.id, Slider.SetBounds, self.id, upper)
 
     @property
     def step_size(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;..i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;..i',
                        Slider.StepSize, self.window.id, Slider.GetBounds, self.id)
 
     @step_size.setter
     def step_size(self, step):
-        swi.swi('Toolbox_ObjectMiscOp', 'Iiii..i', Slider.StepSize,
-                self.window.id, Slider.SetBounds, self.id, step)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi..i',
+                Slider.StepSize, self.window.id, Slider.SetBounds, self.id, step)
 
     # returns a tuple (fg, bg)
     @property
     def colour(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0iii;ii', self.window.id, Slider.GetColour,
-                       self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;ii',
+                       0, self.window.id, Slider.GetColour, self.id)
 
     # takes a tuple (fg, bg)
     @colour.setter
     def colour(self, colours):
         fg, bg = colours
-        swi.swi('Toolbox_ObjectMiscOp', '0iiiii', self.window.id, Slider.SetColour,
-                self.id, fg, bg)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
+                0, self.window.id, Slider.SetColour, self.id, fg, bg)
 
 
 class SliderDefinition(GadgetDefinition):

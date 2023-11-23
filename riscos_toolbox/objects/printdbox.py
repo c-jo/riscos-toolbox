@@ -45,11 +45,11 @@ class PrintDbox(Object):
     @property
     def page_range(self):
         return PageRange(swi.swi(
-            'Toolbox_ObjectMiscOp', 'III;ii', 0, self.id, PrintDbox.GetPageRange))
+            'Toolbox_ObjectMiscOp', 'IiI;ii', 0, self.id, PrintDbox.GetPageRange))
 
     @page_range.setter
     def page_range(self, page_range):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIii',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIii',
                 0, self.id, PrintDbox.SetPageRange, page_range.Start, page_range.End)
 
     @property

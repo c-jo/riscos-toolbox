@@ -67,7 +67,8 @@ class FileInfo(Object):
     @property
     def date(self):
         timebuf = swi.block(2)
-        swi.swi('Toolbox_ObjectMiscOp', '0IIb', self.id, FileInfo.GetDate, timebuf)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIb',
+                0, self.id, FileInfo.GetDate, timebuf)
         quin = timebuf[0] + timebuf[1] << 32
         return _ro_epoch + datetime.timedelta(seconds=quin / 100).astimezone()
 
@@ -79,7 +80,8 @@ class FileInfo(Object):
         timebuf = swi.block(2)
         timebuf[0] = quin  % 0x100000000
         timebuf[1] = quin // 0x100000000
-        swi.swi('Toolbox_ObjectMiscOp', '0IIb', self.id, FileInfo.SetDate, timebuf)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIb',
+                0, self.id, FileInfo.SetDate, timebuf)
 
     @property
     def title(self):

@@ -36,12 +36,12 @@ class Gadget(Component):
     @property
     def flags(self):
         """Gets the gadgets flags."""
-        return swi.swi('Toolbox_ObjectMiscOp', '0III;I', self.window.id, 64, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;I', 0, self.window.id, 64, self.id)
 
     @flags.setter
     def flags(self, flags):
         """Sets the gadgets flags."""
-        swi.swi('Toolbox_ObjectMiscOp', '0IIII', self.window.id, 65, self.id, flags)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiI', 0, self.window.id, 65, self.id, flags)
 
     def get_flag(self, flag):
         """Gets one gadget flag."""
@@ -63,36 +63,36 @@ class Gadget(Component):
     # Wrappers for Toolbox_ObjectMiscOp for some common cases
     def _miscop_set_signed(self, op, value, flags=0):
         """Use Toolbox_ObjectMiscOp to set an unsigned integer."""
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIIi',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIii',
                 flags, self.window.id, op, self.id, value)
 
     def _miscop_get_signed(self, op, flags=0):
         """Use Toolbox_ObjectMiscOp to get an unsigned integer."""
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIII;i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;i',
                        flags, self.window.id, op, self.id)
 
     def _miscop_set_unsigned(self, op, value, flags=0):
         """Use Toolbox_ObjectMiscOp to set an unsigned integer."""
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiI',
                 flags, self.window.id, op, self.id, value)
 
     def _miscop_get_unsigned(self, op, flags=0):
         """Use Toolbox_ObjectMiscOp to get an unsigned integer."""
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIII;I',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;I',
                        flags, self.window.id, op, self.id)
 
     def _miscop_set_string(self, op, text, flags=0):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIis',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIis',
                 flags, self.window.id, op, self.id, text)
 
     def _miscop_get_string(self, op, flags=0):
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
            a suitably-sized buffer, read the string and return it."""
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IIII00;.....I',
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IiIi00;.....i',
                            flags, self.window.id, op, self.id)
         buffer = swi.block((buf_size + 3) // 4)
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIibI',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIibi',
                 flags, self.window.id, op, self.id, buffer, buf_size)
         return buffer.nullstring()
 
@@ -108,11 +108,11 @@ class Gadget(Component):
             raise ValueError("Font height and width or size must be specified.")
 
         if name:
-            swi.swi('Toolbox_ObjectMiscOp', 'IIIIsii',
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIisii',
                     0, self.window.id, op, self.id,
                     name, int(width * 16), int(height * 16))
         else:
-            swi.swi('Toolbox_ObjectMiscOp', 'IIII0ii',
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIi0ii',
                     0, self.window.id, op, self.id,
                     int(width * 16), int(height * 16))
 

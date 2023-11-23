@@ -55,7 +55,7 @@ class NumberRange(Gadget):
     @property
     def bounds(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;ii',
+            'Toolbox_ObjectMiscOp', 'IiIi;ii',
             NumberRange.LowerBound | NumberRange.UpperBound,
             self.window.id,
             NumberRange.GetBounds,
@@ -64,7 +64,7 @@ class NumberRange(Gadget):
     @property
     def lower_bound(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;i...',
+            'Toolbox_ObjectMiscOp', 'IiIi;i...',
             NumberRange.LowerBound,
             self.window.id,
             NumberRange.GetBounds,
@@ -76,7 +76,7 @@ class NumberRange(Gadget):
         if lower == self.upper_bound:
             lower -= 1
         swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIIIi000',
+            'Toolbox_ObjectMiscOp', 'IiIii000',
             NumberRange.LowerBound,
             self.window.id,
             NumberRange.SetBounds,
@@ -86,7 +86,7 @@ class NumberRange(Gadget):
     @property
     def upper_bound(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;.i..',
+            'Toolbox_ObjectMiscOp', 'IiIi;.i..',
             NumberRange.UpperBound,
             self.window.id,
             NumberRange.GetBounds,
@@ -98,7 +98,7 @@ class NumberRange(Gadget):
         if upper == self.lower_bound:
             upper += 1
         swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII0i00',
+            'Toolbox_ObjectMiscOp', 'IiIi0i00',
             NumberRange.UpperBound,
             self.window.id,
             NumberRange.SetBounds,
@@ -108,7 +108,7 @@ class NumberRange(Gadget):
     @property
     def step_size(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;..i.',
+            'Toolbox_ObjectMiscOp', 'IiIi;..i.',
             NumberRange.StepSize,
             self.window.id,
             NumberRange.GetBounds,
@@ -117,7 +117,7 @@ class NumberRange(Gadget):
     @step_size.setter
     def step_size(self, step):
         swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII00i0',
+            'Toolbox_ObjectMiscOp', 'IiIi00i0',
             NumberRange.StepSize,
             self.window.id,
             NumberRange.SetBounds,
@@ -127,7 +127,7 @@ class NumberRange(Gadget):
     @property
     def precision(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;...i',
+            'Toolbox_ObjectMiscOp', 'IiIi;...i',
             NumberRange.Precision,
             self.window.id,
             NumberRange.GetBounds,
@@ -136,7 +136,7 @@ class NumberRange(Gadget):
     @precision.setter
     def precision(self, precision):
         swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII000i',
+            'Toolbox_ObjectMiscOp', 'IiIi000i',
             NumberRange.Precision,
             self.window.id,
             NumberRange.SetBounds,
@@ -147,7 +147,7 @@ class NumberRange(Gadget):
     @property
     def numerical_field(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;i...',
+            'Toolbox_ObjectMiscOp', 'IiIi;i...',
             NumberRange.NumericalField,
             self.window.id,
             NumberRange.GetComponents,
@@ -156,7 +156,7 @@ class NumberRange(Gadget):
     @property
     def left_adjuster(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;.i..',
+            'Toolbox_ObjectMiscOp', 'IiIi;.i..',
             NumberRange.LeftAdjuster,
             self.window.id,
             NumberRange.GetComponents,
@@ -165,7 +165,7 @@ class NumberRange(Gadget):
     @property
     def right_adjuster(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;..i.',
+            'Toolbox_ObjectMiscOp', 'IiIi;..i.',
             NumberRange.RightAdjuster,
             self.window.id,
             NumberRange.GetComponents,
@@ -174,7 +174,7 @@ class NumberRange(Gadget):
     @property
     def slider(self):
         return swi.swi(
-            'Toolbox_ObjectMiscOp', 'IIII;...i',
+            'Toolbox_ObjectMiscOp', 'IiIi;...i',
             NumberRange.Slider,
             self.window.id,
             NumberRange.GetComponents,

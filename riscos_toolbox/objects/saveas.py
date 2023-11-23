@@ -76,15 +76,17 @@ class SaveAs(Object):
         self._miscop_set_unsigned(SaveAs.SelectionAvailable, 1 if available else 0)
 
     def set_data_address(self, address, size, sel_addr=0, sel_size=0):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIIIII', self.id, SaveAs.SetDataAddress,
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIIIII',
+                0, self.id, SaveAs.SetDataAddress,
                 address, size, sel_addr, sel_size)
 
     def buffer_filled(self, buffer, bytes_written):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIII', self.id, SaveAs.BufferFilled,
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIII',
+                0, self.id, SaveAs.BufferFilled,
                 buffer, bytes_written)
 
     def file_save_completed(self, filename, saved=True):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIs',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIs',
                 1 if saved else 0, self.id, SaveAs.FileSaveCompleted, filename)
 
 

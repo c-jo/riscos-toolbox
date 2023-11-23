@@ -40,32 +40,32 @@ class Scale(Object):
 
     @property
     def lower_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;i..',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i..',
                        0, self.id, Scale.GetBounds)
 
     @lower_bound.setter
     def lower_bound(self, lower_bound):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIi00',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi00',
                 Scale.SetLowerBound, self.id, Scale.SetBounds, lower_bound)
 
     @property
     def upper_bound(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;.i.',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i.',
                        0, self.id, Scale.GetBounds)
 
     @upper_bound.setter
     def upper_bound(self, upper_bound):
-        swi.swi('Toolbox_ObjectMiscOp', 'III0i0',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiI0i0',
                 Scale.SetUpperBound, self.id, Scale.SetBounds, upper_bound)
 
     @property
     def step_size(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;..i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;..i',
                        0, self.id, Scale.GetBounds)
 
     @step_size.setter
     def step_size(self, step_size):
-        swi.swi('Toolbox_ObjectMiscOp', 'III00i',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiI00i',
                 Scale.SetStepSize, self.id, Scale.SetBounds, step_size)
 
     @property

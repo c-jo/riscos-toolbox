@@ -6,6 +6,23 @@ import swi
 
 
 class ScrollList(Gadget):
+    _type = 0x401a
+
+    GetState     = 0
+    SetState     = 1
+    AddItem      = 2
+    DeleteItems  = 3
+    SelectItem   = 4
+    DeselectItem = 5
+    GetSelected  = 6
+    MakeVisible  = 7
+    SetColour    = 8
+    GetColour    = 9
+    SetFont      = 10
+    GetItemText  = 11
+    CountItems   = 12
+    SetItemText  = 13
+
     Selection = 0x140181
 
     @property
@@ -19,20 +36,20 @@ class ScrollList(Gadget):
                 self.window.id, 16411, self.id, state)
 
     def add_item(self, text, index):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIIs00I',
-                self.window.id, 16412, self.id, text, index)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIis00i',
+                0, self.window.id, ScrollList.AddItem, self.id, text, index)
 
     def delete_items(self, start, end):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIIII',
-                self.window.id, 16413, self.id, start, end)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
+                0, self.window.id, ScrollList.Deleteitems, self.id, start, end)
 
     def get_selected(self, offset=-1):
-        return swi.swi('Toolbox_ObjectMiscOp', '0IIIi;i',
-                       self.window.id, 16416, self.id, offset)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIii;i',
+                       0, self.window.id, 16416, Scrollist.GetSelected, self.id, offset)
 
     def make_visible(self, index):
-        swi.swi('Toolbox_ObjectMiscOp', '0IIIi',
-                self.window.id, 16417, self.id, index)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIii',
+                0, self.window.id, ScrollList.MakeVisible, self.id, index)
 
     @property
     def multisel(self):
@@ -54,3 +71,15 @@ class ScrollListSelectionEvent(ToolboxEvent):
         ('sel_flags', ctypes.c_uint32),
         ('item', ctypes.c_int32)
     ]
+
+    @property
+    def set(self):
+        return self.sel_flags & ScrollListSelectionEvent.Flags_Set != 0
+
+    @property
+    def double_click(self):
+        return self.sel_flags & ScrollListSelectionEvent.Flags_DoubleClick != 0
+
+    @property
+    def adjust_click(self):
+        return self.sel_flags & ScrollListSelectionEvent.Flags_AdjustClick != 0
