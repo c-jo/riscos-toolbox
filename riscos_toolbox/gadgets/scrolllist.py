@@ -45,7 +45,7 @@ class ScrollList(Gadget):
 
     def get_selected(self, offset=-1):
         return swi.swi('Toolbox_ObjectMiscOp', 'IiIii;i',
-                       0, self.window.id, 16416, Scrollist.GetSelected, self.id, offset)
+                       0, self.window.id, 16416, ScrollList.GetSelected, self.id, offset)
 
     def make_visible(self, index):
         swi.swi('Toolbox_ObjectMiscOp', 'IiIii',

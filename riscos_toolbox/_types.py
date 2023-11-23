@@ -54,4 +54,3 @@ class BBox(ctypes.Structure):
     @staticmethod
     def zero():
         return BBox(0, 0, 0, 0)
-

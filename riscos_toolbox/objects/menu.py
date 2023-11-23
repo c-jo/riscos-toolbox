@@ -115,7 +115,7 @@ class Menu(Object):
             return buf.nullstring()
 
         def _miscop_set_string(self, op, value):
-            buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IiIis', value)
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIis', value)
 
         @property
         def tick(self):

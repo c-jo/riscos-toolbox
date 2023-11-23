@@ -52,7 +52,7 @@ class FontDbox(Object):
     @property
     def aspect(self):
         return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i',
-                       0 self.id, FontDbox.GetSize)
+                       0, self.id, FontDbox.GetSize)
 
     @aspect.setter
     def aspect(self, aspect):
@@ -79,6 +79,7 @@ class FontDbox(Object):
 # FontDbox Events
 class FontDboxAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = FontDbox.AboutToBeShown
+
 
 class FontDboxApplyFontEvent(ToolboxEvent):
     event_id = FontDbox.ApplyFont
