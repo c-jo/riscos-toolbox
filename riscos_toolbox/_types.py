@@ -2,25 +2,8 @@
 
 import ctypes
 
-class ObjectID(ctypes.c_int32):
-    def __bool__(self):
-       return self.value != -1
-
-    def __repr__(self):
-       if self.value == -1:
-           return "Null"
-       else:
-           return "0x{:08x}".format(ctypes.c_uint32(self.value).value)
-
-class ComponentID(ctypes.c_int32):
-    def __bool__(self):
-       return self.value != 0
-
-    def __repr__(self):
-       if self.value == 0:
-           return "Null"
-       else:
-           return "0x{:08x}".format(ctypes.c_uint32(self.value).value)
+ObjectID = ctypes.c_int32
+ComponentID = ctypes.c_int32
 
 
 class ToolboxID(ctypes.Structure):
@@ -31,7 +14,7 @@ class ToolboxID(ctypes.Structure):
         self.component = 0
 
     def __repr__(self):
-        return "{}/{}".format(self.id, self.component)
+        return "{:x}/{:x}".format(self.id, self.component)
 
 
 class IDBlock(ctypes.Structure):
