@@ -15,3 +15,12 @@ Written by Chris Johns, with contributions from Charles Ferguson and Lauren Cron
 1.0.2 - Bug fixes.\
 1.1.0 - Support more gadgets and objects. Message improvments, Throwback support.
 
+## Future plans
+
+To reduce unexpected calls, handler functions will gain way to specify their match scope. Currently handlers are 
+called for the self, parent and ancestor object (unless a previous call has handled it). The default scope of the hadners may change.
+
+To allow for all possible ComponentIDs, and to better handle ObjectIDs the handling of these may need to change.
+
+Better handling of wimp message numbers.
+
