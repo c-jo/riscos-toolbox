@@ -18,7 +18,7 @@ Written by Chris Johns, with contributions from Charles Ferguson and Lauren Cron
 ## Future plans
 
 To reduce unexpected calls, handler functions will gain way to specify their match scope. Currently handlers are 
-called for the self, parent and ancestor object (unless a previous call has handled it). The default scope of the hadners may change.
+called for the self, parent and ancestor object (unless a previous call has handled it). The default scope of the handlers may change.
 
 To allow for all possible ComponentIDs, and to better handle ObjectIDs the handling of these may need to change.
 
