@@ -45,42 +45,42 @@ class Iconbar(Object):
 
     @property
     def select_event(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;i.',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i.',
                        0, self.id, Iconbar.GetEvent)
 
     @select_event.setter
     def select_event(self, id):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII0',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi0',
                 Iconbar.SetEvent_Select, self.id, Iconbar.SetEvent, id)
 
     @property
     def adjust_event(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;.i',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i',
                        0, self.id, Iconbar.GetEvent)
 
     @adjust_event.setter
     def adjust_event(self, id):
-        swi.swi('Toolbox_ObjectMiscOp', 'III0I',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiI0i',
                 Iconbar.SetEvent_Adjust, self.id, Iconbar.SetEvent, id)
 
     @property
     def show_select_id(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;I.',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i.',
                        0, self.id, Iconbar.GetShow)
 
     @show_select_id.setter
     def show_select_id(self, id):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII0',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi0',
                 Iconbar.SetShow_Select, self.id, Iconbar.SetShow, id)
 
     @property
     def show_adjust_id(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;.I',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i',
                        0, self.id, Iconbar.GetShow)
 
     @show_adjust_id.setter
     def show_adjust_id(self, id):
-        swi.swi('Toolbox_ObjectMiscOp', 'III0I',
+        swi.swi('Toolbox_ObjectMiscOp', 'Ii0i',
                 Iconbar.SetShow_Adjust, self.id, Iconbar.SetShow, id)
 
     @property

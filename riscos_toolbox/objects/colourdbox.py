@@ -44,14 +44,14 @@ class ColourDbox(Object):
     @property
     def colour(self):
         colour_block = swi.block[6]
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IibI',
                 0, self.id, ColourDbox.GetColour, colour_block, 24)
         return Colour(colour_block[1], colour_block[2], colour_block[3])
 
     @colour.setter
     def colour(self, colour):
         if colour is None:
-            swi.swi('Toolbox_ObjectMiscOp', 'III0',
+            swi.swi('Toolbox_ObjectMiscOp', 'IiI0',
                     ColourDbox.SelectNone, self.id, ColourDbox.SetColour)
         else:
             colour_block = swi.block[6]
@@ -61,13 +61,13 @@ class ColourDbox(Object):
             colour_block[3] = colour.red
             colour_block[4] = 0  # No extra data
             colour_block[5] = 0
-            swi.swi('Toolbox_ObjectMiscOp', 'IIIb',
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIb',
                     0, self.id, ColourDbox.SetColour, colour_block)
 
     @property
     def colour_model(self):
         colour_block = swi.block[6]
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IibI',
                 0, self.id, ColourDbox.GetColour, colour_block, 24)
         return ColourModel(colour_block[5])
 
@@ -80,7 +80,7 @@ class ColourDbox(Object):
         colour_block[3] = 0
         colour_block[4] = 0  # No extra data
         colour_block[5] = colour_model
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIb', 0,
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIb', 0,
                 self.id, ColourDbox.SetColourModel, colour_block)
 
     @property

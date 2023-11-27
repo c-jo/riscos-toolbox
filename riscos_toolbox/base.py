@@ -19,19 +19,19 @@ def find_objects(template):
 
 
 def create_object(template, klass=None, args=None):
-    id = swi.swi('Toolbox_CreateObject', '0s;I', template)
+    id = swi.swi('Toolbox_CreateObject', 'Is;i', 0, template)
     if klass:
         if args is None:
             args = []
         _objects[id] = klass(id, template, *args)
     else:
-        obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I', id)
+        obj_class = swi.swi('Toolbox_GetObjectClass', 'Ii;i', 0, id)
         _objects[id] = Object.create(obj_class, template, id)
     return _objects[id]
 
 
 def delete_object(object, recursive=True):
-    swi.swi('Toolbox_DeleteObject', 'II', 1 if recursive else 0, object.id)
+    swi.swi('Toolbox_DeleteObject', 'Ii', 1 if recursive else 0, object.id)
     if object.id in _objects:
         del _objects[id]
 
@@ -77,15 +77,15 @@ class Object(EventHandler):
         else:
             parent_obj = parent_comp = 0
 
-        swi.swi('Toolbox_ShowObject', 'III0II',
-                flags, self.id, type, parent_obj, parent_comp)
+        swi.swi('Toolbox_ShowObject', 'IiIIii',
+                flags, self.id, type, 0, parent_obj, parent_comp)
 
     def hide(self):
-        swi.swi('Toolbox_HideObject', '0I', self.id)
+        swi.swi('Toolbox_HideObject', 'Ii', 0, self.id)
 
     @property
     def parent(self):
-        id, comp_id = swi.swi('Toolbox_GetParent', '0I;II', self.id)
+        id, comp_id = swi.swi('Toolbox_GetParent', 'Ii;ii', 0, self.id)
         if id in _objects:
             obj = _objects[id]
         else:
@@ -100,37 +100,31 @@ class Object(EventHandler):
 
         return namedtuple('parent', ('object', 'component'))(obj, comp)
 
-    def _miscop_get_value(self, op, regs):
-        return swi.swi("Toolbox_ObjectMiscOp", "III;" + regs, 0, self.id, op)
-
-    def _miscop_set_value(self, op, regs, *value):
-        swi.swi("Toolbox_ObjectMiscOp", "III" + regs, 0, self.id, op, *value)
-
     def _miscop_get_signed(self, op):
         """Use Toolbox_ObjectMiscOp to get a signed integer."""
-        return swi.swi("Toolbox_ObjectMiscOp", "III;i", 0, self.id, op)
+        return swi.swi("Toolbox_ObjectMiscOp", "IiI;i", 0, self.id, op)
 
     def _miscop_set_signed(self, op, value):
         """Use Toolbox_ObjectMiscOp to set a signed integer."""
-        swi.swi("Toolbox_ObjectMiscOp", "IIIi", 0, self.id, op, value)
+        swi.swi("Toolbox_ObjectMiscOp", "IiIi", 0, self.id, op, value)
 
     def _miscop_get_unsigned(self, op):
         """Use Toolbox_ObjectMiscOp to get an unsigned integer."""
-        return swi.swi("Toolbox_ObjectMiscOp", "III;I", 0, self.id, op)
+        return swi.swi("Toolbox_ObjectMiscOp", "IiI;I", 0, self.id, op)
 
     def _miscop_set_unsigned(self, op, value):
         """Use Toolbox_ObjectMiscOp to set an unsigned integer."""
-        swi.swi("Toolbox_ObjectMiscOp", "IIII", 0, self.id, op, value)
+        swi.swi("Toolbox_ObjectMiscOp", "IiII", 0, self.id, op, value)
 
     def _miscop_get_string(self, op):
         """Use Toolbox_ObjectMiscOp to get a string. This call will allocate
            a suitably-sized buffer, read the string and return it."""
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'III00;....I',
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IiI00;....i',
                            0, self.id, op)
         buf = swi.block((buf_size + 3) // 4)
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIbI', 0, self.id, op, buf, buf_size)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIbi', 0, self.id, op, buf, buf_size)
         return buf.nullstring()
 
     def _miscop_set_string(self, op, value):
         """Use Toolbox_ObjectMiscOp to set a string."""
-        swi.swi("Toolbox_ObjectMiscOp", "IIIs", 0, self.id, op, value)
+        swi.swi("Toolbox_ObjectMiscOp", "IiIs", 0, self.id, op, value)

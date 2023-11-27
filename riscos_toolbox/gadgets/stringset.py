@@ -47,25 +47,25 @@ class StringSet(Gadget):
 
     @property
     def index(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIII;i', StringSet.IndexedSelection,
-                       self.window.id, StringSet.GetSelected, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;i',
+                       StringSet.IndexedSelection, self.window.id, StringSet.GetSelected, self.id)
 
     @index.setter
     def index(self, index):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIIi', StringSet.IndexedSelection,
-                self.window.id, StringSet.SetSelected, self.id, index)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIii',
+                StringSet.IndexedSelection, self.window.id, StringSet.SetSelected, self.id, index)
 
     # Here are some read-only properties for the components making up the StringSet,
     # which have been split out from GetComponents
     @property
     def alphanumeric_field(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;i', StringSet.ReturnAlphaNumericField,
-                       self.window.id, StringSet.GetComponents, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;i',
+                       StringSet.ReturnAlphaNumericField, self.window.id, StringSet.GetComponents, self.id)
 
     @property
     def popup_menu(self):
-        return swi.swi('Toolbox_ObjectMiscOp', 'Iiii;.i', StringSet.ReturnPopUpMenu,
-                       self.window.id, StringSet.GetComponents, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;.i',
+                       StringSet.ReturnPopUpMenu, self.window.id, StringSet.GetComponents, self.id)
 
     def set_available(self, items):
         self._miscop_set_string(StringSet.SetAvailable, items)

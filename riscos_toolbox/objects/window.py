@@ -54,13 +54,13 @@ class Window(Object):
         return self._miscop_get_signed(Window.GetWimpHandle)
 
     def add_gadget(self, gadget):
-        gadget_id = swi.swi("Toolbox_ObjectMiscOp", "IIII;I",
+        gadget_id = swi.swi("Toolbox_ObjectMiscOp", "IiII;I",
                             0, self.id, Window.AddGadget, ctypes.addressof(gadget))
         self.components[gadget_id] = \
             Gadget.create(gadget.type, self, gadget_id)
 
     def remove_gadget(self, gadget):
-        swi.swi("Toolbox_ObjectMiscOp", "IIII",
+        swi.swi("Toolbox_ObjectMiscOp", "IiIi",
                 0, self.id, Window.RemoveGadget, gadget.id)
         del self.components[gadget.id]
 
@@ -73,18 +73,17 @@ class Window(Object):
         self._miscop_set_signed(Window.SetMenu, menu_id)
 
     def get_pointer(self):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII;....I', 0, self.id, Window.GetPointer)
-
-        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'III00;....I',
-                           0, self.id, 4)
+        buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IiI00;....i',
+                           0, self.id, Window.GetPointer)
         buf = swi.block((buf_size + 3) // 4)
         hot_spot = Point(
-            swi.swi('Toolbox_ObjectMiscOp', 'IIIbI;.....ii', 0, self.id, Window.GetPointer,
-                    buf, buf_size))
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIbi;.....ii',
+                    0, self.id, Window.GetPointer, buf, buf_size))
         return (buf.nullstring(), hot_spot)
 
-    def pointer(self, sprite_name, hot_spot):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIIsii', 0, self.id, Window.SetPointer,
+    def set_pointer(self, sprite_name, hot_spot):
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIsii',
+                0, self.id, Window.SetPointer,
                 sprite_name, hot_spot.x, hot_spot.y)
 
     @property
@@ -123,27 +122,27 @@ class Window(Object):
     @property
     def extent(self):
         extent = BBox.zero()
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiII',
                 0, self.id, Window.GetExtent, ctypes.addressof(extent))
         return extent
 
     @extent.setter
     def extent(self, extent):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiII',
                 0, self.id, Window.SetExtent, ctypes.addressof(extent))
 
     def force_redraw(self, bbox=None):
         if bbox is None:
             bbox = self.extent
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiII',
                 0, self.id, Window.ForceRedraw, ctypes.addressof(bbox))
 
     def get_toolbar_id(self, tool_bar):
-        return swi.swi('Toolbox_ObjectMiscOp', 'III;I',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i',
                        tool_bar, self.id, Window.GetToolBars)
 
     def set_toolbar_id(self, tool_bar, window_id):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIII',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi',
                 tool_bar, self.id, Window.SetToolBars, window_id)
 
 

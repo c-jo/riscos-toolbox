@@ -22,7 +22,7 @@ class FontDbox(Object):
     AboutToBeShown    = class_id + 0
     DialogueCompleted = class_id + 1
     ApplyFont         = class_id + 2
-    
+
     # Constants
     SetSize_Height = 1
     SetSize_Aspect = 2
@@ -41,20 +41,22 @@ class FontDbox(Object):
 
     @property
     def size(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0II;i.', self.id, FontDbox.GetSize)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i.',
+                       0, self.id, FontDbox.GetSize)
 
     @size.setter
     def size(self, size):
-        swi.swi('Toolbox_ObjectMiscOp', 'IIIi0',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIi0',
                 FontDbox.SetSize_Height, self.id, FontDbox.SetSize, size)
 
     @property
     def aspect(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0II;.i', self.id, FontDbox.GetSize)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i',
+                       0, self.id, FontDbox.GetSize)
 
     @aspect.setter
     def aspect(self, aspect):
-        swi.swi('Toolbox_ObjectMiscOp', 'III0i',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiI0i',
                 FontDbox.SetSize_Aspect, self.id, FontDbox.SetSize, aspect)
 
     @property
@@ -77,6 +79,7 @@ class FontDbox(Object):
 # FontDbox Events
 class FontDboxAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = FontDbox.AboutToBeShown
+
 
 class FontDboxApplyFontEvent(ToolboxEvent):
     event_id = FontDbox.ApplyFont

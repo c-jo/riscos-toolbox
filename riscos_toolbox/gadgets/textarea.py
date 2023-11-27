@@ -55,15 +55,15 @@ class TextArea(Gadget):
     # Returns a tuple containing a start and end index.
     @property
     def selection_points(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0iii;....ii', self.window.id,
-                       TextArea.GetSelection, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;....ii',
+                       0, self.window.id, TextArea.GetSelection, self.id)
 
     # This setter takes a tuple containing a start and end index.
     @selection_points.setter
     def selection_points(self, indexes):
         start, end = indexes
-        swi.swi('Toolbox_ObjectMiscOp', '0iiiII', self.window.id, TextArea.SetSelection,
-                self.id, start, end)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
+                0, self.window.id, TextArea.SetSelection, self.id, start, end)
 
     # No matter what, this seems to return 1 character past where it should;
     # This was tested with the C veneer and had the same behaviour, so it appears
@@ -71,11 +71,11 @@ class TextArea(Gadget):
     # selecting the whole text causes no problems.
     @property
     def selection(self):
-        bufsize = swi.swi('Toolbox_ObjectMiscOp', '1iii0;.....I', self.window.id,
-                          TextArea.GetSelection, self.id)
+        bufsize = swi.swi('Toolbox_ObjectMiscOp', 'IiIi0;.....i',
+                          0, self.window.id, TextArea.GetSelection, self.id)
         buf = swi.block((bufsize + 3) // 4)
-        swi.swi('Toolbox_ObjectMiscOp', '1iiibi', self.window.id, TextArea.GetSelection,
-                self.id, buf, bufsize)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIibi',
+                0, self.window.id, TextArea.GetSelection, self.id, buf, bufsize)
         return buf.nullstring()
 
     # This one just replaces the text according to the selection points
@@ -86,8 +86,7 @@ class TextArea(Gadget):
 
     @property
     def cursor(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0iii;....i', self.window.id,
-                       TextArea.GetCursorPosition, self.id)
+        self._miscop_get_unsigned(TextArea.GetCursorPosition)
 
     @cursor.setter
     def cursor(self, pos):
@@ -96,29 +95,29 @@ class TextArea(Gadget):
     # This returns a tuple containing (foreground, background)
     @property
     def colour(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0iii;II', self.window.id,
-                       TextArea.GetColour, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;II',
+                       0, self.window.id, TextArea.GetColour, self.id)
 
     # This one takes a tuple containing (foreground, background)
     @colour.setter
     def colour(self, colour):
         fg, bg = colour
-        swi.swi('Toolbox_ObjectMiscOp', '0iiiII', self.window.id,
-                TextArea.SetColour, self.id, fg, bg)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
+                0, self.window.id, TextArea.SetColour, self.id, fg, bg)
 
     # Insert text at a specified offset
     def insert(self, index, text):
-        swi.swi('Toolbox_ObjectMiscOp', '0iiiis', self.window.id, TextArea.InsertText,
-                self.id, index, text)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiIs',
+                0, self.window.id, TextArea.InsertText, self.id, index, text)
 
     # Replace a block of text with new text
     def replace(self, start, end, text):
-        swi.swi('Toolbox_ObjectMiscOp', '0iiiIIs', self.window.id, TextArea.ReplaceText,
-                self.id, start, end, text)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiIIs',
+                0, self.window.id, TextArea.ReplaceText, self.id, start, end, text)
 
     def set_font(self, name, width, height):
-        swi.swi('Toolbox_ObjectMiscOp', '0iiisII', self.window.id, TextArea.SetFont,
-                self.id, name, width, height)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIisII',
+                0, self.window.id, TextArea.SetFont, self.id, name, width, height)
 
 
 class TextAreaDefinition(GadgetDefinition):

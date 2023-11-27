@@ -153,7 +153,7 @@ class AboutToBeShownEvent(ToolboxEvent):
 class UserMessage(Event, ctypes.Structure):
     _fields_ = [
         ("size", ctypes.c_uint32),
-        ("sender", ctypes.c_uint32),
+        ("sender", ctypes.c_int32),
         ("my_ref", ctypes.c_uint32),
         ("your_ref", ctypes.c_uint32),
         ("code", ctypes.c_uint32),
@@ -196,7 +196,7 @@ class UserMessage(Event, ctypes.Structure):
 
     def acknowledge(self):
         self.your_ref = self.my_ref
-        return swi.swi('Wimp_SendMessage', 'IIII;..i',
+        return swi.swi('Wimp_SendMessage', 'IIiI;..i',
                        Wimp.UserMessageAcknowledge,
                        ctypes.addressof(self),
                        self.sender, 0)
@@ -204,7 +204,7 @@ class UserMessage(Event, ctypes.Structure):
     def _send(self, reason, target, icon, size, reply_callback):
         self.size = size or ctypes.sizeof(self)
         self.code = self.__class__.event_id
-        handle = swi.swi('Wimp_SendMessage', 'IIII;..i',
+        handle = swi.swi('Wimp_SendMessage', 'IIii;..i',
                          reason, ctypes.addressof(self),
                          target or 0, icon or 0)
         if reply_callback:

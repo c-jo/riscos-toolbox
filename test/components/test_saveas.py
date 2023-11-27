@@ -61,12 +61,12 @@ class MockBlockString:
 
 
 def expect_miscop(obj, op, ret):
-    return (('Toolbox_ObjectMiscOp', 'III;I', 0, obj, op), ret)
+    return (('Toolbox_ObjectMiscOp', 'IiI;I', 0, obj, op), ret)
 
 
 def expect_miscop_string(swimock, obj, op, str):
-    swimock.expect(('Toolbox_ObjectMiscOp', 'III00;....I', 0, obj, op), len(str))
-    swimock.expect(('Toolbox_ObjectMiscOp', 'IIIbI', 0, obj, op, None, len(str)), None)
+    swimock.expect(('Toolbox_ObjectMiscOp', 'IiI00;....i', 0, obj, op), len(str))
+    swimock.expect(('Toolbox_ObjectMiscOp', 'IiIbi', 0, obj, op, None, len(str)), None)
 
 
 class SaveAs(unittest.TestCase):

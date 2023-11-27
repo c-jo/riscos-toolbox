@@ -20,7 +20,7 @@ _msgtrans_block = swi.block(4)
 
 def task_name():
     try:
-        name_len = swi.swi('Toolbox_GetSysInfo', 'I0;..I', 0)
+        name_len = swi.swi('Toolbox_GetSysInfo', 'I0;..i', 0)
         name_block = swi.block((name_len + 3) // 4)
         swi.swi('Toolbox_GetSysInfo', "Ib", 0, name_block)
         return name_block.nullstring()
@@ -81,8 +81,8 @@ def initialise(appdir):
                                     [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver, task_handle, sprite_area = \
-        swi.swi('Toolbox_Initialise', '0IbbsbI;III',
-                560, wimp_messages, toolbox_events,
+        swi.swi('Toolbox_Initialise', 'IIbbsbI;III',
+                0, 560, wimp_messages, toolbox_events,
                 appdir, _msgtrans_block, ctypes.addressof(_id_block))
 
 
@@ -103,8 +103,7 @@ def run(application):
         if events.null_polls():
             flags = flags & ~Wimp.Poll.NullMask
         reason, sender = swi.swi(
-            'Wimp_Poll', 'II;I.I', flags,
-            ctypes.addressof(poll_buffer))
+            'Wimp_Poll', 'II;I.i', flags, ctypes.addressof(poll_buffer))
 
         try:
             poll_block = bytes(poll_buffer)
@@ -114,8 +113,8 @@ def run(application):
                 if event_code == Toolbox.ObjectAutoCreated:
                     name = ''.join([chr(c) for c in iter(
                         lambda i=iter(poll_block[0x10:]): next(i), 0)])
-                    obj_class = swi.swi('Toolbox_GetObjectClass', '0I;I',
-                                        _id_block.self.id)
+                    obj_class = swi.swi('Toolbox_GetObjectClass', 'Ii;i',
+                                        0, _id_block.self.id)
                     _objects[_id_block.self.id] = Object.create(
                         obj_class, name, _id_block.self.id)
                     continue

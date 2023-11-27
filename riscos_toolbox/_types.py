@@ -2,15 +2,15 @@
 
 import ctypes
 
-ObjectID = ctypes.c_uint32
-ComponentID = ctypes.c_uint32
+ObjectID = ctypes.c_int32
+ComponentID = ctypes.c_int32
 
 
 class ToolboxID(ctypes.Structure):
     _fields_ = [("id", ObjectID), ("component", ComponentID)]
 
     def __init__(self):
-        self.id = 0xffffffff
+        self.id = -1
         self.component = 0
 
     def __repr__(self):

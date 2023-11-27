@@ -91,30 +91,31 @@ class Menu(Object):
             self.id = id
 
         def _miscop_get_signed(self, op):
-            return swi.swi('Toolbox_ObjectMiscOp', '0III;i',
-                           self.menu.id, op, self.id)
+            return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;i',
+                           0, self.menu.id, op, self.id)
 
         def _miscop_set_signed(self, op, value):
-            return swi.swi('Toolbox_ObjectMiscOp', '0IIIi',
-                           self.menu.id, op, self.id, value)
+            return swi.swi('Toolbox_ObjectMiscOp', 'IiIii',
+                           0, self.menu.id, op, self.id, value)
 
         def _miscop_get_unsigned(self, op):
-            return swi.swi('Toolbox_ObjectMiscOp', '0III;I',
-                           self.menu.id, op, self.id)
+            return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;I',
+                           0, self.menu.id, op, self.id)
 
         def _miscop_set_unsigned(self, op, value):
-            return swi.swi('Toolbox_ObjectMiscOp', '0IIII',
-                           self.menu.id, op, self.id, value)
+            return swi.swi('Toolbox_ObjectMiscOp', 'IiIiI',
+                           0, self.menu.id, op, self.id, value)
 
         def _miscop_get_string(self, op):
-            buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IIII00;.....I',
+            buf_size = swi.swi('Toolbox_ObjectMiscOp', 'IiIi00;.....i',
                                0, self.menu.id, op, self.id)
             buf = swi.block((buf_size + 3) // 4)
-            swi.swi('Toolbox_ObjectMiscOp', 'IIIIbI',
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIibi',
                     0, self.menu.id, op, self.id, buf, buf_size)
             return buf.nullstring()
 
-        # FIXME: _miscop_set_string not implemented
+        def _miscop_set_string(self, op, value):
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIis', value)
 
         @property
         def tick(self):
@@ -166,16 +167,16 @@ class Menu(Object):
 
         @property
         def click_show(self):
-            object_id, flags = swi.swi('Toolbox_ObjectMiscOp', '0III;II',
-                                       self.menu.id, Menu.GetClickShow, self.id)
+            object_id, flags = swi.swi('Toolbox_ObjectMiscOp', 'IiIi;ii',
+                                       0, self.menu.id, Menu.GetClickShow, self.id)
             return ClickShow(object_id, flags & Menu.Entry.ClickShowTransient != 0)
 
         @click_show.setter
         def click_show(self, click_show):
             if isinstance(click_show, int):
                 click_show = ClickShow(click_show, False)
-            swi.swi('Toolbox_ObjectMiscOp', '0IIIII',
-                    self.menu.id, Menu.SetClickShow, self.id, click_show.object_id,
+            swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
+                    0, self.menu.id, Menu.SetClickShow, self.id, click_show.object_id,
                     Menu.Entry.ClickShowTransient if click_show.transient else 0)
 
         @property
@@ -217,7 +218,7 @@ class Menu(Object):
         if click_event:
             details.click_event = click_event
 
-        return swi.swi('Toolbox_ObjectMiscOp', 'IIIiI;I',
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIiI;i',
                        flags, self.id, Menu.AddEntry, where, ctypes.addressof(details))
 
     def add_at_end(self, *args, **kwargs):

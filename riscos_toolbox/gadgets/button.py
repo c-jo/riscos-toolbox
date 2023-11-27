@@ -20,13 +20,13 @@ class Button(Gadget):
     # Properties
     @property
     def icon_flags(self):
-        return swi.swi('Toolbox_ObjectMiscOp', '0III;I',
-                       self.window.id, Button.GetFlags, self.id)
+        return swi.swi('Toolbox_ObjectMiscOp', 'IiIi;I',
+                       0, self.window.id, Button.GetFlags, self.id)
 
     @icon_flags.setter
     def icon_flags(self, flags):
-        swi.swi('Toolbox_ObjectMiscOp', '0III0I',
-                self.window.id, Button.SetFlags, self.id, flags)
+        swi.swi('Toolbox_ObjectMiscOp', 'IiIiII',
+                0, self.window.id, Button.SetFlags, self.id, 0, flags)
 
     @property
     def value(self):
