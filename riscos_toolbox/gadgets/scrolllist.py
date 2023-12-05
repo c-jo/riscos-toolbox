@@ -8,20 +8,20 @@ import swi
 class ScrollList(Gadget):
     _type = 0x401a
 
-    GetState     = 0
-    SetState     = 1
-    AddItem      = 2
-    DeleteItems  = 3
-    SelectItem   = 4
-    DeselectItem = 5
-    GetSelected  = 6
-    MakeVisible  = 7
-    SetColour    = 8
-    GetColour    = 9
-    SetFont      = 10
-    GetItemText  = 11
-    CountItems   = 12
-    SetItemText  = 13
+    GetState     = _type + 0
+    SetState     = _type + 1
+    AddItem      = _type + 2
+    DeleteItems  = _type + 3
+    SelectItem   = _type + 4
+    DeselectItem = _type + 5
+    GetSelected  = _type + 6
+    MakeVisible  = _type + 7
+    SetColour    = _type + 8
+    GetColour    = _type + 9
+    SetFont      = _type + 10
+    GetItemText  = _type + 11
+    CountItems   = _type + 12
+    SetItemText  = _type + 13
 
     Selection = 0x140181
 
