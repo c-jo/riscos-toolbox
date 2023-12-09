@@ -139,14 +139,37 @@ class Window(Object):
         swi.swi('Toolbox_ObjectMiscOp', 'IiII',
                 0, self.id, Window.ForceRedraw, ctypes.addressof(bbox))
 
+    # The SWI versions of these toolbar methods let you work with any combo at once, but
+    # to keep things simple this will only allow one to be set/gotten at a time
     def get_toolbar_id(self, tool_bar):
-        return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i',
+        if tool_bar == Window.InternalBottomLeftToolbar:
+            swi_fmt = 'IiI;i'
+        elif tool_bar == Window.InternalTopLeftToolbar:
+            swi_fmt = 'IiI;.i'
+        elif tool_bar == Window.ExternalBottomLeftToolbar:
+            swi_fmt = 'IiI;..i'
+        elif tool_bar == Window.ExternalTopLeftToolbar:
+            swi_fmt = 'IiI;...i'
+        else:
+            raise ValueError("riscos-toolbox: Invalid toolbar flag")
+            
+        return swi.swi('Toolbox_ObjectMiscOp', swi_fmt,
                        tool_bar, self.id, Window.GetToolBars)
 
     def set_toolbar_id(self, tool_bar, window_id):
-        swi.swi('Toolbox_ObjectMiscOp', 'IiIi',
+        if tool_bar == Window.InternalBottomLeftToolbar:
+            swi_fmt = 'IiIi'
+        elif tool_bar == Window.InternalTopLeftToolbar:
+            swi_fmt = 'IiI.i'
+        elif tool_bar == Window.ExternalBottomLeftToolbar:
+            swi_fmt = 'IiI..i'
+        elif tool_bar == Window.ExternalTopLeftToolbar:
+            swi_fmt = 'IiI...i'
+        else:
+            raise ValueError("riscos-toolbox: Invalid toolbar flag")
+            
+        swi.swi('Toolbox_ObjectMiscOp', swi_fmt,
                 tool_bar, self.id, Window.SetToolBars, window_id)
-
 
 class WindowAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = Window.AboutToBeShown
