@@ -61,8 +61,10 @@ class Window(Object):
 
     def remove_gadget(self, gadget):
         swi.swi("Toolbox_ObjectMiscOp", "IiIi",
-                0, self.id, Window.RemoveGadget, gadget.id)
-        del self.components[gadget.id]
+                0, self.id, Window.RemoveGadget, gadget)
+        if gadget in self.components:
+            # If this wasn't created through add_gadget it won't be in components
+            del self.components[gadget.id]
 
     @property
     def menu_id(self):
