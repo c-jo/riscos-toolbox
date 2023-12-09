@@ -100,7 +100,7 @@ class Window(Object):
 
     @title.setter
     def title(self, title):
-        self._miscop_set_string(Window.SetDefaultFocus, title)
+        self._miscop_set_string(Window.SetTitle, title)
 
     @property
     def default_focus(self):
