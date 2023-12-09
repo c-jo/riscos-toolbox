@@ -41,7 +41,7 @@ class ScrollList(Gadget):
 
     def delete_items(self, start, end):
         swi.swi('Toolbox_ObjectMiscOp', 'IiIiii',
-                0, self.window.id, ScrollList.Deleteitems, self.id, start, end)
+                0, self.window.id, ScrollList.DeleteItems, self.id, start, end)
 
     def get_selected(self, offset=-1):
         return swi.swi('Toolbox_ObjectMiscOp', 'IiIii;i',
