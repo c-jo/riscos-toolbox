@@ -77,7 +77,7 @@ class Window(Object):
                            0, self.id, Window.GetPointer)
         buf = swi.block((buf_size + 3) // 4)
         hot_spot = Point(
-            swi.swi('Toolbox_ObjectMiscOp', 'IiIbi;.....ii',
+            *swi.swi('Toolbox_ObjectMiscOp', 'IiIbi;.....ii',
                     0, self.id, Window.GetPointer, buf, buf_size))
         return (buf.nullstring(), hot_spot)
 
