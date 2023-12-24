@@ -75,7 +75,7 @@ class ActionButtonSelectedEvent(ToolboxEvent):
 
     @property
     def default(self):
-        return self.flags & ActionButtonSelectedEvent.Defaut
+        return self.flags & ActionButtonSelectedEvent.Default
 
     @property
     def cancel(self):
