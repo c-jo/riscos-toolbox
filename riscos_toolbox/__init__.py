@@ -9,7 +9,8 @@ import struct
 # These methods and functions are imported for legacy purposes.
 from ._types import *  # noqa
 from ._consts import *  # noqa
-from .base import Object, _objects, get_object, create_object, find_objects, _application  # noqa
+from .base import Object, _objects, get_object, create_object, delete_object, \
+                  find_objects, _application  # noqa
 from .events import *  # noqa
 
 
