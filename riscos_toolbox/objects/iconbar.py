@@ -30,6 +30,8 @@ class Iconbar(Object):
     SetEvent_Adjust = 0x00000002
     SetShow_Select  = 0x00000001
     SetShow_Adjust  = 0x00000002
+    GetShow_Select  = SetShow_Select
+    GetShow_Adjust  = SetShow_Adjust
 
     @property
     def icon_handle(self):
@@ -66,7 +68,7 @@ class Iconbar(Object):
     @property
     def show_select_id(self):
         return swi.swi('Toolbox_ObjectMiscOp', 'IiI;i.',
-                       0, self.id, Iconbar.GetShow)
+                       Iconbar.GetShow_Select, self.id, Iconbar.GetShow)
 
     @show_select_id.setter
     def show_select_id(self, id):
@@ -76,11 +78,11 @@ class Iconbar(Object):
     @property
     def show_adjust_id(self):
         return swi.swi('Toolbox_ObjectMiscOp', 'IiI;.i',
-                       0, self.id, Iconbar.GetShow)
+                       Iconbar.GetShow_Adjust, self.id, Iconbar.GetShow)
 
     @show_adjust_id.setter
     def show_adjust_id(self, id):
-        swi.swi('Toolbox_ObjectMiscOp', 'Ii0i',
+        swi.swi('Toolbox_ObjectMiscOp', 'IiI0i',
                 Iconbar.SetShow_Adjust, self.id, Iconbar.SetShow, id)
 
     @property
