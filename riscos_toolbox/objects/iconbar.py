@@ -39,11 +39,11 @@ class Iconbar(Object):
 
     @property
     def menu_id(self):
-        return self._miscop_get_unsigned(Iconbar.GetMenu)
+        return self._miscop_get_signed(Iconbar.GetMenu)
 
     @menu_id.setter
     def menu_id(self, id):
-        return self._miscop_set_unsigned(Iconbar.SetMenu, id)
+        return self._miscop_set_signed(Iconbar.SetMenu, id)
 
     @property
     def select_event(self):
