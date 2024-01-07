@@ -27,7 +27,7 @@ class UserRedrawMixin:
 
             self.redraw_window(rd.visible, rd.scroll, rd.redraw, offset)
 
-            more = swi.swi("Wimp_RedrawWindow", ".I;I", ctypes.addressof(rd))
+            more = swi.swi("Wimp_GetRectangle", ".I;I", ctypes.addressof(rd))
 
     def redraw_window(self, visible, scroll, redraw, offset):
         pass
