@@ -52,7 +52,7 @@ class RadioButton(Gadget):
 
     # Methods
     def set_font(self, *args, **kwargs):
-        self._miscop_set_fount(RadioButton.SetFont, *args, **kwargs)
+        self._miscop_set_font(RadioButton.SetFont, *args, **kwargs)
 
 
 class RadioButtonDefinition(GadgetDefinition):
