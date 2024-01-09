@@ -31,9 +31,12 @@ def create_object(template, klass=None, args=None):
 
 
 def delete_object(object, recursive=True):
-    swi.swi('Toolbox_DeleteObject', 'Ii', 1 if recursive else 0, object.id)
-    if object.id in _objects:
-        del _objects[id]
+    if isinstance(object, Object):
+        object = object.id # Take either an Object or its ID as an argument
+        
+    swi.swi('Toolbox_DeleteObject', 'Ii', 1 if recursive else 0, object)
+    if object in _objects:
+        del _objects[object]
 
 
 class Component:
