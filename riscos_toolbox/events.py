@@ -93,6 +93,10 @@ class ToolboxEvent(Event, ctypes.Structure):
         ("event_code", ctypes.c_uint32),
         ("flags", ctypes.c_uint32)
     ]
+    
+    def get_flag(self, flag):
+        """ Gets one event flag."""
+        return self.flags & flag != 0
 
 
 class AboutToBeShownEvent(ToolboxEvent):
