@@ -89,7 +89,7 @@ def initialise(appdir):
                                     [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver, task_handle, sprite_area = \
-        swi.swi('Toolbox_Initialise', 'IIbbsbI;III',
+        swi.swi('Toolbox_Initialise', 'IIbbsbI;IiI',
                 0, 560, wimp_messages, toolbox_events,
                 appdir, _msgtrans_block, ctypes.addressof(_id_block))
 
@@ -140,7 +140,7 @@ def run(application):
                 Wimp.UserMessageAcknowledge
             ]:
                 message = events.MessageInfo.create(
-                    reason, *struct.unpack("IIIII", poll_block[0:20]))
+                    reason, *struct.unpack("IiIII", poll_block[0:20]))
 
                 if message == Messages.Quit:
                     _quit = True
