@@ -89,7 +89,7 @@ def initialise(appdir):
                                     [Toolbox.ObjectAutoCreated, Toolbox.ObjectDeleted])
 
     wimp_ver, task_handle, sprite_area = \
-        swi.swi('Toolbox_Initialise', 'IIbbsbI;IiI',
+        swi.swi('Toolbox_Initialise', 'IIbbsbI;III',
                 0, 560, wimp_messages, toolbox_events,
                 appdir, _msgtrans_block, ctypes.addressof(_id_block))
 
@@ -116,7 +116,7 @@ def run(application):
         try:
             poll_block = bytes(poll_buffer)
             if reason == Wimp.ToolboxEvent:
-                size, reference, event_code, flags = struct.unpack("IiII", poll_block[0:16])
+                size, reference, event_code, flags = struct.unpack("IIII", poll_block[0:16])
 
                 if event_code == Toolbox.ObjectAutoCreated:
                     name = ''.join([chr(c) for c in iter(
