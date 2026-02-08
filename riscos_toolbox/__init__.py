@@ -29,6 +29,13 @@ def task_name():
         return "Python Application"
 
 
+def task_handle():
+    try:
+        return swi.swi('Toolbox_GetSysInfo', "I;i", 3)
+    except Exception:
+        return None
+
+
 def throwback_traceback(e):
     try:
         type, value, tb = sys.exc_info()
