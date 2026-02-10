@@ -388,18 +388,19 @@ def reply_handler(message_s):
         @wraps((handler, _message_map))
         def wrapper(self, data, *args):
             message = None
-            code = None
+            info = None
             if data is not None:
+                info = data[0]
                 message = ctypes.cast(
-                    data, ctypes.POINTER(UserMessage)
+                    data[1], ctypes.POINTER(UserMessage)
                 ).contents
 
                 code = message.code
                 if code in _message_map:
                     message = ctypes.cast(
-                        data, ctypes.POINTER(_message_map[code])
+                        data[1], ctypes.POINTER(_message_map[code])
                     ).contents
-            return handler(self, code, message, *args)
+            return handler(self, info, message, *args)
         return wrapper
     return decorator
 
@@ -429,13 +430,13 @@ def toolbox_dispatch(event_code, application, id_block, poll_block):
 
 def message_dispatch(code, application, id_block, poll_block):
     if code.your_ref in _reply_callbacks:
-        r = _reply_callbacks[code.your_ref](poll_block)
+        r = _reply_callbacks[code.your_ref]((code, poll_block))
         del _reply_callbacks[code.your_ref]
         if r is not False:
             return
 
     if code.reason == Wimp.UserMessageAcknowledge and code.my_ref in _reply_callbacks:
-        r = _reply_callbacks[code.my_ref](poll_block)
+        r = _reply_callbacks[code.my_ref]((code, poll_block))
         del _reply_callbacks[code.my_ref]
         if r is not False:
             return
