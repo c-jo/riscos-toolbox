@@ -171,6 +171,26 @@ class Window(Object):
         swi.swi('Toolbox_ObjectMiscOp', swi_fmt,
                 tool_bar, self.id, Window.SetToolBars, window_id)
 
+    def screen_to_work_area(self, point):
+        """Returns the point translated to work area co-ordinates of the window."""
+
+        class WindowState(ctypes.Structure):
+            _fields_ = [
+                ("window_handle", ctypes.c_int32),
+                ("visible", BBox),
+                ("scroll", Point),
+                ("behind", ctypes.c_int32),
+                ("flags", ctypes.c_uint32)
+            ]
+
+        state = WindowState()
+        state.window_handle = self.wimp_handle
+        swi.swi("Wimp_GetWindowState", ".I", ctypes.addressof(state))
+
+        return Point(point.x - state.visible.min.x + state.scroll.x,
+                     point.y - state.visible.max.y + state.scroll.y)
+
+
 class WindowAboutToBeShownEvent(AboutToBeShownEvent):
     event_id = Window.AboutToBeShown
 
