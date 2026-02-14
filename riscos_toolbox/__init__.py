@@ -36,6 +36,13 @@ def task_handle():
         return None
 
 
+def sprite_area():
+    try:
+        return swi.swi('Toolbox_GetSysInfo', "I;i", 4)
+    except Exception:
+        return None
+
+
 def throwback_traceback(e):
     try:
         type, value, tb = sys.exc_info()
