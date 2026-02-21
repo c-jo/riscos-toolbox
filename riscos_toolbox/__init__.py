@@ -97,7 +97,8 @@ def initialise(appdir):
 def msgtrans_lookup(token, *args, bufsize=256):
     args = args[:4]
     buffer = swi.block((bufsize + 3) // 4)
-    swi.swi('MessageTrans_Lookup', 'bsbi' + ('s' * len(args)),
+    swi.swi('MessageTrans_Lookup',
+            'bsbi' + ('s' * len(args)) + ('0' * (4-len(args))),
             _msgtrans_block, token, buffer, bufsize, *args)
     return buffer.ctrlstring()
 
