@@ -37,6 +37,11 @@ class Point(ctypes.Structure):
     def __repr__(self):
         return "({},{})".format(self.x, self.y)
 
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return False
+        return self.x == other.x and self.y == other.y
+
 
 class BBox(ctypes.Structure):
     _fields_ = [('min', Point), ('max', Point)]
@@ -50,6 +55,11 @@ class BBox(ctypes.Structure):
     def __repr__(self):
         return "[{},{} - {},{}]". \
             format(self.min.x, self.min.y, self.max.x, self.max.y)
+
+    def __eq__(self, other):
+        if not isinstance(other, BBox):
+            return False
+        return self.min == other.min and self.max == other.max
 
     @staticmethod
     def zero():
