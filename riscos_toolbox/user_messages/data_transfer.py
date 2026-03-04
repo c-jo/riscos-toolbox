@@ -22,8 +22,20 @@ class DataTransferMessage(UserMessage):
         ("destination_position", Point),
         ("estimated_size", ctypes.c_int32),
         ("file_type", ctypes.c_int32),
-        ("leaf_name", ctypes.c_char * 212),
+        ("_leaf_name", ctypes.c_char * 212),
     ]
+
+    @property
+    def leaf_name(self):
+        return self._leaf_name.decode('latin-1')
+
+    @leaf_name.setter
+    def leaf_name(self, value):
+        name = bytes(value, encoding='latin-1')
+        if len(name) > 211:
+            raise ValueError("File name too long")
+        self._leaf_name = name + b"\x00"
+        self.size = (44 + len(name) + 4) & ~3
 
 
 class DataSaveMessage(DataTransferMessage):
