@@ -38,7 +38,7 @@ class SaveAs(Object):
 
     @property
     def window_id(self):
-        return self._miscop_get_unsigned(SaveAs.GetWindowId)
+        return self._miscop_get_signed(SaveAs.GetWindowId)
 
     @property
     def title(self):
