@@ -70,7 +70,8 @@ class PrintDbox(Object):
 
     @property
     def orientation(self):
-        return Orientation.Upright if self._miscop_get_unsigned(PrintDbox.GetOrientation) == 0 else Orientation.Sideways
+        orientation = self._miscop_get_unsigned(PrintDbox.GetOrientation)
+        return Orientation.Upright if orientation == 0 else Orientation.Sideways
 
     @orientation.setter
     def orientation(self, orientation):
