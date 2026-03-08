@@ -2,6 +2,7 @@ from collections import namedtuple
 from .events import EventHandler
 
 import swi
+import ctypes
 
 _objects = {}
 _application = None
@@ -68,7 +69,7 @@ class Object(EventHandler):
 
     def show(self,
              menu_semantics=False, submenu_semantics=False,
-             type=0, parent=None):
+             type=0, position=0, parent=None):
         flags = 0
         if menu_semantics:
             flags |= 1
@@ -80,8 +81,11 @@ class Object(EventHandler):
         else:
             parent_obj = parent_comp = 0
 
+        if isinstance(position, ctypes.Structure):
+            position = ctypes.addressof(position)
+
         swi.swi('Toolbox_ShowObject', 'IiIIii',
-                flags, self.id, type, 0, parent_obj, parent_comp)
+                flags, self.id, type, position, parent_obj, parent_comp)
 
     def hide(self):
         swi.swi('Toolbox_HideObject', 'Ii', 0, self.id)
