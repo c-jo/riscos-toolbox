@@ -76,7 +76,11 @@ class Object(EventHandler):
             flags |= 2
 
         if parent:
-            parent_obj, parent_comp = parent.id, parent.component
+            parent_obj = parent.id
+            if hasattr(parent, 'component'):
+                parent_comp = parent.component
+            else:
+                parent_comp = 0
         else:
             parent_obj = parent_comp = 0
 
