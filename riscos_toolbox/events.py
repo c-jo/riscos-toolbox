@@ -5,6 +5,7 @@ from functools import wraps
 import ctypes
 import inspect
 import swi
+import time
 
 from ._consts import Wimp
 from ._types import BBox, Point
@@ -59,8 +60,9 @@ from ._types import BBox, Point
 # one sent). On a reply the callback function will be called with the message.
 # If the callback function doesn't return False, then no further processing will
 # take place on the message. If it DOES return False, it will be offered to the
-# handlers in the usual way. If no reply is received the callback will be called
-# with None. In either case, the callback will be removed from the list of callbacks.
+# handlers in the usual way. If no reply is received within an optional timeout
+# period the callback will be called with None. In either case, the callback will
+# be removed from the list of callbacks.
 
 
 class Event(object):
@@ -168,15 +170,14 @@ class UserMessage(Event, ctypes.Structure):
     # or None if no reply is recieved. The reply callback takes two parameters:
     # the message info and the message data. See the @reply_handler decorator.
     def broadcast(self, recorded=False, size=None,
-                  reply_callback=None):
+                  reply_callback=None, reply_timeout=0):
         """Sends the message as a broadcast."""
         self.your_ref = 0
-        self._send(Wimp.UserMessageRecorded if recorded else Wimp.UserMessage,
-                   None, None, size, reply_callback)
+        self._send(recorded, None, None, size, reply_callback, reply_timeout)
 
     def send(self, task=None, window=None, iconbar=None,
              recorded=False, size=None,
-             reply_callback=None):
+             reply_callback=None, reply_timeout=0):
         """Sends the message to a task, window or iconbar icon."""
         self.your_ref = 0
         if task:
@@ -188,15 +189,15 @@ class UserMessage(Event, ctypes.Structure):
         else:
             handle, icon = 0, 0  # Broadcast
 
-        return self._send(Wimp.UserMessageRecorded if recorded else Wimp.UserMessage,
-                   handle, icon, size, reply_callback)
+        return self._send(recorded, handle, icon, size, reply_callback,
+                          reply_timeout)
 
     def reply(self, reply, recorded=False, size=None,
-              reply_callback=None, reply_messages=None):
+              reply_callback=None, reply_timeout=0):
         """Reply to this message with the one given in reply"""
         reply.your_ref = self.my_ref
-        return reply._send(Wimp.UserMessageRecorded if recorded else Wimp.UserMessage,
-                    self.sender, None, size, reply_callback)
+        return reply._send(recorded, self.sender, None, size, reply_callback,
+                           reply_timeout)
 
     def acknowledge(self):
         self.your_ref = self.my_ref
@@ -205,14 +206,20 @@ class UserMessage(Event, ctypes.Structure):
                        ctypes.addressof(self),
                        self.sender, 0)
 
-    def _send(self, reason, target, icon, size, reply_callback):
+    def _send(self, recorded, target, icon, size, reply_callback, reply_timeout):
+        reason = Wimp.UserMessageRecorded if recorded else Wimp.UserMessage
         self.size = size or self.size or ctypes.sizeof(self)
         self.code = self.__class__.event_id
         handle = swi.swi('Wimp_SendMessage', 'IIii;..i',
                          reason, ctypes.addressof(self),
                          target or 0, icon or 0)
         if reply_callback:
-            _reply_callbacks[self.my_ref] = reply_callback
+            if reply_timeout is not None:
+                reply_timeout += time.monotonic()
+            _reply_callbacks[self.my_ref] = {
+                'timeout': reply_timeout,
+                'function': reply_callback
+            }
 
         return handle if target != 0 else None
 
@@ -249,16 +256,40 @@ class EventHandler(object):
         self.wimp_handlers = {}
         self.message_handlers = {}
 
+        def _toolbox_subclasses(cls=EventHandler, add=False):
+            # Returns all subclasses of Application and Object which we can
+            # expect to have handlers associated with toolbox objects.
+            include = ['Application', 'Object']
+            subclasses = []
+            for subclass in cls.__subclasses__():
+                name = subclass.__name__
+                wanted = name in include or add
+                if wanted:
+                    subclasses.append(name)
+                subclasses.extend(_toolbox_subclasses(subclass, wanted))
+            return subclasses
+
+        def _gather_event_handlers(event, handlers, items):
+            for component, handler in items:
+                if event not in handlers:
+                    handlers[event] = {component: [handler]}
+                elif component not in handlers[event]:
+                    handlers[event][component] = [handler]
+                else:
+                    handlers[event][component].append(handler)
+
         def _build_handlers(registry, handlers, classname):
             for event, handler_map in registry.items():
                 if classname in handler_map:
-                    for component, handler in handler_map[classname].items():
-                        if event not in handlers:
-                            handlers[event] = {component: [handler]}
-                        elif component not in handlers[event]:
-                            handlers[event][component] = [handler]
-                        else:
-                            handlers[event][component].append(handler)
+                    _gather_event_handlers(event, handlers,
+                                           handler_map[classname].items())
+
+                if classname == 'Application':
+                    objects = _toolbox_subclasses()
+                    for cname in handler_map:
+                        if cname not in objects:
+                            _gather_event_handlers(event, handlers,
+                                                   handler_map[cname].items())
 
         for klass in inspect.getmro(self.__class__):
             classname = klass.__qualname__
@@ -388,18 +419,19 @@ def reply_handler(message_s):
         @wraps((handler, _message_map))
         def wrapper(self, data, *args):
             message = None
-            code = None
+            info = None
             if data is not None:
+                info = data[0]
                 message = ctypes.cast(
-                    data, ctypes.POINTER(UserMessage)
+                    data[1], ctypes.POINTER(UserMessage)
                 ).contents
 
                 code = message.code
                 if code in _message_map:
                     message = ctypes.cast(
-                        data, ctypes.POINTER(_message_map[code])
+                        data[1], ctypes.POINTER(_message_map[code])
                     ).contents
-            return handler(self, code, message, *args)
+            return handler(self, info, message, *args)
         return wrapper
     return decorator
 
@@ -429,13 +461,13 @@ def toolbox_dispatch(event_code, application, id_block, poll_block):
 
 def message_dispatch(code, application, id_block, poll_block):
     if code.your_ref in _reply_callbacks:
-        r = _reply_callbacks[code.your_ref](poll_block)
+        r = _reply_callbacks[code.your_ref]['function']((code, poll_block))
         del _reply_callbacks[code.your_ref]
         if r is not False:
             return
 
     if code.reason == Wimp.UserMessageAcknowledge and code.my_ref in _reply_callbacks:
-        r = _reply_callbacks[code.my_ref](poll_block)
+        r = _reply_callbacks[code.my_ref]['function']((code, poll_block))
         del _reply_callbacks[code.my_ref]
         if r is not False:
             return
@@ -457,8 +489,10 @@ def null_polls():
 
 def null_poll():
     for ref in list(_reply_callbacks.keys()):
-        _reply_callbacks[ref](None)
-        del _reply_callbacks[ref]
+        if _reply_callbacks[ref]['timeout']:
+            if _reply_callbacks[ref]['timeout'] < time.monotonic():
+                _reply_callbacks[ref]['function'](None)
+                del _reply_callbacks[ref]
 
 
 def registered_wimp_events():
