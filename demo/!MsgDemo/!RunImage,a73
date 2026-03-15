@@ -2,6 +2,7 @@ import swi
 import sys
 import os
 import ctypes
+import time
 
 import riscos_toolbox as toolbox
 from riscos_toolbox import Point, BBox, Wimp
@@ -40,6 +41,7 @@ class NoMessage(UserMessage):
 class MsgDemo(Application):
     def __init__(self):
         super().__init__('<MsgDemo$Dir>')
+        self.timeout = None
 
     @message_handler(HelloMessage)
     def reset_request(self, code, id_block, message):
@@ -73,10 +75,20 @@ class MsgDemo(Application):
         none.broadcast(recorded=True,
                       reply_callback=lambda m:self._no_reply(m, True))
 
+        none = NoMessage()
+        none.broadcast(recorded=False, reply_timeout = None,
+                      reply_callback=lambda m:self._no_reply_ever(m))
+
         hello = HelloMessage()
         hello.name = b"World"
         hello.broadcast(recorded=True,
                       reply_callback=lambda m:self._hello_reply(m))
+
+        hello = HelloMessage()
+        hello.name = b"World"
+        hello.broadcast(recorded=True, reply_timeout = 5,
+                      reply_callback=lambda m:self._hello_reply_timed(m))
+        self.timeout = time.monotonic() + 4
 
     @reply_handler(AddResultMessage)
     def _add_reply(self, code, message, a, b):
@@ -93,8 +105,22 @@ class MsgDemo(Application):
         if not recorded and message is not None:
             swi.swi("Wimp_ReportError","sI","FFFFGot a reply?", 1)
 
+    @reply_handler(NoMessage)
+    def _no_reply_ever(self, code, message):
+        if message is None:
+            swi.swi("Wimp_ReportError","sI","FFFFTimed out!", 1)
+        if message is not None:
+            swi.swi("Wimp_ReportError","sI","FFFFGot a reply?", 1)
+
     @reply_handler(HelloMessage)
     def _hello_reply(self, code, message):
+        if code is not None:
+            swi.swi("Wimp_ReportError","sI","FFFFMessage bounced", 1)
+
+    @reply_handler(HelloMessage)
+    def _hello_reply_timed(self, code, message):
+        if code is None and time.monotonic() < self.timeout:
+            swi.swi("Wimp_ReportError","sI","FFFFAlerted too soon", 1)
         if code is not None:
             swi.swi("Wimp_ReportError","sI","FFFFMessage bounced", 1)
 
